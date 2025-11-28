@@ -1,0 +1,364 @@
+:root {
+  --color-bg: #0f172a;
+  /* Deep Slate Blue */
+  --color-text: #f8fafc;
+  /* Off-white */
+  --color-primary: #14b8a6;
+  /* Darker Teal (Guessed/Correct) - Was #2ec4b6 */
+  --color-secondary: #a78bfa;
+  /* Soft Purple (Revealed) */
+  --color-error: #334155;
+  /* Slate Gray (Wrong/Used) */
+  --color-border: #475569;
+  /* Slate Border */
+  --color-key-bg: #475569;
+  /* Slate Key */
+  --color-key-used: #1e293b;
+  /* Dark Slate Used Key */
+  --font-family: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+  /* Mobile viewport fix */
+  width: 100%;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.app-container {
+  width: 100%;
+  max-width: none;
+  /* Remove constraint entirely */
+  height: 100vh;
+  height: 100dvh;
+  /* Mobile viewport fix */
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /* Stretch children to fill width */
+  position: relative;
+}
+
+header {
+  text-align: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-error);
+}
+
+header h1 {
+  display: none;
+  /* Hide text title if present */
+}
+
+.logo-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.game-logo-svg {
+  width: 100%;
+  height: 100%;
+  max-width: 400px;
+  filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.5));
+}
+
+.strikes-display {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.strike-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-error);
+  /* Default color for placeholder */
+}
+
+.strike-icon svg {
+  width: 100%;
+  height: 100%;
+  color: #a78bfa;
+  /* Soft Purple for active strike */
+}
+
+.strike-placeholder {
+  font-weight: bold;
+  opacity: 0.3;
+}
+
+.lives-display {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.life-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  transition: all 0.3s ease;
+}
+
+.life-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.life-icon.active {
+  color: var(--color-primary);
+  /* Teal glow */
+  filter: drop-shadow(0 0 5px var(--color-primary));
+}
+
+.life-icon.lost {
+  color: var(--color-error);
+  /* Greyed out */
+  opacity: 0.3;
+  transform: scale(0.8);
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  overflow-y: auto;
+  /* Allow internal scrolling if needed on very small screens, but aim for fit */
+  padding: 10px 0;
+}
+
+/* Puzzle Board */
+.puzzle-board {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  /* Keep puzzle rows centered */
+  width: 100%;
+}
+
+.puzzle-row {
+  background: #1e1e1e;
+  padding: 10px;
+  border-radius: 8px;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+
+.puzzle-row.current {
+  opacity: 1;
+  border: 1px solid var(--color-border);
+}
+
+.puzzle-row.completed {
+  opacity: 0.8;
+}
+
+.puzzle-label {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.puzzle-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  /* Space between words */
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.word-wrapper {
+  display: flex;
+  gap: 5px;
+  /* Space between letters */
+}
+
+.letter-box {
+  width: 30px;
+  height: 35px;
+  border: 2px solid var(--color-error);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+.letter-box.guessed {
+  background-color: var(--color-primary);
+  /* Or neutral if we don't know correctness? Wait, hangman usually shows correct letters in place. */
+  /* Actually, in hangman, if it's in the word, it's shown. */
+  border-color: var(--color-primary);
+}
+
+.letter-box.revealed-start {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: black;
+}
+
+.letter-box.revealed {
+  /* For game over reveal */
+  color: #aaa;
+}
+
+
+
+.puzzle-clue {
+  text-align: center;
+  font-style: italic;
+  margin-top: 5px;
+  color: #ddd;
+}
+
+/* Keyboard */
+.keyboard-container {
+  padding-bottom: 10px;
+  flex-shrink: 0;
+  /* Prevent keyboard from being squashed */
+  width: 100%;
+}
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  /* Reduced gap for mobile */
+}
+
+.key {
+  font-weight: bold;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  height: 50px;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  background-color: var(--color-key-bg);
+  color: var(--color-text);
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  max-width: 9%;
+  /* Force keys to be roughly 1/10th of width */
+  /* Allow keys to fill width */
+}
+
+.key.used {
+  background-color: var(--color-key-used);
+  opacity: 0.5;
+}
+
+/* Modal */
+.key.key-toggle {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: 1.2rem;
+}
+
+.key.key-toggle.active {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 250px;
+}
+
+.selected-letter {
+  font-size: 4rem;
+  font-weight: bold;
+  margin: 20px 0;
+  color: var(--color-primary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+button[class^="btn-"] {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.btn-confirm {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-cancel {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.result-modal h2 {
+  margin-bottom: 10px;
+}
+
+.result-modal p {
+  margin-bottom: 20px;
+}
