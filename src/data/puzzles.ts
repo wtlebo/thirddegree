@@ -23,9 +23,9 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle]> = {
     ],
     // Day 2
     "2025-11-29": [
-        createPuzzle("Capital of France", "PARIS"),
-        createPuzzle("The Red Planet", "MARS"),
-        createPuzzle("A famous playwright", "WILLIAM SHAKESPEARE")
+        createPuzzle("The Wizard of Menlo Park", "THOMAS EDISON"),
+        createPuzzle("A record breaking invention", "PHONOGRAPH"),
+        createPuzzle("Edison's first track", "MARY HAD A LITTLE LAMB")
     ],
     // Day 3
     "2025-11-30": [
