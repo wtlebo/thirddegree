@@ -7,6 +7,7 @@ interface PuzzleBoardProps {
     guessedLetters: Set<string>;
     revealedLetters: Set<string>;
     gameStatus: 'playing' | 'won' | 'lost';
+    showAll?: boolean;
 }
 
 export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
@@ -14,20 +15,28 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     currentLevel,
     guessedLetters,
     revealedLetters,
-    gameStatus
+    gameStatus,
+    showAll: forceShowAll = false
 }) => {
 
     const renderPuzzleRow = (puzzle: Puzzle, levelIndex: number) => {
-        const isCurrent = levelIndex === currentLevel;
+        // If showAll is true (game finished), nothing is "current", everything is "completed" (or just dimmed)
+        const isCurrent = !forceShowAll && levelIndex === currentLevel;
         const isPast = levelIndex < currentLevel;
         const isFuture = levelIndex > currentLevel;
 
         // If game is lost, reveal everything? Or just leave as is?
         // User said "if the user gets three strikes... answers are revealed".
-        const showAll = gameStatus === 'lost' || isPast || gameStatus === 'won';
+        const showAll = forceShowAll || gameStatus === 'lost' || isPast || gameStatus === 'won';
+
+        // "Greyed out like they are before you play them" -> implies default opacity (0.5)
+        // But we also want them to be readable. Let's try removing 'current' and adding 'completed' if showAll.
+        // Actually, if we want them to look like future rows (0.5), we shouldn't add 'completed' (0.8).
+        // But let's stick to 'completed' for now as it implies "done".
+        const rowClass = isCurrent ? 'current' : (isPast || showAll ? 'completed' : '');
 
         return (
-            <div key={levelIndex} className={`puzzle-row level-${levelIndex} ${isCurrent ? 'current' : ''} ${isPast ? 'completed' : ''}`}>
+            <div key={levelIndex} className={`puzzle-row level-${levelIndex} ${rowClass}`}>
                 <div className="puzzle-label">Level {levelIndex + 1}</div>
                 <div className="puzzle-letters">
                     {puzzle.answer.split(' ').map((word, wordIndex) => (
@@ -64,6 +73,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     ))}
                 </div>
                 {isCurrent && <div className="puzzle-clue">{puzzle.clue}</div>}
+                {showAll && !isCurrent && <div className="puzzle-clue">{puzzle.clue}</div>}
             </div>
         );
     };

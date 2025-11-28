@@ -20,3 +20,17 @@ export interface GameState {
     revealedLetters: Set<string>; // Letters revealed at start of level
     status: GameStatus;
 }
+
+export interface UserStats {
+    gamesPlayed: number;
+    gamesWon: number;
+    winDistribution: {
+        perfect: number; // 0 strikes total
+        oneStrike: number; // 1 strike total
+        twoStrikes: number; // 2 strikes total
+        failed: number; // 3 strikes total (lost)
+    };
+    currentStreak: number;
+    maxStreak: number;
+    lastPlayedDate: string | null;
+}

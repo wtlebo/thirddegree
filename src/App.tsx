@@ -2,16 +2,40 @@ import { useState, useMemo, useEffect } from 'react';
 import './index.css';
 import { getDailyPuzzle } from './data/puzzles';
 import { useGameState } from './hooks/useGameState';
+import { useStats } from './hooks/useStats';
 import { Header } from './components/Header';
 import { PuzzleBoard } from './components/PuzzleBoard';
 import { Keyboard } from './components/Keyboard';
 import { ConfirmationModal } from './components/ConfirmationModal';
+import { StatsModal } from './components/StatsModal';
 
 function App() {
   const dailySet = useMemo(() => getDailyPuzzle(), []);
   const { gameState, handleGuess } = useGameState(dailySet);
+  const { stats, recordGame } = useStats();
+
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [confirmGuesses, setConfirmGuesses] = useState<boolean>(true);
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [hasPlayedToday, setHasPlayedToday] = useState(false);
+
+  // Check if already played today
+  useEffect(() => {
+    if (stats.lastPlayedDate === dailySet.date) {
+      setHasPlayedToday(true);
+      setIsStatsOpen(true); // Auto-open stats if already played
+    }
+  }, [stats.lastPlayedDate, dailySet.date]);
+
+  // Record game result when finished
+  useEffect(() => {
+    if (gameState.status !== 'playing' && !hasPlayedToday) {
+      recordGame(gameState.status === 'won', gameState.strikes);
+      setHasPlayedToday(true);
+      // Small delay to show the result before opening stats
+      setTimeout(() => setIsStatsOpen(true), 1500);
+    }
+  }, [gameState.status, hasPlayedToday, recordGame, gameState.strikes]);
 
   // Reset confirmation to ON when level changes
   useEffect(() => {
@@ -19,6 +43,8 @@ function App() {
   }, [gameState.currentLevel]);
 
   const handleLetterSelect = (letter: string) => {
+    if (hasPlayedToday) return; // Prevent play if finished
+
     if (confirmGuesses) {
       setSelectedLetter(letter);
     } else {
@@ -39,7 +65,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <Header strikes={gameState.strikes} />
+      <Header strikes={gameState.strikes} onStatsClick={() => setIsStatsOpen(true)} />
 
       <main>
         <PuzzleBoard
@@ -48,6 +74,7 @@ function App() {
           guessedLetters={gameState.guessedLetters}
           revealedLetters={gameState.revealedLetters}
           gameStatus={gameState.status}
+          showAll={hasPlayedToday}
         />
       </main>
 
@@ -56,7 +83,7 @@ function App() {
           onLetterSelect={handleLetterSelect}
           guessedLetters={gameState.guessedLetters}
           revealedLetters={gameState.revealedLetters}
-          disabled={gameState.status !== 'playing'}
+          disabled={gameState.status !== 'playing' || hasPlayedToday}
           confirmGuesses={confirmGuesses}
           onToggleConfirm={() => setConfirmGuesses(!confirmGuesses)}
         />
@@ -70,25 +97,15 @@ function App() {
         />
       )}
 
-      {gameState.status === 'won' && (
-        <div className="modal-overlay">
-          <div className="modal-content result-modal">
-            <h2>You Won!</h2>
-            <p>Great job solving today's puzzles.</p>
-            <button className="btn-confirm" onClick={() => window.location.reload()}>Play Again (Dev)</button>
-          </div>
-        </div>
-      )}
+      <StatsModal
+        stats={stats}
+        isOpen={isStatsOpen}
+        onClose={() => setIsStatsOpen(false)}
+      />
 
-      {gameState.status === 'lost' && (
-        <div className="modal-overlay">
-          <div className="modal-content result-modal">
-            <h2>Game Over</h2>
-            <p>Better luck next time!</p>
-            <button className="btn-confirm" onClick={() => window.location.reload()}>Try Again (Dev)</button>
-          </div>
-        </div>
-      )}
+      {/* Game Over / Win Messages are now handled by the Stats Modal mostly, 
+          but we can keep a subtle indicator or let the board state show it. 
+          The stats modal auto-opens on finish. */}
     </div>
   );
 }
