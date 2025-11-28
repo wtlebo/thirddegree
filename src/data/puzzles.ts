@@ -29,9 +29,9 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle]> = {
     ],
     // Day 3
     "2025-11-30": [
-        createPuzzle("Opposite of Hot", "COLD"),
-        createPuzzle("King of the Jungle", "LION"),
-        createPuzzle("The Great Gatsby author", "F SCOTT FITZGERALD")
+        createPuzzle("The band behind the wall", "PINK FLOYD"),
+        createPuzzle("We don't need no...", "EDUCATION"),
+        createPuzzle("Hello is there anybody in there", "COMFORTABLY NUMB")
     ],
     // Day 4
     "2025-12-01": [
