@@ -35,27 +35,39 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle]> = {
     ],
     // Day 4
     "2025-12-01": [
-        createPuzzle("H2O", "WATER"),
-        createPuzzle("Largest Ocean", "PACIFIC OCEAN"),
-        createPuzzle("First Man on the Moon", "NEIL ARMSTRONG")
+        createPuzzle("The Divine Miss M", "BETTE MIDLER"),
+        createPuzzle("Running amok in Salem", "HOCUS POCUS"),
+        createPuzzle("Did you ever know that you're my hero", "WIND BENEATH MY WINGS")
     ],
     // Day 5
     "2025-12-02": [
-        createPuzzle("Man's Best Friend", "DOG"),
-        createPuzzle("Fastest Land Animal", "CHEETAH"),
-        createPuzzle("Theory of Relativity", "ALBERT EINSTEIN")
+        createPuzzle("The Princess of Pop", "BRITNEY SPEARS"),
+        createPuzzle("Hit song with a school uniform", "BABY ONE MORE TIME"),
+        createPuzzle("She's not that innocent", "OOPS I DID IT AGAIN")
     ],
     // Day 6
     "2025-12-03": [
-        createPuzzle("Color of the sky", "BLUE"),
-        createPuzzle("A fruit that keeps the doctor away", "APPLE"),
-        createPuzzle("Painter of the Mona Lisa", "LEONARDO DA VINCI")
+        createPuzzle("The Prince of Darkness", "OZZY OSBOURNE"),
+        createPuzzle("Heavy metal pioneers", "BLACK SABBATH"),
+        createPuzzle("All aboard!", "CRAZY TRAIN")
     ],
     // Day 7
     "2025-12-04": [
-        createPuzzle("A shape with 3 sides", "TRIANGLE"),
-        createPuzzle("The Big Apple", "NEW YORK CITY"),
-        createPuzzle("Author of Harry Potter", "JK ROWLING")
+        createPuzzle("The Dude", "JEFF BRIDGES"),
+        createPuzzle("He fights for the users", "TRON"),
+        createPuzzle("The rug tied the room together", "THE BIG LEBOWSKI")
+    ],
+    // Day 8
+    "2025-12-05": [
+        createPuzzle("Illegal drinking spot", "SPEAKEASY"),
+        createPuzzle("Bootleggers' product", "MOONSHINE"),
+        createPuzzle("The law that ended the dry era", "TWENTY FIRST AMENDMENT")
+    ],
+    // Day 9
+    "2025-12-06": [
+        createPuzzle("Kitchen quick heater", "MICROWAVE OVEN"),
+        createPuzzle("First food intentionally cooked", "POPCORN"),
+        createPuzzle("Lava hot or stone cold snack", "HOT POCKETS")
     ]
 };
 
