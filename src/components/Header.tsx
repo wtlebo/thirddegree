@@ -10,44 +10,32 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick }) => {
         <header className="game-header">
             <div className="logo-container">
                 <svg className="game-logo-svg" viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
-                    {/* Tech Background Shapes */}
-                    <path d="M20,20 L10,20 L10,60 L20,60" fill="none" stroke="#475569" strokeWidth="2" />
-                    <path d="M380,20 L390,20 L390,60 L380,60" fill="none" stroke="#475569" strokeWidth="2" />
-                    <line x1="10" y1="40" x2="40" y2="40" stroke="#14b8a6" strokeWidth="2" />
-                    <line x1="360" y1="40" x2="390" y2="40" stroke="#a78bfa" strokeWidth="2" />
+                    {/* Retro Sun Background */}
+                    <circle cx="200" cy="80" r="60" fill="#FFE66D" opacity="0.2" />
 
-                    {/* Circuit Traces */}
-                    <circle cx="40" cy="40" r="3" fill="#14b8a6" />
-                    <circle cx="360" cy="40" r="3" fill="#a78bfa" />
-                    <path d="M40,40 L60,40 L70,25" fill="none" stroke="#14b8a6" strokeWidth="1" opacity="0.5" />
-                    <path d="M360,40 L340,40 L330,55" fill="none" stroke="#a78bfa" strokeWidth="1" opacity="0.5" />
+                    {/* Wave Lines */}
+                    <path d="M20,50 Q40,30 60,50 T100,50 T140,50" fill="none" stroke="#4ECDC4" strokeWidth="3" opacity="0.5" />
+                    <path d="M300,50 Q320,70 340,50 T380,50" fill="none" stroke="#4ECDC4" strokeWidth="3" opacity="0.5" />
 
                     {/* Main Text */}
-                    <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" fontFamily="sans-serif" fontWeight="900" fontSize="42" letterSpacing="1">
-                        <tspan fill="#14b8a6">THIRD</tspan>
-                        <tspan fill="#f8fafc">DEGREE</tspan>
+                    <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" fontFamily="sans-serif" fontWeight="900" fontSize="48" letterSpacing="2">
+                        <tspan fill="#F7FFF7">HANG</tspan>
+                        <tspan dx="10" fill="#FF6B6B">5</tspan>
                     </text>
 
-                    {/* Underline Accent */}
-                    <path d="M120,65 L280,65" stroke="url(#grad1)" strokeWidth="3" strokeLinecap="round" />
-
-                    {/* Gradients */}
-                    <defs>
-                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#14b8a6" />
-                            <stop offset="50%" stopColor="#a78bfa" />
-                            <stop offset="100%" stopColor="#ff4d4d" />
-                        </linearGradient>
-                    </defs>
+                    {/* Underline Surfboard shape */}
+                    <path d="M140,65 Q200,75 260,65" fill="none" stroke="#FFE66D" strokeWidth="4" strokeLinecap="round" />
                 </svg>
             </div>
 
             <div className="header-controls">
                 <div className="lives-display">
-                    {Array(3).fill(0).map((_, i) => (
-                        <span key={i} className={`life-icon ${i < (3 - strikes) ? 'active' : 'lost'}`}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="6"></circle>
+                    {Array(5).fill(0).map((_, i) => (
+                        <span key={i} className={`life-icon ${i < (5 - strikes) ? 'active' : 'lost'}`}>
+                            {/* Wave Icon */}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M2 12c0-4 4-8 8-8s8 4 8 8" />
+                                <path d="M2 16c2-1 6-2 10-2s8 1 8 2" opacity="0.5" />
                             </svg>
                         </span>
                     ))}

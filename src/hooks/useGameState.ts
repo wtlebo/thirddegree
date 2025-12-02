@@ -12,7 +12,7 @@ export const useGameState = (dailySet: DailySet) => {
             dailySet,
             currentLevel: initialLevel,
             strikes: 0,
-            strikesPerLevel: [0, 0, 0],
+            strikesPerLevel: [0, 0, 0, 0, 0],
             guessedLetters: new Set(),
             revealedLetters: initialRevealed,
             status: 'playing'
@@ -34,7 +34,7 @@ export const useGameState = (dailySet: DailySet) => {
         setGameState(prev => {
             const newGuessed = new Set(prev.guessedLetters).add(upperLetter);
             let newStrikes = prev.strikes;
-            const newStrikesPerLevel = [...prev.strikesPerLevel] as [number, number, number];
+            const newStrikesPerLevel = [...prev.strikesPerLevel] as [number, number, number, number, number];
 
             if (!isCorrect) {
                 newStrikes += 1;
@@ -42,7 +42,7 @@ export const useGameState = (dailySet: DailySet) => {
             }
 
             // Check Game Over
-            if (newStrikes >= 3) {
+            if (newStrikes >= 5) {
                 return {
                     ...prev,
                     strikes: newStrikes,
@@ -57,7 +57,7 @@ export const useGameState = (dailySet: DailySet) => {
 
             if (solved) {
                 // Prepare for next level or win
-                if (prev.currentLevel === 2) {
+                if (prev.currentLevel === 4) {
                     return {
                         ...prev,
                         strikes: newStrikes,
@@ -67,7 +67,7 @@ export const useGameState = (dailySet: DailySet) => {
                     };
                 } else {
                     // Advance to next level
-                    const nextLevel = (prev.currentLevel + 1) as 0 | 1 | 2;
+                    const nextLevel = (prev.currentLevel + 1) as 0 | 1 | 2 | 3 | 4;
 
                     // Calculate reveals for next level
                     // L1 -> L2: 2 - strikesInL1

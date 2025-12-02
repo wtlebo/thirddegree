@@ -2,8 +2,8 @@ import React from 'react';
 import type { Puzzle } from '../types';
 
 interface PuzzleBoardProps {
-    puzzles: [Puzzle, Puzzle, Puzzle];
-    currentLevel: 0 | 1 | 2;
+    puzzles: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle];
+    currentLevel: 0 | 1 | 2 | 3 | 4;
     guessedLetters: Set<string>;
     revealedLetters: Set<string>;
     gameStatus: 'playing' | 'won' | 'lost';
@@ -37,7 +37,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
 
         return (
             <div key={levelIndex} className={`puzzle-row level-${levelIndex} ${rowClass}`}>
-                <div className="puzzle-label">Level {levelIndex + 1}</div>
+                <div className="puzzle-label">{levelIndex + 1}</div>
                 <div className="puzzle-letters">
                     {puzzle.answer.split(' ').map((word, wordIndex) => (
                         <div key={wordIndex} className="word-wrapper">

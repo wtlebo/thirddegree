@@ -19,6 +19,8 @@ function App() {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [hasPlayedToday, setHasPlayedToday] = useState(false);
 
+  const [latestGameSummary, setLatestGameSummary] = useState<{ status: 'won' | 'lost'; strikes: number } | null>(null);
+
   // Check if already played today
   useEffect(() => {
     if (stats.lastPlayedDate === dailySet.date) {
@@ -32,6 +34,7 @@ function App() {
     if (gameState.status !== 'playing' && !hasPlayedToday) {
       recordGame(gameState.status === 'won', gameState.strikes);
       setHasPlayedToday(true);
+      setLatestGameSummary({ status: gameState.status, strikes: gameState.strikes });
       // Small delay to show the result before opening stats
       setTimeout(() => setIsStatsOpen(true), 1500);
     }
@@ -78,16 +81,18 @@ function App() {
         />
       </main>
 
-      <div className="keyboard-container">
-        <Keyboard
-          onLetterSelect={handleLetterSelect}
-          guessedLetters={gameState.guessedLetters}
-          revealedLetters={gameState.revealedLetters}
-          disabled={gameState.status !== 'playing' || hasPlayedToday}
-          confirmGuesses={confirmGuesses}
-          onToggleConfirm={() => setConfirmGuesses(!confirmGuesses)}
-        />
-      </div>
+      {!hasPlayedToday && gameState.status === 'playing' && (
+        <div className="keyboard-container">
+          <Keyboard
+            onLetterSelect={handleLetterSelect}
+            guessedLetters={gameState.guessedLetters}
+            revealedLetters={gameState.revealedLetters}
+            disabled={gameState.status !== 'playing' || hasPlayedToday}
+            confirmGuesses={confirmGuesses}
+            onToggleConfirm={() => setConfirmGuesses(!confirmGuesses)}
+          />
+        </div>
+      )}
 
       {selectedLetter && (
         <ConfirmationModal
@@ -101,6 +106,7 @@ function App() {
         stats={stats}
         isOpen={isStatsOpen}
         onClose={() => setIsStatsOpen(false)}
+        latestGameSummary={latestGameSummary}
       />
 
       {/* Game Over / Win Messages are now handled by the Stats Modal mostly, 

@@ -1,21 +1,28 @@
 :root {
-  --color-bg: #0f172a;
-  /* Deep Slate Blue */
-  --color-text: #f8fafc;
-  /* Off-white */
-  --color-primary: #14b8a6;
-  /* Darker Teal (Guessed/Correct) - Was #2ec4b6 */
-  --color-secondary: #a78bfa;
-  /* Soft Purple (Revealed) */
-  --color-error: #334155;
-  /* Slate Gray (Wrong/Used) */
-  --color-border: #475569;
-  /* Slate Border */
-  --color-key-bg: #475569;
-  /* Slate Key */
-  --color-key-used: #1e293b;
-  /* Dark Slate Used Key */
+  /* Retro Surf Palette */
+  --color-bg: #1A535C;
+  /* Dark Navy / Deep Teal */
+  --color-text: #F7FFF7;
+  /* Sandy Beige / Off-white */
+  --color-primary: #4ECDC4;
+  /* Aqua / Teal */
+  --color-secondary: #FFE66D;
+  /* Sun-faded Yellow */
+  --color-accent: #FF6B6B;
+  /* Coral / Orange */
+
+  --color-error: #FF6B6B;
+  /* Using Accent for Error/Strike */
+  --color-border: #4ECDC4;
+  /* Aqua Border */
+
+  --color-key-bg: #2C6E7A;
+  /* Lighter Navy for keys */
+  --color-key-used: #144048;
+  /* Darker Navy for used keys */
+
   --font-family: 'Inter', sans-serif;
+  /* Keep Inter for now, maybe change later */
 }
 
 * {

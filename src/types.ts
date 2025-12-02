@@ -6,16 +6,16 @@ export interface Puzzle {
 
 export interface DailySet {
     date: string; // YYYY-MM-DD
-    puzzles: [Puzzle, Puzzle, Puzzle];
+    puzzles: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle];
 }
 
 export type GameStatus = 'playing' | 'won' | 'lost';
 
 export interface GameState {
     dailySet: DailySet;
-    currentLevel: 0 | 1 | 2;
+    currentLevel: 0 | 1 | 2 | 3 | 4;
     strikes: number;
-    strikesPerLevel: [number, number, number];
+    strikesPerLevel: [number, number, number, number, number];
     guessedLetters: Set<string>; // Letters guessed in the current level
     revealedLetters: Set<string>; // Letters revealed at start of level
     status: GameStatus;
@@ -28,7 +28,9 @@ export interface UserStats {
         perfect: number; // 0 strikes total
         oneStrike: number; // 1 strike total
         twoStrikes: number; // 2 strikes total
-        failed: number; // 3 strikes total (lost)
+        threeStrikes: number; // 3 strikes total
+        fourStrikes: number; // 4 strikes total
+        failed: number; // 5 strikes total (lost)
     };
     currentStreak: number;
     maxStreak: number;
