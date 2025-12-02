@@ -58,16 +58,16 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle]> 
         createPuzzle("The Prince of Darkness", "OZZY OSBOURNE"),
         createPuzzle("Heavy metal pioneers", "BLACK SABBATH"),
         createPuzzle("All aboard!", "CRAZY TRAIN"),
-        createPuzzle("Bark at the...", "MOON"),
-        createPuzzle("Diary of a...", "MADMAN")
+        createPuzzle("City of origin", "ASTON BIRMINGHAM"),
+        createPuzzle("Reality TV family", "THE OSBOURNES")
     ],
     // Day 7
     "2025-12-04": [
         createPuzzle("The Dude", "JEFF BRIDGES"),
         createPuzzle("He fights for the users", "TRON"),
         createPuzzle("The rug tied the room together", "THE BIG LEBOWSKI"),
-        createPuzzle("Iron Man villain", "OBADIAH STANE"),
-        createPuzzle("Bad Times at the El Royale character", "DANIEL FLYNN")
+        createPuzzle("The Dude's mantra", "THE DUDE ABIDES"),
+        createPuzzle("Won Best Actor for this film", "CRAZY HEART")
     ],
     // Day 8
     "2025-12-05": [
