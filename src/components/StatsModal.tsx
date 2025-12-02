@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { UserStats } from '../types';
+import { getDailyAverageScore } from '../services/analytics';
 
 interface StatsModalProps {
     stats: UserStats;
@@ -12,6 +13,19 @@ interface StatsModalProps {
 }
 
 export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, latestGameSummary }) => {
+    const [globalAverage, setGlobalAverage] = useState<string>("-");
+
+    useEffect(() => {
+        if (isOpen) {
+            const today = new Date().toISOString().split('T')[0];
+            getDailyAverageScore(today).then(avg => {
+                if (avg !== null) {
+                    setGlobalAverage(avg.toFixed(2));
+                }
+            });
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const winPercentage = stats.gamesPlayed > 0
@@ -106,6 +120,10 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                     <div className="stat-item">
                         <div className="stat-value">{averageScore}</div>
                         <div className="stat-label">Avg Score</div>
+                    </div>
+                    <div className="stat-item">
+                        <div className="stat-value">{globalAverage}</div>
+                        <div className="stat-label">Global Avg</div>
                     </div>
                 </div>
 

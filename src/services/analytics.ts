@@ -59,3 +59,20 @@ export const logGameResult = async (gameLog: GameLog) => {
         console.error("Error logging game result:", error);
     }
 };
+
+import { getAggregateFromServer, average, query, where } from "firebase/firestore";
+
+export const getDailyAverageScore = async (date: string): Promise<number | null> => {
+    try {
+        const coll = collection(db, "game_logs");
+        const q = query(coll, where("date", "==", date));
+        const snapshot = await getAggregateFromServer(q, {
+            averageScore: average("score")
+        });
+
+        return snapshot.data().averageScore;
+    } catch (error) {
+        console.error("Error fetching daily average:", error);
+        return null;
+    }
+};
