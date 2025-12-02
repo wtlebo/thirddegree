@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { Puzzle } from '../types';
 
 interface PuzzleBoardProps {
@@ -18,6 +18,17 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     gameStatus,
     showAll: forceShowAll = false
 }) => {
+    const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    useEffect(() => {
+        // Auto-scroll to the current level
+        if (gameStatus === 'playing' && rowRefs.current[currentLevel]) {
+            rowRefs.current[currentLevel]?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }, [currentLevel, gameStatus]);
 
     const renderPuzzleRow = (puzzle: Puzzle, levelIndex: number) => {
         // If showAll is true (game finished), nothing is "current", everything is "completed" (or just dimmed)
@@ -36,7 +47,11 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
         const rowClass = isCurrent ? 'current' : (isPast || showAll ? 'completed' : '');
 
         return (
-            <div key={levelIndex} className={`puzzle-row level-${levelIndex} ${rowClass}`}>
+            <div
+                key={levelIndex}
+                className={`puzzle-row level-${levelIndex} ${rowClass}`}
+                ref={el => { rowRefs.current[levelIndex] = el; }}
+            >
                 <div className="puzzle-label">{levelIndex + 1}</div>
                 <div className="puzzle-letters">
                     {puzzle.answer.split(' ').map((word, wordIndex) => (
