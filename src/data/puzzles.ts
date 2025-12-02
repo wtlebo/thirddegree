@@ -97,7 +97,11 @@ const FALLBACK_PUZZLES: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle] = [
 
 export const getDailyPuzzle = (): DailySet => {
     const today = new Date();
-    const dateString = today.toISOString().split('T')[0];
+    // Use local time instead of UTC
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
 
     // For testing purposes, if the date isn't in our DB, cycle through the available ones
     // based on the day of the month to simulate daily changes
