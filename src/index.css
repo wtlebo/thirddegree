@@ -68,6 +68,8 @@ header {
   text-align: center;
   padding: 10px 0;
   border-bottom: 1px solid var(--color-error);
+  flex-shrink: 0;
+  /* Prevent header from shrinking */
 }
 
 header h1 {
@@ -161,11 +163,33 @@ header h1 {
 }
 
 .life-icon.lost {
+  color: var(--color-error);
+  /* Greyed out */
+  opacity: 0.3;
+  transform: scale(0.8);
+}
+
+main {
+  flex: 1;
+  display: flex;
   flex-direction: column;
-  gap: 15px;
+  justify-content: flex-start;
   align-items: center;
-  /* Keep puzzle rows centered */
+  gap: 20px;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 20px 0;
   width: 100%;
+}
+
+/* Puzzle Board */
+.puzzle-board {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 20px;
 }
 
 .puzzle-row {
@@ -195,7 +219,6 @@ header h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
-  /* Space between words */
   justify-content: center;
   margin-bottom: 5px;
 }
@@ -203,7 +226,6 @@ header h1 {
 .word-wrapper {
   display: flex;
   gap: 5px;
-  /* Space between letters */
 }
 
 .letter-box {
@@ -220,8 +242,6 @@ header h1 {
 
 .letter-box.guessed {
   background-color: var(--color-primary);
-  /* Or neutral if we don't know correctness? Wait, hangman usually shows correct letters in place. */
-  /* Actually, in hangman, if it's in the word, it's shown. */
   border-color: var(--color-primary);
 }
 
@@ -232,11 +252,8 @@ header h1 {
 }
 
 .letter-box.revealed {
-  /* For game over reveal */
   color: #aaa;
 }
-
-
 
 .puzzle-clue {
   text-align: center;
@@ -247,10 +264,13 @@ header h1 {
 
 /* Keyboard */
 .keyboard-container {
-  padding-bottom: 10px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
   flex-shrink: 0;
-  /* Prevent keyboard from being squashed */
   width: 100%;
+  background-color: var(--color-bg);
+  z-index: 10;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
 }
 
 .keyboard {
@@ -264,7 +284,6 @@ header h1 {
   display: flex;
   justify-content: center;
   gap: 4px;
-  /* Reduced gap for mobile */
 }
 
 .key {
@@ -284,8 +303,6 @@ header h1 {
   align-items: center;
   text-transform: uppercase;
   max-width: 9%;
-  /* Force keys to be roughly 1/10th of width */
-  /* Allow keys to fill width */
 }
 
 .key.used {
