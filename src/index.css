@@ -161,26 +161,6 @@ header h1 {
 }
 
 .life-icon.lost {
-  color: var(--color-error);
-  /* Greyed out */
-  opacity: 0.3;
-  transform: scale(0.8);
-}
-
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  overflow-y: auto;
-  /* Allow internal scrolling if needed on very small screens, but aim for fit */
-  padding: 10px 0;
-}
-
-/* Puzzle Board */
-.puzzle-board {
-  display: flex;
   flex-direction: column;
   gap: 15px;
   align-items: center;
