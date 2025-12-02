@@ -18,19 +18,23 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
         ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100)
         : 0;
 
-    const maxVal = Math.max(
-        stats.winDistribution.perfect,
-        stats.winDistribution.oneStrike,
-        stats.winDistribution.twoStrikes,
-        stats.winDistribution.threeStrikes,
-        stats.winDistribution.fourStrikes,
-        stats.winDistribution.failed
-    );
+    const totalScore =
+        (stats.winDistribution.perfect * 5) +
+        (stats.winDistribution.oneStrike * 4) +
+        (stats.winDistribution.twoStrikes * 3) +
+        (stats.winDistribution.threeStrikes * 2) +
+        (stats.winDistribution.fourStrikes * 1);
 
-    // Helper to calculate bar width percentage
-    const getWidth = (val: number) => {
-        if (maxVal === 0) return '5%';
-        return `${Math.max(5, (val / maxVal) * 100)}%`;
+    const averageScore = stats.gamesPlayed > 0
+        ? (totalScore / stats.gamesPlayed).toFixed(2)
+        : "0.00";
+
+    const getWidth = (count: number) => {
+        const max = Math.max(
+            ...Object.values(stats.winDistribution),
+            1 // Avoid division by zero
+        );
+        return `${Math.max((count / max) * 100, 5)}%`; // Min 5% width for visibility
     };
 
     const getDailyMessage = (status: 'won' | 'lost', strikes: number) => {
@@ -98,6 +102,10 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                     <div className="stat-item">
                         <div className="stat-value">{stats.maxStreak}</div>
                         <div className="stat-label">Max Streak</div>
+                    </div>
+                    <div className="stat-item">
+                        <div className="stat-value">{averageScore}</div>
+                        <div className="stat-label">Avg Score</div>
                     </div>
                 </div>
 
