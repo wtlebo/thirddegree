@@ -101,6 +101,12 @@ header h1 {
   padding: 0 10px;
 }
 
+.header-left {
+  grid-column: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .lives-display {
   grid-column: 2;
   display: flex;
@@ -426,6 +432,14 @@ button[class^="btn-"] {
   line-height: 1.1;
 }
 
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
 .distribution-chart {
   display: flex;
   flex-direction: column;
@@ -469,7 +483,7 @@ button[class^="btn-"] {
   color: var(--color-text);
 }
 
-.stats-btn {
+.icon-btn {
   background: none;
   border: none;
   color: var(--color-text);
@@ -479,7 +493,7 @@ button[class^="btn-"] {
   transition: all 0.2s;
 }
 
-.stats-btn:hover {
+.icon-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--color-primary);
 }

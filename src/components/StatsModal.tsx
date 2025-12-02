@@ -121,10 +121,6 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                         <div className="stat-value">{averageScore}</div>
                         <div className="stat-label">Avg Score</div>
                     </div>
-                    <div className="stat-item">
-                        <div className="stat-value">{globalAverage}</div>
-                        <div className="stat-label">Global Avg</div>
-                    </div>
                 </div>
 
                 <h3>Guess Distribution</h3>
@@ -194,6 +190,23 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                                 {stats.winDistribution.failed}
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div className="stats-footer" style={{
+                    marginTop: '2rem',
+                    paddingTop: '1rem',
+                    borderTop: '1px solid var(--color-border)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '0.9rem',
+                    color: 'var(--color-secondary)'
+                }}>
+                    <div>{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <span>Global Avg:</span>
+                        <span style={{ fontWeight: 'bold', color: 'var(--color-text)', fontSize: '1.1rem' }}>{globalAverage}</span>
                     </div>
                 </div>
             </div>

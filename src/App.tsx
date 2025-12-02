@@ -8,6 +8,7 @@ import { PuzzleBoard } from './components/PuzzleBoard';
 import { Keyboard } from './components/Keyboard';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { StatsModal } from './components/StatsModal';
+import { HowToPlayModal } from './components/HowToPlayModal';
 
 function App() {
   const dailySet = useMemo(() => getDailyPuzzle(), []);
@@ -17,6 +18,7 @@ function App() {
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [confirmGuesses, setConfirmGuesses] = useState<boolean>(true);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
   const [hasPlayedToday, setHasPlayedToday] = useState(false);
 
   const [latestGameSummary, setLatestGameSummary] = useState<{ status: 'won' | 'lost'; strikes: number } | null>(null);
@@ -68,7 +70,11 @@ function App() {
 
   return (
     <div className="app-container">
-      <Header strikes={gameState.strikes} onStatsClick={() => setIsStatsOpen(true)} />
+      <Header
+        strikes={gameState.strikes}
+        onStatsClick={() => setIsStatsOpen(true)}
+        onHowToPlayClick={() => setIsHowToPlayOpen(true)}
+      />
 
       <main>
         <PuzzleBoard
@@ -107,6 +113,11 @@ function App() {
         isOpen={isStatsOpen}
         onClose={() => setIsStatsOpen(false)}
         latestGameSummary={latestGameSummary}
+      />
+
+      <HowToPlayModal
+        isOpen={isHowToPlayOpen}
+        onClose={() => setIsHowToPlayOpen(false)}
       />
 
       {/* Game Over / Win Messages are now handled by the Stats Modal mostly, 

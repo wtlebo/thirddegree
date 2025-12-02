@@ -3,9 +3,10 @@ import React from 'react';
 interface HeaderProps {
     strikes: number;
     onStatsClick: () => void;
+    onHowToPlayClick: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick }) => {
+export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPlayClick }) => {
     return (
         <header className="game-header">
             <div className="logo-container">
@@ -29,6 +30,16 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick }) => {
             </div>
 
             <div className="header-controls">
+                <div className="header-left">
+                    <button className="icon-btn" onClick={onHowToPlayClick} aria-label="How to Play">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </button>
+                </div>
+
                 <div className="lives-display">
                     {Array(5).fill(0).map((_, i) => (
                         <span key={i} className={`life-icon ${i < (5 - strikes) ? 'active' : 'lost'}`}>
@@ -42,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick }) => {
                 </div>
 
                 <div className="header-right">
-                    <button className="stats-btn" onClick={onStatsClick} aria-label="Statistics">
+                    <button className="icon-btn" onClick={onStatsClick} aria-label="Statistics">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 20V10"></path>
                             <path d="M18 20V4"></path>
