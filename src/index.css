@@ -349,6 +349,8 @@ main {
   border-radius: 10px;
   text-align: center;
   min-width: 250px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .selected-letter {
