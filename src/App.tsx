@@ -32,7 +32,7 @@ function App() {
   // Record game result when finished
   useEffect(() => {
     if (gameState.status !== 'playing' && !hasPlayedToday) {
-      recordGame(gameState.status === 'won', gameState.strikes);
+      recordGame(gameState.status === 'won', gameState.strikes, gameState.guesses);
       setHasPlayedToday(true);
       setLatestGameSummary({ status: gameState.status, strikes: gameState.strikes });
       // Small delay to show the result before opening stats

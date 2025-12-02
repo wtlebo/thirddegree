@@ -1,9 +1,14 @@
 import { useState, useCallback } from 'react';
 import type { DailySet, GameState } from '../types';
 import { getRevealedLetters, isPuzzleSolved } from '../utils/gameUtils';
+import type { GuessLog } from '../services/analytics';
+
+export interface ExtendedGameState extends GameState {
+    guesses: GuessLog[];
+}
 
 export const useGameState = (dailySet: DailySet) => {
-    const [gameState, setGameState] = useState<GameState>(() => {
+    const [gameState, setGameState] = useState<ExtendedGameState>(() => {
         // Initial state setup
         const initialLevel = 0;
         const initialRevealed = getRevealedLetters(dailySet.puzzles[0], 2);
@@ -15,7 +20,8 @@ export const useGameState = (dailySet: DailySet) => {
             strikesPerLevel: [0, 0, 0, 0, 0],
             guessedLetters: new Set(),
             revealedLetters: initialRevealed,
-            status: 'playing'
+            status: 'playing',
+            guesses: []
         };
     });
 
@@ -36,6 +42,15 @@ export const useGameState = (dailySet: DailySet) => {
             let newStrikes = prev.strikes;
             const newStrikesPerLevel = [...prev.strikesPerLevel] as [number, number, number, number, number];
 
+            // Log the guess
+            const newGuessLog: GuessLog = {
+                puzzleIndex: prev.currentLevel,
+                letter: upperLetter,
+                isCorrect,
+                timestamp: Date.now()
+            };
+            const newGuesses = [...prev.guesses, newGuessLog];
+
             if (!isCorrect) {
                 newStrikes += 1;
                 newStrikesPerLevel[prev.currentLevel] += 1;
@@ -48,7 +63,8 @@ export const useGameState = (dailySet: DailySet) => {
                     strikes: newStrikes,
                     strikesPerLevel: newStrikesPerLevel,
                     guessedLetters: newGuessed,
-                    status: 'lost'
+                    status: 'lost',
+                    guesses: newGuesses
                 };
             }
 
@@ -63,7 +79,8 @@ export const useGameState = (dailySet: DailySet) => {
                         strikes: newStrikes,
                         strikesPerLevel: newStrikesPerLevel,
                         guessedLetters: newGuessed,
-                        status: 'won'
+                        status: 'won',
+                        guesses: newGuesses
                     };
                 } else {
                     // Advance to next level
@@ -85,7 +102,8 @@ export const useGameState = (dailySet: DailySet) => {
                         strikesPerLevel: newStrikesPerLevel,
                         guessedLetters: new Set(), // Reset guesses for new level
                         revealedLetters: nextRevealed,
-                        currentLevel: nextLevel
+                        currentLevel: nextLevel,
+                        guesses: newGuesses
                     };
                 }
             }
@@ -94,7 +112,8 @@ export const useGameState = (dailySet: DailySet) => {
                 ...prev,
                 strikes: newStrikes,
                 strikesPerLevel: newStrikesPerLevel,
-                guessedLetters: newGuessed
+                guessedLetters: newGuessed,
+                guesses: newGuesses
             };
         });
     }, [gameState.status, gameState.currentLevel, gameState.dailySet, gameState.guessedLetters, gameState.revealedLetters]);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { UserStats } from '../types';
+import { logGameResult, type GuessLog } from '../services/analytics';
 
 const STATS_KEY = 'thirddegree_stats';
 
@@ -48,7 +49,7 @@ export const useStats = () => {
         localStorage.setItem(STATS_KEY, JSON.stringify(newStats));
     };
 
-    const recordGame = (won: boolean, totalStrikes: number) => {
+    const recordGame = async (won: boolean, totalStrikes: number, guesses: GuessLog[]) => {
         const today = new Date().toISOString().split('T')[0];
 
         // Prevent recording the same day twice (though UI should prevent this too)
@@ -76,6 +77,15 @@ export const useStats = () => {
         }
 
         saveStats(newStats);
+
+        // Log to Firebase
+        await logGameResult({
+            date: today,
+            status: won ? 'won' : 'lost',
+            strikes: totalStrikes,
+            score: won ? 5 - totalStrikes : 0,
+            guesses
+        });
     };
 
     return { stats, recordGame };
