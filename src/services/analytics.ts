@@ -133,6 +133,6 @@ export const getRecentGames = async (limitCount: number = 20, date?: string) => 
         return snapshot.docs.map(doc => doc.data() as GameLog);
     } catch (error) {
         console.error("Error fetching recent games:", error);
-        return [];
+        throw error;
     }
 };

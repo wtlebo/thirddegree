@@ -59,17 +59,24 @@ export const AdminPage = () => {
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [recentGames, setRecentGames] = useState<GameLog[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [selectedGame, setSelectedGame] = useState<GameLog | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            const [statsData, gamesData] = await Promise.all([
-                getAdminStats(selectedDate),
-                getRecentGames(50, selectedDate)
-            ]);
-            setStats(statsData);
-            setRecentGames(gamesData);
+            setError(null);
+            try {
+                const [statsData, gamesData] = await Promise.all([
+                    getAdminStats(selectedDate),
+                    getRecentGames(50, selectedDate)
+                ]);
+                setStats(statsData);
+                setRecentGames(gamesData);
+            } catch (e: any) {
+                console.error("Dashboard error:", e);
+                setError(e.message || "Failed to load dashboard data");
+            }
             setLoading(false);
         };
         fetchData();
@@ -121,6 +128,16 @@ export const AdminPage = () => {
                     </button>
                 </div>
             </div>
+
+            {error && (
+                <div style={{
+                    background: 'rgba(255, 0, 0, 0.1)', border: '1px solid var(--color-error)',
+                    color: 'var(--color-error)', padding: '15px', borderRadius: '10px',
+                    marginBottom: '20px', textAlign: 'center'
+                }}>
+                    <strong>Error:</strong> {error}
+                </div>
+            )}
 
             {loading ? (
                 <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading Dashboard...</div>
