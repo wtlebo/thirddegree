@@ -200,6 +200,26 @@ export const AdminPage = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Debug Section */}
+                    <div style={{ marginTop: '40px', borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
+                        <button
+                            onClick={async () => {
+                                try {
+                                    const allLogs = await getRecentGames(20);
+                                    alert(JSON.stringify(allLogs, null, 2));
+                                } catch (e: any) {
+                                    alert("Debug Error: " + e.message);
+                                }
+                            }}
+                            style={{
+                                background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
+                                color: 'var(--color-text)', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer'
+                            }}
+                        >
+                            Debug: Show All Logs (Raw)
+                        </button>
+                    </div>
                 </>
             )}
 
