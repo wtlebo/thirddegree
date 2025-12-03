@@ -173,25 +173,41 @@ export const AdminPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {recentGames.map((game, index) => (
-                                    <tr
-                                        key={index}
-                                        onClick={() => setSelectedGame(game)}
-                                        style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer', transition: 'background 0.2s' }}
-                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                    >
-                                        <td style={{ padding: '10px' }}>{new Date(game.timestamp || Date.now()).toLocaleTimeString()}</td>
-                                        <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.9em', opacity: 0.8 }}>
-                                            {game.userId ? game.userId.slice(0, 8) + '...' : 'N/A'}
-                                        </td>
-                                        <td style={{ padding: '10px', color: game.status === 'won' ? 'var(--color-primary)' : 'var(--color-error)' }}>
-                                            {game.status.toUpperCase()}
-                                        </td>
-                                        <td style={{ padding: '10px' }}>{game.strikes}</td>
-                                        <td style={{ padding: '10px' }}>{game.score}</td>
-                                    </tr>
-                                ))}
+                                {recentGames.map((game, index) => {
+                                    // Handle Firestore Timestamp or standard Date
+                                    let timeString = 'N/A';
+                                    try {
+                                        if (game.timestamp?.toDate) {
+                                            timeString = game.timestamp.toDate().toLocaleTimeString();
+                                        } else if (game.timestamp?.seconds) {
+                                            timeString = new Date(game.timestamp.seconds * 1000).toLocaleTimeString();
+                                        } else if (game.timestamp) {
+                                            timeString = new Date(game.timestamp).toLocaleTimeString();
+                                        }
+                                    } catch (e) {
+                                        console.error('Date parsing error', e);
+                                    }
+
+                                    return (
+                                        <tr
+                                            key={index}
+                                            onClick={() => setSelectedGame(game)}
+                                            style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer', transition: 'background 0.2s' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                        >
+                                            <td style={{ padding: '10px' }}>{timeString}</td>
+                                            <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.9em', opacity: 0.8 }}>
+                                                {game.userId ? game.userId.slice(0, 8) + '...' : 'N/A'}
+                                            </td>
+                                            <td style={{ padding: '10px', color: game.status === 'won' ? 'var(--color-primary)' : 'var(--color-error)' }}>
+                                                {game.status.toUpperCase()}
+                                            </td>
+                                            <td style={{ padding: '10px' }}>{game.strikes}</td>
+                                            <td style={{ padding: '10px' }}>{game.score}</td>
+                                        </tr>
+                                    );
+                                })}
                                 {recentGames.length === 0 && (
                                     <tr>
                                         <td colSpan={5} style={{ padding: '20px', textAlign: 'center', opacity: 0.6 }}>No games recorded for this date.</td>
@@ -199,26 +215,6 @@ export const AdminPage = () => {
                                 )}
                             </tbody>
                         </table>
-                    </div>
-
-                    {/* Debug Section */}
-                    <div style={{ marginTop: '40px', borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
-                        <button
-                            onClick={async () => {
-                                try {
-                                    const allLogs = await getRecentGames(20);
-                                    alert(JSON.stringify(allLogs, null, 2));
-                                } catch (e: any) {
-                                    alert("Debug Error: " + e.message);
-                                }
-                            }}
-                            style={{
-                                background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
-                                color: 'var(--color-text)', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer'
-                            }}
-                        >
-                            Debug: Show All Logs (Raw)
-                        </button>
                     </div>
                 </>
             )}

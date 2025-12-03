@@ -111,7 +111,7 @@ export const getAdminStats = async (date: string) => {
         };
     } catch (error) {
         console.error("Error fetching admin stats:", error);
-        return { totalGames: 0, winRate: 0, averageScore: 0 };
+        throw error;
     }
 };
 
