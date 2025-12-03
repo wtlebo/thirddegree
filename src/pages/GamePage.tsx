@@ -119,6 +119,32 @@ export const GamePage = () => {
                 isOpen={isHowToPlayOpen}
                 onClose={() => setIsHowToPlayOpen(false)}
             />
+
+            {/* Temporary Debug Button */}
+            <button
+                onClick={async () => {
+                    try {
+                        const { logGameResult, ensureAuth } = await import('../services/analytics');
+                        const user = await ensureAuth();
+                        if (!user) { alert('Auth failed: No user'); return; }
+
+                        await logGameResult({
+                            date: new Date().toISOString().split('T')[0], // Use UTC for test to see if it lands
+                            status: 'lost',
+                            strikes: 5,
+                            score: 0,
+                            guesses: [],
+                            userId: user.uid
+                        });
+                        alert('Log sent! User: ' + user.uid);
+                    } catch (e: any) {
+                        alert('Error: ' + e.message);
+                    }
+                }}
+                style={{ position: 'fixed', bottom: '10px', left: '10px', opacity: 0.5, zIndex: 9999 }}
+            >
+                Test Log
+            </button>
         </div>
     );
 };
