@@ -499,3 +499,95 @@ button[class^="btn-"] {
   background: rgba(255, 255, 255, 0.1);
   color: var(--color-primary);
 }
+
+/* Admin Portal Styles */
+.admin-container {
+  padding: 20px;
+  color: var(--color-text);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.admin-header {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-date-nav {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.admin-stats-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 40px;
+  flex-wrap: nowrap;
+}
+
+.admin-stat-card {
+  background: var(--color-bg-secondary);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  flex: 1;
+  min-width: 150px;
+}
+
+.admin-stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.admin-table-container {
+  overflow-x: auto;
+  background: var(--color-bg-secondary);
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 600px) {
+  .admin-container {
+    padding: 10px;
+  }
+
+  .admin-stats-container {
+    flex-wrap: wrap;
+    /* Allow wrapping on mobile */
+    gap: 10px;
+  }
+
+  .admin-stat-card {
+    min-width: 100px;
+    /* Smaller min-width for mobile */
+    padding: 15px;
+  }
+
+  .admin-stat-card h3 {
+    font-size: 0.9rem;
+  }
+
+  .admin-stat-value {
+    font-size: 1.8rem;
+  }
+
+  .admin-table-container {
+    padding: 10px;
+  }
+
+  th,
+  td {
+    padding: 8px !important;
+    font-size: 0.9rem;
+  }
+}

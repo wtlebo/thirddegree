@@ -91,12 +91,12 @@ export const AdminPage = () => {
     const isToday = selectedDate === new Date().toISOString().split('T')[0];
 
     return (
-        <div style={{ padding: '20px', color: 'var(--color-text)', maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ marginBottom: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="admin-container">
+            <div className="admin-header">
                 <h1 style={{ margin: '0 0 15px 0' }}>Admin Portal</h1>
 
                 {/* Date Navigation */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '1.2rem' }}>
+                <div className="admin-date-nav">
                     <button
                         onClick={() => handleDateChange(-1)}
                         style={{ background: 'none', border: '1px solid var(--color-border)', color: 'var(--color-text)', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer' }}
@@ -144,24 +144,24 @@ export const AdminPage = () => {
             ) : (
                 <>
                     {/* Overview Cards */}
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '40px', flexWrap: 'nowrap' }}>
-                        <div className="stat-card" style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', textAlign: 'center', flex: '1', minWidth: '150px' }}>
+                    <div className="admin-stats-container">
+                        <div className="admin-stat-card">
                             <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Total Games</h3>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)' }}>{stats?.totalGames}</div>
+                            <div className="admin-stat-value" style={{ color: 'var(--color-primary)' }}>{stats?.totalGames}</div>
                         </div>
-                        <div className="stat-card" style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', textAlign: 'center', flex: '1', minWidth: '150px' }}>
+                        <div className="admin-stat-card">
                             <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Win Rate</h3>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-secondary)' }}>{Math.round(stats?.winRate || 0)}%</div>
+                            <div className="admin-stat-value" style={{ color: 'var(--color-secondary)' }}>{Math.round(stats?.winRate || 0)}%</div>
                         </div>
-                        <div className="stat-card" style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', textAlign: 'center', flex: '1', minWidth: '150px' }}>
+                        <div className="admin-stat-card">
                             <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Avg Score</h3>
-                            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-accent)' }}>{stats?.averageScore.toFixed(1)}</div>
+                            <div className="admin-stat-value" style={{ color: 'var(--color-accent)' }}>{stats?.averageScore.toFixed(1)}</div>
                         </div>
                     </div>
 
                     {/* Recent Games Table */}
                     <h2 style={{ marginBottom: '20px' }}>Recent Games</h2>
-                    <div style={{ overflowX: 'auto', background: 'var(--color-bg-secondary)', borderRadius: '10px', padding: '20px' }}>
+                    <div className="admin-table-container">
                         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
