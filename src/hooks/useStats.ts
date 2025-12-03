@@ -49,15 +49,13 @@ export const useStats = () => {
         localStorage.setItem(STATS_KEY, JSON.stringify(newStats));
     };
 
-    const recordGame = async (won: boolean, totalStrikes: number, guesses: GuessLog[]) => {
-        const today = new Date().toISOString().split('T')[0];
-
+    const recordGame = async (won: boolean, totalStrikes: number, guesses: GuessLog[], date: string) => {
         // Prevent recording the same day twice (though UI should prevent this too)
-        if (stats.lastPlayedDate === today) return;
+        if (stats.lastPlayedDate === date) return;
 
         const newStats = { ...stats };
         newStats.gamesPlayed += 1;
-        newStats.lastPlayedDate = today;
+        newStats.lastPlayedDate = date;
 
         if (won) {
             newStats.gamesWon += 1;
@@ -80,7 +78,7 @@ export const useStats = () => {
 
         // Log to Firebase
         await logGameResult({
-            date: today,
+            date: date,
             status: won ? 'won' : 'lost',
             strikes: totalStrikes,
             score: won ? 5 - totalStrikes : 0,
