@@ -58,15 +58,15 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle]> 
         createPuzzle("The Prince of Darkness", "OZZY OSBOURNE"),
         createPuzzle("Heavy metal pioneers", "BLACK SABBATH"),
         createPuzzle("All aboard!", "CRAZY TRAIN"),
-        createPuzzle("City of origin", "ASTON BIRMINGHAM"),
-        createPuzzle("Reality TV family", "THE OSBOURNES")
+        createPuzzle("Ozzy's nickname", "THE PRINCE OF DARKNESS"),
+        createPuzzle("Where Black Sabbath was formed", "BIRMINGHAM")
     ],
     // Day 7
     "2025-12-04": [
         createPuzzle("The Dude", "JEFF BRIDGES"),
         createPuzzle("He fights for the users", "TRON"),
-        createPuzzle("The rug tied the room together", "THE BIG LEBOWSKI"),
-        createPuzzle("The Dude's mantra", "THE DUDE ABIDES"),
+        createPuzzle("What the rug did", "TIED THE ROOM TOGETHER"),
+        createPuzzle("Lebowski's mantra", "THE DUDE ABIDES"),
         createPuzzle("Won Best Actor for this film", "CRAZY HEART")
     ],
     // Day 8
@@ -80,10 +80,10 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle]> 
     // Day 9
     "2025-12-06": [
         createPuzzle("Kitchen quick heater", "MICROWAVE OVEN"),
-        createPuzzle("First food intentionally cooked", "POPCORN"),
+        createPuzzle("First food intentionally cooked in one", "POPCORN"),
         createPuzzle("Lava hot or stone cold snack", "HOT POCKETS"),
-        createPuzzle("Radar range inventor", "PERCY SPENCER"),
-        createPuzzle("Melted chocolate bar", "INSPIRATION")
+        createPuzzle("The only button a microwave needs", "PLUS THIRTY SECONDS"),
+        createPuzzle("How it works", "VIBRATES WATER MOLECULES")
     ]
 };
 
