@@ -43,11 +43,11 @@ export const Keyboard: React.FC<KeyboardProps> = ({
                     {/* Add Toggle Button to the last row (next to M) */}
                     {rowIndex === KEYS.length - 1 && (
                         <button
-                            className={`key key-toggle ${confirmGuesses ? 'active' : ''}`}
+                            className={`key key-toggle ${!confirmGuesses ? 'fast-mode' : ''}`}
                             onClick={onToggleConfirm}
-                            title="Toggle Confirmation"
+                            title={confirmGuesses ? "Enable Fast Typing" : "Disable Fast Typing"}
                         >
-                            {confirmGuesses ? '✓' : '⚡'}
+                            ⚡
                         </button>
                     )}
                 </div>
