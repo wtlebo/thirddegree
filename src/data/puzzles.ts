@@ -84,6 +84,14 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle]> 
         createPuzzle("Lava hot or stone cold snack", "HOT POCKETS"),
         createPuzzle("The only button a microwave needs", "PLUS THIRTY SECONDS"),
         createPuzzle("How it works", "VIBRATES WATER MOLECULES")
+    ],
+    // Day 13
+    "2025-12-10": [
+        createPuzzle("In 1901 these were first awarded", "NOBEL PRIZES"),
+        createPuzzle("She won twice, in two different fields", "MARIE CURIE"),
+        createPuzzle("They discovered DNA's shape", "FRANCIS CRICK AND JAMES WATSON"),
+        createPuzzle("Age of Rev. Martin Luther King Jr. when he received the Nobel Peace Prize", "THIRTY FIVE"),
+        createPuzzle("He discovered the underlying principles of quantum mechanics, I think", "WERNER HEISENBERG")
     ]
 };
 
