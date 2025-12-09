@@ -85,6 +85,14 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle]> 
         createPuzzle("The only button a microwave needs", "PLUS THIRTY SECONDS"),
         createPuzzle("How it works", "VIBRATES WATER MOLECULES")
     ],
+    // Day 12
+    "2025-12-09": [
+        createPuzzle("Peninsula containing Spain and Portugal", "IBERIAN PENINSULA"),
+        createPuzzle("River flowing through ten countries", "DANUBE"),
+        createPuzzle("The land of fire and ice", "ICELAND"),
+        createPuzzle("City straddling two continents", "ISTANBUL"),
+        createPuzzle("Mountains separating France and Spain", "PYRENEES")
+    ],
     // Day 13
     "2025-12-10": [
         createPuzzle("In 1901 these were first awarded", "NOBEL PRIZES"),
@@ -92,6 +100,38 @@ const PUZZLE_DATABASE: Record<string, [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle]> 
         createPuzzle("They discovered DNA's shape", "FRANCIS CRICK AND JAMES WATSON"),
         createPuzzle("Age of Rev. Martin Luther King Jr. when he received the Nobel Peace Prize", "THIRTY FIVE"),
         createPuzzle("He discovered the underlying principles of quantum mechanics, I think", "WERNER HEISENBERG")
+    ],
+    // Day 14
+    "2025-12-11": [
+        createPuzzle("America runs on", "DUNKIN"),
+        createPuzzle("Geometric shape", "TORUS"),
+        createPuzzle("The missing piece", "DONUT HOLE"),
+        createPuzzle("Official state donut of Massachusetts", "BOSTON CREAM"),
+        createPuzzle("Hot Now", "KRISPY KREME")
+    ],
+    // Day 15
+    "2025-12-12": [
+        createPuzzle("He'll be back", "ARNOLD SCHWARZENEGGER"),
+        createPuzzle("The mother of the resistance", "SARAH CONNOR"),
+        createPuzzle("The artificial intelligence system", "SKYNET"),
+        createPuzzle("Famous farewell from T2", "HASTA LA VISTA BABY"),
+        createPuzzle("The second film's subtitle", "JUDGMENT DAY")
+    ],
+    // Day 16
+    "2025-12-13": [
+        createPuzzle("Creator of Barbie", "RUTH HANDLER"),
+        createPuzzle("Barbie's full name", "BARBARA MILLICENT ROBERTS"),
+        createPuzzle("Her long-time boyfriend", "KEN CARSON"),
+        createPuzzle("Where she lives", "DREAMHOUSE"),
+        createPuzzle("Toy company manufacturer", "MATTEL")
+    ],
+    // Day 17
+    "2025-12-14": [
+        createPuzzle("Tart green apple variety", "GRANNY SMITH"),
+        createPuzzle("Seeds are on the outside", "STRAWBERRY"),
+        createPuzzle("Also known as pitaya", "DRAGON FRUIT"),
+        createPuzzle("Seeds are called arils", "POMEGRANATE"),
+        createPuzzle("Wrinkly purple skin when ripe", "PASSION FRUIT")
     ]
 };
 
