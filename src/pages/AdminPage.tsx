@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAdminStats, getRecentGames } from '../services/analytics';
 import type { GameLog } from '../services/analytics';
 import { getDailyPuzzle } from '../data/puzzles';
+import { PuzzleMasterPortal } from '../components/PuzzleMasterPortal';
 
 interface AdminStats {
     totalGames: number;
@@ -53,8 +54,15 @@ const GameDetailsModal = ({ game, onClose }: { game: GameLog | null, onClose: ()
     );
 };
 
+import { UserManagement } from '../components/UserManagement';
+import { useUsers } from '../contexts/UsersContext';
+
 export const AdminPage = () => {
     const dailyPuzzle = getDailyPuzzle();
+    const { currentUser } = useUsers();
+
+    // Default to 'dashboard', 'puzzles', or 'users'
+    const [mode, setMode] = useState<'dashboard' | 'puzzles' | 'users'>('dashboard');
     const [selectedDate, setSelectedDate] = useState(dailyPuzzle.date);
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [recentGames, setRecentGames] = useState<GameLog[]>([]);
@@ -63,6 +71,8 @@ export const AdminPage = () => {
     const [selectedGame, setSelectedGame] = useState<GameLog | null>(null);
 
     useEffect(() => {
+        if (mode === 'puzzles' || mode === 'users') return; // Don't fetch dashboard data if not in dashboard mode
+
         const fetchData = async () => {
             setLoading(true);
             setError(null);
@@ -80,7 +90,7 @@ export const AdminPage = () => {
             setLoading(false);
         };
         fetchData();
-    }, [selectedDate]);
+    }, [selectedDate, mode]);
 
     const handleDateChange = (days: number) => {
         const date = new Date(selectedDate);
@@ -93,129 +103,179 @@ export const AdminPage = () => {
     return (
         <div className="admin-container">
             <div className="admin-header">
-                <h1 style={{ margin: '0 0 15px 0' }}>Admin Portal</h1>
-
-                {/* Date Navigation */}
-                <div className="admin-date-nav">
-                    <button
-                        onClick={() => handleDateChange(-1)}
-                        style={{ background: 'none', border: '1px solid var(--color-border)', color: 'var(--color-text)', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer' }}
-                    >
-                        ←
-                    </button>
-
-                    <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        style={{
-                            background: 'var(--color-bg-secondary)', color: 'var(--color-text)',
-                            border: '1px solid var(--color-border)', padding: '5px 10px', borderRadius: '5px',
-                            fontSize: '1rem', fontFamily: 'inherit'
-                        }}
-                    />
-
-                    <button
-                        onClick={() => handleDateChange(1)}
-                        disabled={isToday}
-                        style={{
-                            background: 'none', border: '1px solid var(--color-border)', color: 'var(--color-text)',
-                            padding: '5px 10px', borderRadius: '5px', cursor: isToday ? 'default' : 'pointer',
-                            opacity: isToday ? 0.3 : 1
-                        }}
-                    >
-                        →
-                    </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <h1 style={{ margin: 0 }}>Admin Portal</h1>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.9rem', color: 'var(--color-primary)' }}>{currentUser?.handle}</div>
+                        <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>{currentUser?.role.toUpperCase()}</div>
+                    </div>
                 </div>
+
+                <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', borderBottom: '1px solid var(--color-border)' }}>
+                    <button
+                        onClick={() => setMode('dashboard')}
+                        style={{
+                            background: 'none', border: 'none',
+                            color: mode === 'dashboard' ? 'var(--color-primary)' : 'var(--color-text)',
+                            fontSize: '1.2rem', cursor: 'pointer', paddingBottom: '10px',
+                            borderBottom: mode === 'dashboard' ? '2px solid var(--color-primary)' : '2px solid transparent'
+                        }}
+                    >
+                        Dashboard
+                    </button>
+                    <button
+                        onClick={() => setMode('puzzles')}
+                        style={{
+                            background: 'none', border: 'none',
+                            color: mode === 'puzzles' ? 'var(--color-primary)' : 'var(--color-text)',
+                            fontSize: '1.2rem', cursor: 'pointer', paddingBottom: '10px',
+                            borderBottom: mode === 'puzzles' ? '2px solid var(--color-primary)' : '2px solid transparent'
+                        }}
+                    >
+                        Puzzle Master
+                    </button>
+                    {currentUser?.role === 'admin' && (
+                        <button
+                            onClick={() => setMode('users')}
+                            style={{
+                                background: 'none', border: 'none',
+                                color: mode === 'users' ? 'var(--color-primary)' : 'var(--color-text)',
+                                fontSize: '1.2rem', cursor: 'pointer', paddingBottom: '10px',
+                                borderBottom: mode === 'users' ? '2px solid var(--color-primary)' : '2px solid transparent'
+                            }}
+                        >
+                            Users
+                        </button>
+                    )}
+                </div>
+
+                {mode === 'dashboard' && (
+                    <div className="admin-date-nav">
+                        <button
+                            onClick={() => handleDateChange(-1)}
+                            style={{ background: 'none', border: '1px solid var(--color-border)', color: 'var(--color-text)', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer' }}
+                        >
+                            ←
+                        </button>
+
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            style={{
+                                background: 'var(--color-bg-secondary)', color: 'var(--color-text)',
+                                border: '1px solid var(--color-border)', padding: '5px 10px', borderRadius: '5px',
+                                fontSize: '1rem', fontFamily: 'inherit'
+                            }}
+                        />
+
+                        <button
+                            onClick={() => handleDateChange(1)}
+                            disabled={isToday}
+                            style={{
+                                background: 'none', border: '1px solid var(--color-border)', color: 'var(--color-text)',
+                                padding: '5px 10px', borderRadius: '5px', cursor: isToday ? 'default' : 'pointer',
+                                opacity: isToday ? 0.3 : 1
+                            }}
+                        >
+                            →
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {error && (
-                <div style={{
-                    background: 'rgba(255, 0, 0, 0.1)', border: '1px solid var(--color-error)',
-                    color: 'var(--color-error)', padding: '15px', borderRadius: '10px',
-                    marginBottom: '20px', textAlign: 'center'
-                }}>
-                    <strong>Error:</strong> {error}
-                </div>
-            )}
+            {mode === 'users' && <UserManagement />}
 
-            {loading ? (
-                <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading Dashboard...</div>
-            ) : (
+            {mode === 'puzzles' && <PuzzleMasterPortal />}
+
+            {mode === 'dashboard' && (
                 <>
-                    {/* Overview Cards */}
-                    <div className="admin-stats-container">
-                        <div className="admin-stat-card">
-                            <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Total Games</h3>
-                            <div className="admin-stat-value" style={{ color: 'var(--color-primary)' }}>{stats?.totalGames}</div>
+                    {error && (
+                        <div style={{
+                            background: 'rgba(255, 0, 0, 0.1)', border: '1px solid var(--color-error)',
+                            color: 'var(--color-error)', padding: '15px', borderRadius: '10px',
+                            marginBottom: '20px', textAlign: 'center'
+                        }}>
+                            <strong>Error:</strong> {error}
                         </div>
-                        <div className="admin-stat-card">
-                            <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Win Rate</h3>
-                            <div className="admin-stat-value" style={{ color: 'var(--color-secondary)' }}>{Math.round(stats?.winRate || 0)}%</div>
-                        </div>
-                        <div className="admin-stat-card">
-                            <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Avg Score</h3>
-                            <div className="admin-stat-value" style={{ color: 'var(--color-accent)' }}>{stats?.averageScore.toFixed(1)}</div>
-                        </div>
-                    </div>
+                    )}
 
-                    {/* Recent Games Table */}
-                    <h2 style={{ marginBottom: '20px' }}>Recent Games</h2>
-                    <div className="admin-table-container">
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                    <th style={{ padding: '10px' }}>Time</th>
-                                    <th style={{ padding: '10px' }}>User ID</th>
-                                    <th style={{ padding: '10px' }}>Status</th>
-                                    <th style={{ padding: '10px' }}>Strikes</th>
-                                    <th style={{ padding: '10px' }}>Score</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {recentGames.map((game, index) => {
-                                    // Handle Firestore Timestamp or standard Date
-                                    let timeString = 'N/A';
-                                    try {
-                                        if (game.timestamp?.toDate) {
-                                            timeString = game.timestamp.toDate().toLocaleTimeString();
-                                        } else if (game.timestamp?.seconds) {
-                                            timeString = new Date(game.timestamp.seconds * 1000).toLocaleTimeString();
-                                        } else if (game.timestamp) {
-                                            timeString = new Date(game.timestamp).toLocaleTimeString();
-                                        }
-                                    } catch (e) {
-                                        console.error('Date parsing error', e);
-                                    }
+                    {loading ? (
+                        <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading Dashboard...</div>
+                    ) : (
+                        <>
+                            <div className="admin-stats-container">
+                                <div className="admin-stat-card">
+                                    <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Total Games</h3>
+                                    <div className="admin-stat-value" style={{ color: 'var(--color-primary)' }}>{stats?.totalGames}</div>
+                                </div>
+                                <div className="admin-stat-card">
+                                    <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Win Rate</h3>
+                                    <div className="admin-stat-value" style={{ color: 'var(--color-secondary)' }}>{Math.round(stats?.winRate || 0)}%</div>
+                                </div>
+                                <div className="admin-stat-card">
+                                    <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Avg Score</h3>
+                                    <div className="admin-stat-value" style={{ color: 'var(--color-accent)' }}>{stats?.averageScore.toFixed(1)}</div>
+                                </div>
+                            </div>
 
-                                    return (
-                                        <tr
-                                            key={index}
-                                            onClick={() => setSelectedGame(game)}
-                                            style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer', transition: 'background 0.2s' }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                        >
-                                            <td style={{ padding: '10px' }}>{timeString}</td>
-                                            <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.9em', opacity: 0.8 }}>
-                                                {game.userId ? game.userId.slice(0, 8) + '...' : 'N/A'}
-                                            </td>
-                                            <td style={{ padding: '10px', color: game.status === 'won' ? 'var(--color-primary)' : 'var(--color-error)' }}>
-                                                {game.status.toUpperCase()}
-                                            </td>
-                                            <td style={{ padding: '10px' }}>{game.strikes}</td>
-                                            <td style={{ padding: '10px' }}>{game.score}</td>
+                            <h2 style={{ marginBottom: '20px' }}>Recent Games</h2>
+                            <div className="admin-table-container">
+                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                            <th style={{ padding: '10px' }}>Time</th>
+                                            <th style={{ padding: '10px' }}>User ID</th>
+                                            <th style={{ padding: '10px' }}>Status</th>
+                                            <th style={{ padding: '10px' }}>Strikes</th>
+                                            <th style={{ padding: '10px' }}>Score</th>
                                         </tr>
-                                    );
-                                })}
-                                {recentGames.length === 0 && (
-                                    <tr>
-                                        <td colSpan={5} style={{ padding: '20px', textAlign: 'center', opacity: 0.6 }}>No games recorded for this date.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </thead>
+                                    <tbody>
+                                        {recentGames.map((game, index) => {
+                                            let timeString = 'N/A';
+                                            try {
+                                                if (game.timestamp?.toDate) {
+                                                    timeString = game.timestamp.toDate().toLocaleTimeString();
+                                                } else if (game.timestamp?.seconds) {
+                                                    timeString = new Date(game.timestamp.seconds * 1000).toLocaleTimeString();
+                                                } else if (game.timestamp) {
+                                                    timeString = new Date(game.timestamp).toLocaleTimeString();
+                                                }
+                                            } catch (e) {
+                                                console.error('Date parsing error', e);
+                                            }
+
+                                            return (
+                                                <tr
+                                                    key={index}
+                                                    onClick={() => setSelectedGame(game)}
+                                                    style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer', transition: 'background 0.2s' }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                                >
+                                                    <td style={{ padding: '10px' }}>{timeString}</td>
+                                                    <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '0.9em', opacity: 0.8 }}>
+                                                        {game.userId ? game.userId.slice(0, 8) + '...' : 'N/A'}
+                                                    </td>
+                                                    <td style={{ padding: '10px', color: game.status === 'won' ? 'var(--color-primary)' : 'var(--color-error)' }}>
+                                                        {game.status.toUpperCase()}
+                                                    </td>
+                                                    <td style={{ padding: '10px' }}>{game.strikes}</td>
+                                                    <td style={{ padding: '10px' }}>{game.score}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                        {recentGames.length === 0 && (
+                                            <tr>
+                                                <td colSpan={5} style={{ padding: '20px', textAlign: 'center', opacity: 0.6 }}>No games recorded for this date.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
                 </>
             )}
 

@@ -1,33 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../services/analytics';
+import { useUsers } from '../contexts/UsersContext';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const { currentUser, firebaseUser, loading } = useUsers();
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            console.log("Auth State Changed:", user);
-            if (user && !user.isAnonymous) {
-                setIsAuthenticated(true);
-            } else {
-                setIsAuthenticated(false);
-            }
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    if (isAuthenticated === null) {
+    if (loading) {
         return <div style={{ color: 'white', textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
     }
 
-    if (!isAuthenticated) {
+    // If not logged in at all -> Login
+    if (!firebaseUser) {
+        return <Navigate to="/login" replace />;
+    }
+
+    // If logged in, but no profile (Authorized but new) OR (Unauthorized) -> Login Page handles these states!
+    // So we actually WANT to let them render if they are firebase authenticated, 
+    // BUT the AdminPage expects a currentUser to work fully.
+    // However, if we redirect to /login here when they are "authorized but pending profile", 
+    // it works because /login handles the onboarding.
+
+    // If they are unauthorized (contextError set), they also stay on /login (or get redirected there).
+
+    // So, strict protection: if no currentUser, redirect to login?
+    // If they are Onboarding, currentUser is null. Admin Page relies on currentUser.
+    // So if currentUser is null, go to Login.
+    if (!currentUser) {
         return <Navigate to="/login" replace />;
     }
 

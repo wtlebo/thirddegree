@@ -1,0 +1,407 @@
+import { useState, useEffect } from 'react';
+import { getPuzzleStatusForMonth, savePuzzle, getPuzzleByDate } from '../services/puzzles';
+import { generatePuzzles, generateSinglePuzzle } from '../services/ai';
+import { PuzzleBoard } from '../components/PuzzleBoard';
+import { useUsers } from '../contexts/UsersContext';
+import type { PuzzleDocument, Puzzle } from '../types';
+
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+export const PuzzleMasterPortal = () => {
+    const [viewDate, setViewDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [existingPuzzles, setExistingPuzzles] = useState<Set<string>>(new Set());
+    const { currentUser } = useUsers();
+
+    // Editor State
+    const [loading, setLoading] = useState(false);
+    const [puzzleData, setPuzzleData] = useState<PuzzleDocument | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [successMsg, setSuccessMsg] = useState<string | null>(null);
+    const [showPreview, setShowPreview] = useState(false);
+    const [aiTheme, setAiTheme] = useState('');
+    const [aiLoading, setAiLoading] = useState(false);
+
+    // ... (rest of the file until editor-header)
+
+
+    // Initial load for calendar
+    useEffect(() => {
+        loadMonthStatus();
+    }, [viewDate]);
+
+    const loadMonthStatus = async () => {
+        const year = viewDate.getFullYear();
+        const month = viewDate.getMonth() + 1;
+        const stati = await getPuzzleStatusForMonth(year, month);
+        setExistingPuzzles(stati);
+    };
+
+    const handleDateClick = async (day: number) => {
+        const year = viewDate.getFullYear();
+        const month = String(viewDate.getMonth() + 1).padStart(2, '0');
+        const dayStr = String(day).padStart(2, '0');
+        const fullDate = `${year}-${month}-${dayStr}`;
+
+        setSelectedDate(fullDate);
+        setLoading(true);
+        setError(null);
+        setSuccessMsg(null);
+
+        // Try to load existing
+        const existing = await getPuzzleByDate(fullDate);
+        if (existing) {
+            setPuzzleData(existing);
+        } else {
+            // Template
+            setPuzzleData({
+                date: fullDate,
+                puzzles: [
+                    { clue: '', answer: '', revealOrder: [] },
+                    { clue: '', answer: '', revealOrder: [] },
+                    { clue: '', answer: '', revealOrder: [] },
+                    { clue: '', answer: '', revealOrder: [] },
+                    { clue: '', answer: '', revealOrder: [] }
+                ] as any,
+                author: currentUser?.handle || 'Anonymous',
+                status: 'draft'
+            });
+        }
+        setLoading(false);
+    };
+
+    const changeMonth = (delta: number) => {
+        const newDate = new Date(viewDate);
+        newDate.setMonth(newDate.getMonth() + delta);
+        setViewDate(newDate);
+    };
+
+    const validatePuzzle = (data: PuzzleDocument): string | null => {
+        const seenWords = new Set<string>();
+        const repeats = new Set<string>();
+
+        for (let i = 0; i < data.puzzles.length; i++) {
+            const p = data.puzzles[i];
+
+            // Hard Stop: Empty fields
+            if (!p.clue.trim() || !p.answer.trim()) {
+                return `Puzzle #${i + 1}: Clue and Answer are required.`;
+            }
+
+            // Hard Stop: Max length
+            if (p.clue.length > 100) return `Puzzle #${i + 1}: Clue must be under 100 characters (Current: ${p.clue.length}).`;
+            if (p.answer.length > 50) return `Puzzle #${i + 1}: Answer must be under 50 characters (Current: ${p.answer.length}).`;
+
+            // Hard Stop: Letters and spaces only
+            if (!/^[A-Z ]+$/.test(p.answer)) {
+                return `Puzzle #${i + 1}: Answer must contain only uppercase letters and spaces.`;
+            }
+
+            // Hard Stop: No words > 10 chars
+            const words = p.answer.split(' ');
+            for (const word of words) {
+                if (word.length > 10) {
+                    return `Puzzle #${i + 1}: Word "${word}" is too long (Max 10 chars).`;
+                }
+                if (seenWords.has(word) && word.length > 2) {
+                    repeats.add(word);
+                }
+                seenWords.add(word);
+            }
+        }
+        return null;
+    };
+
+    const preparePuzzlesForSave = (data: PuzzleDocument) => {
+        return data.puzzles.map(p => ({
+            ...p,
+            revealOrder: Array.from(new Set(p.answer.replace(/[^A-Z]/g, '').split('')))
+                .sort((a, b) => { // Deterministic pseudo-random sort for consistency
+                    return (a.charCodeAt(0) * 13 + 7) % 100 - (b.charCodeAt(0) * 13 + 7) % 100;
+                })
+        })) as [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle];
+    };
+
+    const handleSave = async () => {
+        if (!puzzleData || !selectedDate) return;
+
+        setError(null);
+        setSuccessMsg(null);
+
+        const validationError = validatePuzzle(puzzleData);
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+
+        const preparedPuzzles = preparePuzzlesForSave(puzzleData);
+
+        setLoading(true);
+        try {
+            await savePuzzle(selectedDate, preparedPuzzles, puzzleData.author);
+            setSuccessMsg("Puzzle saved successfully!");
+            loadMonthStatus();
+        } catch (e: any) {
+            setError(e.message);
+        }
+        setLoading(false);
+    };
+
+    const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    const getFirstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
+    const renderCalendar = () => {
+        const numDays = getDaysInMonth(viewDate);
+        const padding = getFirstDayOfMonth(viewDate);
+        const days = [];
+
+        for (let i = 0; i < padding; i++) {
+            days.push(<div key={`pad-${i}`} className="calendar-day empty" />);
+        }
+
+        for (let i = 1; i <= numDays; i++) {
+            const year = viewDate.getFullYear();
+            const month = String(viewDate.getMonth() + 1).padStart(2, '0');
+            const dayStr = String(i).padStart(2, '0');
+            const dateStr = `${year}-${month}-${dayStr}`;
+            const isToday = dateStr === new Date().toLocaleDateString('en-CA');
+            const hasPuzzle = existingPuzzles.has(dateStr);
+
+            days.push(
+                <div
+                    key={i}
+                    className={`calendar-day ${isToday ? 'today' : ''} ${hasPuzzle ? 'has-puzzle' : ''}`}
+                    onClick={() => handleDateClick(i)}
+                >
+                    {i}
+                    {hasPuzzle && <div className="dot" />}
+                </div>
+            );
+        }
+
+        return (
+            <div className="calendar-grid">
+                {DAYS.map(d => <div key={d} className="calendar-header">{d}</div>)}
+                {days}
+            </div>
+        );
+    };
+
+    const today = new Date().toLocaleDateString('en-CA');
+    const isReadOnly = selectedDate ? selectedDate <= today : false;
+
+    if (loading) {
+        return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading Portal...</div>;
+    }
+
+    if (selectedDate && puzzleData) {
+        return (
+            <div className="puzzle-editor">
+                <div className="editor-header">
+                    <button onClick={() => setSelectedDate(null)} className="back-btn">← Back to Calendar</button>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                        <h2>Editing: {selectedDate}</h2>
+                        {isReadOnly && <span style={{
+                            fontSize: '0.8rem',
+                            background: 'var(--color-secondary)',
+                            color: 'black',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            fontWeight: 'bold',
+                            marginLeft: '10px'
+                        }}>READ ONLY</span>}
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={() => setShowPreview(true)} className="save-btn" style={{ background: 'var(--color-secondary)', color: 'black' }}>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+
+                <div className="editor-form">
+                    {isReadOnly && (
+                        <div style={{
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            padding: '10px',
+                            borderRadius: '5px',
+                            marginBottom: '20px',
+                            textAlign: 'center',
+                            border: '1px solid var(--color-secondary)',
+                            color: 'var(--color-secondary)'
+                        }}>
+                            🔒 This puzzle is locked because it is for today or a past date.
+                        </div>
+                    )}
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                            <label>Puzzle Master</label>
+                            <div style={{
+                                padding: '10px',
+                                background: 'rgba(255,255,255,0.05)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '5px',
+                                color: 'var(--color-text)',
+                                fontWeight: 'bold'
+                            }}>
+                                {puzzleData.author || currentUser?.handle || 'Unknown'}
+                            </div>
+                        </div>
+                        {!isReadOnly && (
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label>AI Theme (Optional)</label>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <input
+                                        value={aiTheme}
+                                        onChange={e => setAiTheme(e.target.value)}
+                                        placeholder="e.g. 80s Movies"
+                                    />
+                                    <button
+                                        onClick={async () => {
+                                            if (!aiTheme) {
+                                                alert("Please enter a theme first");
+                                                return;
+                                            }
+                                            setAiLoading(true);
+                                            try {
+                                                const generated = await generatePuzzles(aiTheme);
+                                                setPuzzleData({ ...puzzleData, puzzles: generated } as PuzzleDocument);
+                                                setSuccessMsg("Generated 5 new puzzles!");
+                                            } catch (e: any) {
+                                                setError(e.message);
+                                            }
+                                            setAiLoading(false);
+                                        }}
+                                        disabled={aiLoading}
+                                        style={{
+                                            whiteSpace: 'nowrap',
+                                            background: 'var(--color-accent)',
+                                            border: 'none',
+                                            borderRadius: '5px',
+                                            color: 'white',
+                                            fontWeight: 'bold',
+                                            padding: '0 15px',
+                                            cursor: 'pointer',
+                                            opacity: aiLoading ? 0.7 : 1
+                                        }}
+                                    >
+                                        {aiLoading ? '...' : '✨ Magic Fill'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {puzzleData.puzzles.map((p, idx) => (
+                        <div key={idx} className="puzzle-row">
+                            <span className="row-num" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                                {idx + 1}
+                                {!isReadOnly && (
+                                    <button
+                                        title="Regenerate this puzzle only"
+                                        onClick={async () => {
+                                            if (!aiTheme) {
+                                                alert("Please enter a theme above first");
+                                                return;
+                                            }
+                                            setAiLoading(true);
+                                            try {
+                                                const otherAnswers = puzzleData.puzzles.filter((_, i) => i !== idx).map(pz => pz.answer);
+                                                const newPuzzle = await generateSinglePuzzle(aiTheme, otherAnswers);
+
+                                                const newPuzzles = [...puzzleData.puzzles];
+                                                newPuzzles[idx] = newPuzzle;
+                                                setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
+                                            } catch (e: any) {
+                                                alert(e.message);
+                                            }
+                                            setAiLoading(false);
+                                        }}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            fontSize: '1.2rem',
+                                            opacity: aiTheme ? 1 : 0.3
+                                        }}
+                                    >
+                                        ✨
+                                    </button>
+                                )}
+                            </span>
+                            <div className="input-group">
+                                <label>Clue</label>
+                                <input
+                                    value={p.clue}
+                                    onChange={e => {
+                                        const newPuzzles = [...puzzleData.puzzles];
+                                        newPuzzles[idx] = { ...p, clue: e.target.value };
+                                        setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
+                                    }}
+                                    maxLength={100}
+                                    disabled={isReadOnly}
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label>Answer</label>
+                                <input
+                                    value={p.answer}
+                                    onChange={e => {
+                                        const val = e.target.value.toUpperCase().replace(/[^A-Z ]/g, '');
+                                        const newPuzzles = [...puzzleData.puzzles];
+                                        newPuzzles[idx] = { ...p, answer: val };
+                                        setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
+                                    }}
+                                    maxLength={50}
+                                    disabled={isReadOnly}
+                                />
+                            </div>
+                        </div>
+                    ))}
+
+                    {error && <div className="error-msg">{error}</div>}
+                    {successMsg && <div className="success-msg">{successMsg}</div>}
+
+                    {!isReadOnly && (
+                        <div className="editor-actions">
+                            <button onClick={handleSave} disabled={loading} className="save-btn">
+                                {loading ? 'Saving...' : 'Save Puzzle'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {showPreview && (
+                    <div className="modal-overlay" onClick={() => setShowPreview(false)}>
+                        <div className="modal-content" style={{ maxWidth: '600px', width: '95%' }} onClick={e => e.stopPropagation()}>
+                            <h2 style={{ color: 'var(--color-primary)', marginBottom: '20px' }}>Preview</h2>
+                            <PuzzleBoard
+                                puzzles={preparePuzzlesForSave(puzzleData).map(p => ({ ...p, revealOrder: [] })) as any}
+                                currentLevel={0}
+                                guessedLetters={new Set()}
+                                revealedLetters={new Set()}
+                                gameStatus='playing'
+                                showAll={true}
+                            />
+                            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+                                <button className="btn-confirm" onClick={() => setShowPreview(false)}>Close Preview</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    return (
+        <div className="puzzle-master-portal">
+            <div className="calendar-nav">
+                <button onClick={() => changeMonth(-1)}>←</button>
+                <h2>{viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
+                <button onClick={() => changeMonth(1)}>→</button>
+            </div>
+            {renderCalendar()}
+            <p className="portal-footer">Thanks to our Puzzle Masters for creating the fun!</p>
+        </div>
+    );
+};

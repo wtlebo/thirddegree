@@ -9,6 +9,12 @@ export interface DailySet {
     puzzles: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle];
 }
 
+export interface PuzzleDocument extends DailySet {
+    author?: string;
+    createdAt?: any;
+    status: 'draft' | 'published';
+}
+
 export type GameStatus = 'playing' | 'won' | 'lost';
 
 export interface GameState {
@@ -35,4 +41,19 @@ export interface UserStats {
     currentStreak: number;
     maxStreak: number;
     lastPlayedDate: string | null;
+}
+
+export interface UserProfile {
+    uid: string;
+    email: string;
+    handle: string;
+    role: 'admin' | 'pm';
+    createdAt: any;
+}
+
+export interface AllowedUser {
+    email: string;
+    role: 'admin' | 'pm';
+    addedBy: string;
+    addedAt: any;
 }
