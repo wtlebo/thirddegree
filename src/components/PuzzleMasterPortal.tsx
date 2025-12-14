@@ -296,10 +296,36 @@ export const PuzzleMasterPortal = () => {
                                 <div className="row-controls">
                                     <span className="row-num">{idx + 1}</span>
                                     {!isReadOnly && (
-                                        <div className="move-btns">
-                                            <button disabled={idx === 0} onClick={() => movePuzzle(idx, -1)}>▲</button>
-                                            <button disabled={idx === puzzleData.puzzles.length - 1} onClick={() => movePuzzle(idx, 1)}>▼</button>
-                                        </div>
+                                        <>
+                                            <div className="move-btns">
+                                                <button disabled={idx === 0} onClick={() => movePuzzle(idx, -1)}>▲</button>
+                                                <button disabled={idx === puzzleData.puzzles.length - 1} onClick={() => movePuzzle(idx, 1)}>▼</button>
+                                            </div>
+                                            <button
+                                                title="Regenerate this puzzle only"
+                                                onClick={async () => {
+                                                    if (!aiTheme) {
+                                                        alert("Please enter a theme above first");
+                                                        return;
+                                                    }
+                                                    setAiLoading(true);
+                                                    try {
+                                                        const otherAnswers = puzzleData.puzzles.filter((_, i) => i !== idx).map(pz => pz.answer);
+                                                        const newPuzzle = await generateSinglePuzzle(aiTheme, otherAnswers);
+
+                                                        const newPuzzles = [...puzzleData.puzzles];
+                                                        newPuzzles[idx] = newPuzzle;
+                                                        setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
+                                                    } catch (e: any) {
+                                                        alert(e.message);
+                                                    }
+                                                    setAiLoading(false);
+                                                }}
+                                                className="magic-btn"
+                                            >
+                                                ✨
+                                            </button>
+                                        </>
                                     )}
                                 </div>
 
@@ -335,42 +361,6 @@ export const PuzzleMasterPortal = () => {
                                         />
                                     </div>
                                 </div>
-
-                                {!isReadOnly && (
-                                    <div className="row-actions">
-                                        <button
-                                            title="Regenerate this puzzle only"
-                                            onClick={async () => {
-                                                if (!aiTheme) {
-                                                    alert("Please enter a theme above first");
-                                                    return;
-                                                }
-                                                setAiLoading(true);
-                                                try {
-                                                    const otherAnswers = puzzleData.puzzles.filter((_, i) => i !== idx).map(pz => pz.answer);
-                                                    const newPuzzle = await generateSinglePuzzle(aiTheme, otherAnswers);
-
-                                                    const newPuzzles = [...puzzleData.puzzles];
-                                                    newPuzzles[idx] = newPuzzle;
-                                                    setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
-                                                } catch (e: any) {
-                                                    alert(e.message);
-                                                }
-                                                setAiLoading(false);
-                                            }}
-                                            style={{
-                                                background: 'none',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                fontSize: '1.5rem',
-                                                opacity: aiTheme ? 1 : 0.3,
-                                                padding: '5px'
-                                            }}
-                                        >
-                                            ✨
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         ))}
                     </div>

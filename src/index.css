@@ -764,15 +764,15 @@ button[class^="btn-"] {
   color: var(--color-text);
 }
 
+/* Puzzle Row Redesign: 2-Column Layout */
 .puzzle-row {
   display: flex;
   gap: 15px;
   margin-bottom: 20px;
-  /* More space */
-  align-items: flex-start;
+  align-items: stretch;
+  /* Stretch to fill height */
   background: rgba(0, 0, 0, 0.2);
   padding: 10px;
-  /* Reduced padding for mobile to save space */
   border-radius: 8px;
 }
 
@@ -780,9 +780,14 @@ button[class^="btn-"] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  width: 30px;
+  justify-content: center;
+  /* Center vertically */
+  gap: 10px;
+  width: 20%;
+  /* 10-25% as requested, settling on 20% */
   flex-shrink: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding-right: 10px;
 }
 
 .row-num {
@@ -793,8 +798,9 @@ button[class^="btn-"] {
 
 .move-btns {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-direction: row;
+  /* Horizontal on mobile might be better, or wrapped vertical */
+  gap: 5px;
 }
 
 .move-btns button {
@@ -802,9 +808,10 @@ button[class^="btn-"] {
   border: none;
   color: var(--color-text);
   cursor: pointer;
-  font-size: 0.7rem;
-  padding: 2px 5px;
-  border-radius: 3px;
+  /* Pointer only works on desktop but good for consistency */
+  font-size: 1rem;
+  padding: 5px 10px;
+  border-radius: 4px;
 }
 
 .move-btns button:disabled {
@@ -812,25 +819,40 @@ button[class^="btn-"] {
   cursor: default;
 }
 
-.puzzle-inputs {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  /* Stack vertically by default for "wider" inputs */
-  gap: 10px;
+.magic-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 5px;
+  transition: transform 0.2s;
 }
 
-/* Tablet/Desktop: Maybe keep side-by-side if enough space? 
-   User asked for "wider inputs, at least 50%". Vertical stack guarantees 100% width.
-   Let's check if we want side-by-side on large screens.
-   Actually, "clue and answer text boxes should be wider" suggests they are cramped. 
-   Stacking them is the best way to get them wide on mobile.
-   On Desktop, we can go side-by-side. */
+.magic-btn:hover {
+  transform: scale(1.1);
+}
 
+.puzzle-inputs {
+  flex: 1;
+  /* Remainder of width */
+  display: flex;
+  flex-direction: column;
+  /* Strictly Stacked Vertically */
+  gap: 15px;
+  justify-content: center;
+}
+
+/* Remove desktop row direction override */
 @media (min-width: 600px) {
   .puzzle-inputs {
-    flex-direction: row;
+    flex-direction: column;
+    /* Keep stacked even on desktop for consistency with this design */
   }
+}
+
+.row-actions {
+  display: none;
+  /* Removed/Merged into controls */
 }
 
 .row-actions {
@@ -859,15 +881,29 @@ button[class^="btn-"] {
 .input-group input,
 .input-group textarea {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   /* Better touch target */
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.2);
-  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+  /* Significantly brighter background */
+  color: #ffffff;
   font-family: inherit;
   font-size: 1rem;
+  font-weight: 500;
   /* Prevent zoom on mobile */
+  transition: all 0.2s;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .editor-actions {
