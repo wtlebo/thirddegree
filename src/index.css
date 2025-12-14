@@ -771,7 +771,8 @@ button[class^="btn-"] {
   /* More space */
   align-items: flex-start;
   background: rgba(0, 0, 0, 0.2);
-  padding: 15px;
+  padding: 10px;
+  /* Reduced padding for mobile to save space */
   border-radius: 8px;
 }
 

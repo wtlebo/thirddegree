@@ -71,6 +71,25 @@ export const AdminPage = () => {
     const [selectedGame, setSelectedGame] = useState<GameLog | null>(null);
     const [pmStats, setPmStats] = useState<import('../services/statsService').PMStat[]>([]);
 
+    // Sort configuration
+    const [sortConfig, setSortConfig] = useState<{
+        key: keyof import('../services/statsService').PMStat;
+        direction: 'asc' | 'desc';
+    }>({ key: 'publishedCount', direction: 'desc' });
+
+    const handleSort = (key: keyof import('../services/statsService').PMStat) => {
+        setSortConfig(current => ({
+            key,
+            direction: current.key === key && current.direction === 'desc' ? 'asc' : 'desc'
+        }));
+    };
+
+    const sortedPmStats = [...pmStats].sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
     useEffect(() => {
         if (mode === 'puzzles' || mode === 'users') return; // Don't fetch dashboard data if not in dashboard mode
 
@@ -286,14 +305,22 @@ export const AdminPage = () => {
                                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                                     <thead>
                                         <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                            <th style={{ padding: '10px' }}>Handle</th>
-                                            <th style={{ padding: '10px' }}>Total Created</th>
-                                            <th style={{ padding: '10px' }}>Published</th>
-                                            <th style={{ padding: '10px' }}>Avg Global Score</th>
+                                            <th onClick={() => handleSort('handle')} style={{ padding: '10px', cursor: 'pointer', userSelect: 'none' }}>
+                                                Handle {sortConfig.key === 'handle' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                                            </th>
+                                            <th onClick={() => handleSort('totalCreated')} style={{ padding: '10px', cursor: 'pointer', userSelect: 'none' }}>
+                                                Total Created {sortConfig.key === 'totalCreated' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                                            </th>
+                                            <th onClick={() => handleSort('publishedCount')} style={{ padding: '10px', cursor: 'pointer', userSelect: 'none' }}>
+                                                Published {sortConfig.key === 'publishedCount' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                                            </th>
+                                            <th onClick={() => handleSort('averageGlobalScore')} style={{ padding: '10px', cursor: 'pointer', userSelect: 'none' }}>
+                                                Avg Global Score {sortConfig.key === 'averageGlobalScore' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {pmStats.map((stat, index) => (
+                                        {sortedPmStats.map((stat, index) => (
                                             <tr key={index} style={{ borderBottom: '1px solid var(--color-border)' }}>
                                                 <td style={{ padding: '10px', fontWeight: 'bold', color: 'var(--color-primary)' }}>{stat.handle}</td>
                                                 <td style={{ padding: '10px' }}>{stat.totalCreated}</td>
@@ -301,7 +328,7 @@ export const AdminPage = () => {
                                                 <td style={{ padding: '10px' }}>{stat.averageGlobalScore > 0 ? stat.averageGlobalScore : '-'}</td>
                                             </tr>
                                         ))}
-                                        {pmStats.length === 0 && (
+                                        {sortedPmStats.length === 0 && (
                                             <tr>
                                                 <td colSpan={4} style={{ padding: '20px', textAlign: 'center', opacity: 0.6 }}>No puzzle data available.</td>
                                             </tr>
