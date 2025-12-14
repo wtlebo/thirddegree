@@ -128,9 +128,9 @@ export const AdminPage = () => {
     return (
         <div className="admin-container">
             <div className="admin-header">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                    <h1 style={{ margin: 0 }}>Admin Portal</h1>
-                    <div style={{ textAlign: 'right' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px' }}>
+                    <h1 style={{ margin: '0 0 10px 0' }}>Admin Portal</h1>
+                    <div style={{ textAlign: 'center' }}>
                         <div style={{ fontSize: '0.9rem', color: 'var(--color-primary)' }}>{currentUser?.handle}</div>
                         <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>{currentUser?.role.toUpperCase()}</div>
                     </div>
@@ -342,6 +342,12 @@ export const AdminPage = () => {
             )}
 
             <GameDetailsModal game={selectedGame} onClose={() => setSelectedGame(null)} />
+
+            <div style={{ marginTop: '40px', textAlign: 'center', paddingBottom: '20px' }}>
+                <a href="/" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontSize: '0.9rem', opacity: 0.8 }}>
+                    ← Back to Game
+                </a>
+            </div>
         </div>
     );
 };
