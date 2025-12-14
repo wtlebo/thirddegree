@@ -69,6 +69,7 @@ export const AdminPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedGame, setSelectedGame] = useState<GameLog | null>(null);
+    const [pmStats, setPmStats] = useState<import('../services/statsService').PMStat[]>([]);
 
     useEffect(() => {
         if (mode === 'puzzles' || mode === 'users') return; // Don't fetch dashboard data if not in dashboard mode
@@ -77,12 +78,17 @@ export const AdminPage = () => {
             setLoading(true);
             setError(null);
             try {
-                const [statsData, gamesData] = await Promise.all([
+                // Dynamically import to avoid circular dependencies if any
+                const { getPMStats } = await import('../services/statsService');
+
+                const [statsData, gamesData, pmData] = await Promise.all([
                     getAdminStats(selectedDate),
-                    getRecentGames(50, selectedDate)
+                    getRecentGames(50, selectedDate),
+                    getPMStats()
                 ]);
                 setStats(statsData);
                 setRecentGames(gamesData);
+                setPmStats(pmData);
             } catch (e: any) {
                 console.error("Dashboard error:", e);
                 setError(e.message || "Failed to load dashboard data");
@@ -269,6 +275,35 @@ export const AdminPage = () => {
                                         {recentGames.length === 0 && (
                                             <tr>
                                                 <td colSpan={5} style={{ padding: '20px', textAlign: 'center', opacity: 0.6 }}>No games recorded for this date.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h2 style={{ marginTop: '40px', marginBottom: '20px' }}>Puzzle Master Leaderboard</h2>
+                            <div className="admin-table-container">
+                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                            <th style={{ padding: '10px' }}>Handle</th>
+                                            <th style={{ padding: '10px' }}>Total Created</th>
+                                            <th style={{ padding: '10px' }}>Published</th>
+                                            <th style={{ padding: '10px' }}>Avg Global Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {pmStats.map((stat, index) => (
+                                            <tr key={index} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                                <td style={{ padding: '10px', fontWeight: 'bold', color: 'var(--color-primary)' }}>{stat.handle}</td>
+                                                <td style={{ padding: '10px' }}>{stat.totalCreated}</td>
+                                                <td style={{ padding: '10px' }}>{stat.publishedCount}</td>
+                                                <td style={{ padding: '10px' }}>{stat.averageGlobalScore > 0 ? stat.averageGlobalScore : '-'}</td>
+                                            </tr>
+                                        ))}
+                                        {pmStats.length === 0 && (
+                                            <tr>
+                                                <td colSpan={4} style={{ padding: '20px', textAlign: 'center', opacity: 0.6 }}>No puzzle data available.</td>
                                             </tr>
                                         )}
                                     </tbody>

@@ -194,13 +194,29 @@ export const PuzzleMasterPortal = () => {
         return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading Portal...</div>;
     }
 
+    const movePuzzle = (index: number, direction: -1 | 1) => {
+        if (!puzzleData) return;
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= puzzleData.puzzles.length) return;
+
+        const newPuzzles = [...puzzleData.puzzles];
+        [newPuzzles[index], newPuzzles[newIndex]] = [newPuzzles[newIndex], newPuzzles[index]];
+        setPuzzleData({ ...puzzleData, puzzles: newPuzzles as [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle] });
+    };
+
     if (selectedDate && puzzleData) {
         return (
             <div className="puzzle-editor">
-                <div className="editor-header">
-                    <button onClick={() => setSelectedDate(null)} className="back-btn">← Back to Calendar</button>
-                    <div style={{ flex: 1, textAlign: 'center' }}>
-                        <h2>Editing: {selectedDate}</h2>
+                {/* Header Restructured for Mobile */}
+                <div className="editor-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        <button onClick={() => setSelectedDate(null)} className="back-btn">← Back</button>
+                        <button onClick={() => setShowPreview(true)} className="save-btn" style={{ background: 'var(--color-secondary)', color: 'black', padding: '5px 15px' }}>
+                            Preview
+                        </button>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <h2 style={{ margin: 0 }}>Editing: {selectedDate}</h2>
                         {isReadOnly && <span style={{
                             fontSize: '0.8rem',
                             background: 'var(--color-secondary)',
@@ -208,13 +224,9 @@ export const PuzzleMasterPortal = () => {
                             padding: '2px 8px',
                             borderRadius: '4px',
                             fontWeight: 'bold',
-                            marginLeft: '10px'
+                            display: 'inline-block',
+                            marginTop: '5px'
                         }}>READ ONLY</span>}
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <button onClick={() => setShowPreview(true)} className="save-btn" style={{ background: 'var(--color-secondary)', color: 'black' }}>
-                            Preview
-                        </button>
                     </div>
                 </div>
 
@@ -229,135 +241,139 @@ export const PuzzleMasterPortal = () => {
                             border: '1px solid var(--color-secondary)',
                             color: 'var(--color-secondary)'
                         }}>
-                            🔒 This puzzle is locked because it is for today or a past date.
+                            🔒 Locked (Past Date)
                         </div>
                     )}
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label>Puzzle Master</label>
-                            <div style={{
-                                padding: '10px',
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid var(--color-border)',
-                                borderRadius: '5px',
-                                color: 'var(--color-text)',
-                                fontWeight: 'bold'
-                            }}>
-                                {puzzleData.author || currentUser?.handle || 'Unknown'}
+                    {!isReadOnly && (
+                        <div className="form-group">
+                            <label>AI Theme (Optional)</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input
+                                    value={aiTheme}
+                                    onChange={e => setAiTheme(e.target.value)}
+                                    placeholder="e.g. 80s Movies"
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    onClick={async () => {
+                                        if (!aiTheme) {
+                                            alert("Please enter a theme first");
+                                            return;
+                                        }
+                                        setAiLoading(true);
+                                        try {
+                                            const generated = await generatePuzzles(aiTheme);
+                                            setPuzzleData({ ...puzzleData, puzzles: generated } as PuzzleDocument);
+                                            setSuccessMsg("Generated 5 new puzzles!");
+                                        } catch (e: any) {
+                                            setError(e.message);
+                                        }
+                                        setAiLoading(false);
+                                    }}
+                                    disabled={aiLoading}
+                                    style={{
+                                        whiteSpace: 'nowrap',
+                                        background: 'var(--color-accent)',
+                                        border: 'none',
+                                        borderRadius: '5px',
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        padding: '0 15px',
+                                        cursor: 'pointer',
+                                        opacity: aiLoading ? 0.7 : 1
+                                    }}
+                                >
+                                    {aiLoading ? '...' : '✨ Magic Fill'}
+                                </button>
                             </div>
                         </div>
-                        {!isReadOnly && (
-                            <div className="form-group" style={{ marginBottom: 0 }}>
-                                <label>AI Theme (Optional)</label>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <input
-                                        value={aiTheme}
-                                        onChange={e => setAiTheme(e.target.value)}
-                                        placeholder="e.g. 80s Movies"
-                                    />
-                                    <button
-                                        onClick={async () => {
-                                            if (!aiTheme) {
-                                                alert("Please enter a theme first");
-                                                return;
-                                            }
-                                            setAiLoading(true);
-                                            try {
-                                                const generated = await generatePuzzles(aiTheme);
-                                                setPuzzleData({ ...puzzleData, puzzles: generated } as PuzzleDocument);
-                                                setSuccessMsg("Generated 5 new puzzles!");
-                                            } catch (e: any) {
-                                                setError(e.message);
-                                            }
-                                            setAiLoading(false);
-                                        }}
-                                        disabled={aiLoading}
-                                        style={{
-                                            whiteSpace: 'nowrap',
-                                            background: 'var(--color-accent)',
-                                            border: 'none',
-                                            borderRadius: '5px',
-                                            color: 'white',
-                                            fontWeight: 'bold',
-                                            padding: '0 15px',
-                                            cursor: 'pointer',
-                                            opacity: aiLoading ? 0.7 : 1
-                                        }}
-                                    >
-                                        {aiLoading ? '...' : '✨ Magic Fill'}
-                                    </button>
+                    )}
+
+                    <div className="puzzles-container">
+                        {puzzleData.puzzles.map((p, idx) => (
+                            <div key={idx} className="puzzle-row">
+                                <div className="row-controls">
+                                    <span className="row-num">{idx + 1}</span>
+                                    {!isReadOnly && (
+                                        <div className="move-btns">
+                                            <button disabled={idx === 0} onClick={() => movePuzzle(idx, -1)}>▲</button>
+                                            <button disabled={idx === puzzleData.puzzles.length - 1} onClick={() => movePuzzle(idx, 1)}>▼</button>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        )}
-                    </div>
 
-                    {puzzleData.puzzles.map((p, idx) => (
-                        <div key={idx} className="puzzle-row">
-                            <span className="row-num" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                                {idx + 1}
-                                {!isReadOnly && (
-                                    <button
-                                        title="Regenerate this puzzle only"
-                                        onClick={async () => {
-                                            if (!aiTheme) {
-                                                alert("Please enter a theme above first");
-                                                return;
-                                            }
-                                            setAiLoading(true);
-                                            try {
-                                                const otherAnswers = puzzleData.puzzles.filter((_, i) => i !== idx).map(pz => pz.answer);
-                                                const newPuzzle = await generateSinglePuzzle(aiTheme, otherAnswers);
-
+                                <div className="puzzle-inputs">
+                                    <div className="input-group">
+                                        <label>Clue</label>
+                                        <textarea
+                                            value={p.clue}
+                                            onChange={e => {
                                                 const newPuzzles = [...puzzleData.puzzles];
-                                                newPuzzles[idx] = newPuzzle;
+                                                newPuzzles[idx] = { ...p, clue: e.target.value };
                                                 setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
-                                            } catch (e: any) {
-                                                alert(e.message);
-                                            }
-                                            setAiLoading(false);
-                                        }}
-                                        style={{
-                                            background: 'none',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            fontSize: '1.2rem',
-                                            opacity: aiTheme ? 1 : 0.3
-                                        }}
-                                    >
-                                        ✨
-                                    </button>
+                                            }}
+                                            maxLength={100}
+                                            disabled={isReadOnly}
+                                            rows={2}
+                                            style={{ width: '100%', resize: 'vertical' }}
+                                        />
+                                    </div>
+                                    <div className="input-group">
+                                        <label>Answer</label>
+                                        <input
+                                            value={p.answer}
+                                            onChange={e => {
+                                                const val = e.target.value.toUpperCase().replace(/[^A-Z ]/g, '');
+                                                const newPuzzles = [...puzzleData.puzzles];
+                                                newPuzzles[idx] = { ...p, answer: val };
+                                                setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
+                                            }}
+                                            maxLength={50}
+                                            disabled={isReadOnly}
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {!isReadOnly && (
+                                    <div className="row-actions">
+                                        <button
+                                            title="Regenerate this puzzle only"
+                                            onClick={async () => {
+                                                if (!aiTheme) {
+                                                    alert("Please enter a theme above first");
+                                                    return;
+                                                }
+                                                setAiLoading(true);
+                                                try {
+                                                    const otherAnswers = puzzleData.puzzles.filter((_, i) => i !== idx).map(pz => pz.answer);
+                                                    const newPuzzle = await generateSinglePuzzle(aiTheme, otherAnswers);
+
+                                                    const newPuzzles = [...puzzleData.puzzles];
+                                                    newPuzzles[idx] = newPuzzle;
+                                                    setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
+                                                } catch (e: any) {
+                                                    alert(e.message);
+                                                }
+                                                setAiLoading(false);
+                                            }}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                fontSize: '1.5rem',
+                                                opacity: aiTheme ? 1 : 0.3,
+                                                padding: '5px'
+                                            }}
+                                        >
+                                            ✨
+                                        </button>
+                                    </div>
                                 )}
-                            </span>
-                            <div className="input-group">
-                                <label>Clue</label>
-                                <input
-                                    value={p.clue}
-                                    onChange={e => {
-                                        const newPuzzles = [...puzzleData.puzzles];
-                                        newPuzzles[idx] = { ...p, clue: e.target.value };
-                                        setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
-                                    }}
-                                    maxLength={100}
-                                    disabled={isReadOnly}
-                                />
                             </div>
-                            <div className="input-group">
-                                <label>Answer</label>
-                                <input
-                                    value={p.answer}
-                                    onChange={e => {
-                                        const val = e.target.value.toUpperCase().replace(/[^A-Z ]/g, '');
-                                        const newPuzzles = [...puzzleData.puzzles];
-                                        newPuzzles[idx] = { ...p, answer: val };
-                                        setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
-                                    }}
-                                    maxLength={50}
-                                    disabled={isReadOnly}
-                                />
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
 
                     {error && <div className="error-msg">{error}</div>}
                     {successMsg && <div className="success-msg">{successMsg}</div>}

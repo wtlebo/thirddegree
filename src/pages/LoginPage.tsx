@@ -50,13 +50,15 @@ export const LoginPage = () => {
             // Better: Context could expose 'detectedRole' or we can fetch it again.
             // Let's re-check the allow list one last time to be safe and get the role.
             const { checkUserAllowed } = await import('../services/userService');
-            const { role } = await checkUserAllowed(firebaseUser.email || '');
+            const { allowed, role } = await checkUserAllowed(firebaseUser.email || '');
 
-            if (!role) {
-                throw new Error("Cannot determine role. Please contact admin.");
+            if (!allowed) {
+                throw new Error("Access validation failed. Please contact admin.");
             }
 
-            await createUserProfile(firebaseUser.uid, firebaseUser.email || '', newHandle.trim(), role);
+            const finalRole = role || 'pm'; // Safe fallback
+
+            await createUserProfile(firebaseUser.uid, firebaseUser.email || '', newHandle.trim(), finalRole);
 
             // Refresh context to pull the new profile
             await refreshProfile();
