@@ -24,6 +24,8 @@ export const checkUserAllowed = async (email: string): Promise<{ allowed: boolea
     }
 
     // Check specific email doc
+    if (!normalizedEmail) return { allowed: false };
+
     // We strive to use email as ID for allowed_users for easy lookup
     const docRef = doc(db, ALLOWED_USERS_COLLECTION, normalizedEmail);
     const docSnap = await getDoc(docRef);
@@ -38,6 +40,7 @@ export const checkUserAllowed = async (email: string): Promise<{ allowed: boolea
 
 // Get the user's profile
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+    if (!uid) return null;
     const docRef = doc(db, USERS_COLLECTION, uid);
     const docSnap = await getDoc(docRef);
 
@@ -49,6 +52,8 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 
 // Create a new user profile
 export const createUserProfile = async (uid: string, email: string, handle: string, role: 'admin' | 'pm'): Promise<void> => {
+    if (!uid) throw new Error("User ID is required to create a profile");
+
     const profile: UserProfile = {
         uid,
         email: email.toLowerCase(),
@@ -60,21 +65,25 @@ export const createUserProfile = async (uid: string, email: string, handle: stri
     await setDoc(doc(db, USERS_COLLECTION, uid), profile);
 
     // Also ensure they are in allowed_users if this was a bootstrap creation
-    const allowedRef = doc(db, ALLOWED_USERS_COLLECTION, email.toLowerCase());
-    const allowedSnap = await getDoc(allowedRef);
-    if (!allowedSnap.exists()) {
-        await setDoc(allowedRef, {
-            email: email.toLowerCase(),
-            role,
-            addedBy: 'system_bootstrap',
-            addedAt: new Date()
-        });
+    if (email) {
+        const allowedRef = doc(db, ALLOWED_USERS_COLLECTION, email.toLowerCase());
+        const allowedSnap = await getDoc(allowedRef);
+        if (!allowedSnap.exists()) {
+            await setDoc(allowedRef, {
+                email: email.toLowerCase(),
+                role,
+                addedBy: 'system_bootstrap',
+                addedAt: new Date()
+            });
+        }
     }
 };
 
 // Invite a user (Admin only)
 export const inviteUser = async (email: string, role: 'admin' | 'pm', addedByUid: string): Promise<void> => {
     const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail) throw new Error("Invalid email address");
+
     const docRef = doc(db, ALLOWED_USERS_COLLECTION, normalizedEmail);
 
     const invite: AllowedUser = {
