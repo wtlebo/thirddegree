@@ -10,10 +10,9 @@ interface StatsModalProps {
         status: 'won' | 'lost';
         strikes: number;
     } | null;
-    puzzleAuthor?: string;
 }
 
-export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, latestGameSummary, puzzleAuthor }) => {
+export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, latestGameSummary }) => {
     const [globalAverage, setGlobalAverage] = useState<string>("-");
 
     useEffect(() => {
@@ -243,20 +242,6 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                         </div>
                     </div>
 
-                    {puzzleAuthor && (
-                        <div style={{
-                            fontSize: '0.8rem',
-                            opacity: 0.8,
-                            borderTop: '1px solid rgba(255,255,255,0.1)',
-                            width: '100%',
-                            textAlign: 'center',
-                            paddingTop: '10px',
-                            fontStyle: 'italic',
-                            color: 'var(--color-primary)'
-                        }}>
-                            Puzzle created by: {puzzleAuthor}
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

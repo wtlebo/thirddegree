@@ -83,6 +83,7 @@ const GameContainer = ({ dailySet }: { dailySet: DailySet }) => {
                     revealedLetters={gameState.revealedLetters}
                     gameStatus={gameState.status}
                     showAll={hasPlayedToday}
+                    puzzleAuthor={dailySet.author}
                 />
             </main>
 
@@ -112,7 +113,6 @@ const GameContainer = ({ dailySet }: { dailySet: DailySet }) => {
                 isOpen={isStatsOpen}
                 onClose={() => setIsStatsOpen(false)}
                 latestGameSummary={latestGameSummary}
-                puzzleAuthor={dailySet?.author}
             />
 
             <HowToPlayModal

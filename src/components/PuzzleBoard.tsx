@@ -8,6 +8,7 @@ interface PuzzleBoardProps {
     revealedLetters: Set<string>;
     gameStatus: 'playing' | 'won' | 'lost';
     showAll?: boolean;
+    puzzleAuthor?: string;
 }
 
 export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
@@ -16,7 +17,8 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     guessedLetters,
     revealedLetters,
     gameStatus,
-    showAll: forceShowAll = false
+    showAll: forceShowAll = false,
+    puzzleAuthor
 }) => {
     const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -96,6 +98,18 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
     return (
         <div className="puzzle-board">
             {puzzles.map((puzzle, index) => renderPuzzleRow(puzzle, index))}
+
+            {puzzleAuthor && (
+                <div style={{
+                    marginTop: '20px',
+                    fontSize: '0.8rem',
+                    opacity: 0.6,
+                    fontStyle: 'italic',
+                    color: 'var(--color-primary)'
+                }}>
+                    Puzzle created by: {puzzleAuthor}
+                </div>
+            )}
         </div>
     );
 };
