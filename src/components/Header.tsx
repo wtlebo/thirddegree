@@ -109,9 +109,9 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPl
                 <div className="lives-display">
                     {Array(5).fill(0).map((_, i) => (
                         <span key={i} className={`life-icon ${i < (5 - strikes) ? 'active' : 'lost'}`}>
-                            {/* Improved Wave Icon - Stylized Crest */}
-                            <svg viewBox="0 0 100 60" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" width="30" height="20">
-                                <path d="M10,50 C10,50 30,10 50,10 C70,10 70,30 50,40 C40,45 30,30 50,25 C65,20 90,30 90,50" />
+                            {/* Minimalist Single Curved Line Wave */}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="28" height="28">
+                                <path d="M3,15 Q9,5 15,11 T21,15" />
                             </svg>
                         </span>
                     ))}
