@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPl
                     {/* Main Text */}
                     <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" fontFamily="sans-serif" fontWeight="900" fontSize="48" letterSpacing="2">
                         <tspan fill="#F7FFF7">HANG</tspan>
-                        <tspan dx="10" fill="#FF6B6B">5</tspan>
+                        <tspan dx="10" fill="#FF6B6B">10</tspan>
                     </text>
 
                     {/* Underline Surfboard shape */}
@@ -43,10 +43,9 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPl
                 <div className="lives-display">
                     {Array(5).fill(0).map((_, i) => (
                         <span key={i} className={`life-icon ${i < (5 - strikes) ? 'active' : 'lost'}`}>
-                            {/* Wave Icon */}
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M2 12c0-4 4-8 8-8s8 4 8 8" />
-                                <path d="M2 16c2-1 6-2 10-2s8 1 8 2" opacity="0.5" />
+                            {/* Wave Icon - Simple breaking wave */}
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                <path d="M2,18 C2,18 4,14 8,14 C12,14 14,18 18,18 C20,18 22,17 22,17 L22,20 L2,20 Z M20,15 C18,12 15,10 11,10 C6,10 3,14 2,16 L3,16 C4,14 7,12 11,12 C14,12 16,14 18,16" />
                             </svg>
                         </span>
                     ))}

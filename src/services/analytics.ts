@@ -51,7 +51,7 @@ export const logGameResult = async (gameLog: GameLog) => {
         const user = await ensureAuth();
         if (!user) return;
 
-        await addDoc(collection(db, "game_logs"), {
+        await addDoc(collection(db, "game_logs_hang10"), {
             ...gameLog,
             userId: user.uid,
             timestamp: serverTimestamp(), // Server-side timestamp for ordering
@@ -66,7 +66,7 @@ import { getAggregateFromServer, average, count, query, where } from "firebase/f
 
 export const getDailyAverageScore = async (date: string): Promise<number | null> => {
     try {
-        const coll = collection(db, "game_logs");
+        const coll = collection(db, "game_logs_hang10");
         const q = query(coll, where("date", "==", date));
         const snapshot = await getAggregateFromServer(q, {
             averageScore: average("score")
@@ -83,7 +83,7 @@ import { getDocs, limit, orderBy } from "firebase/firestore";
 
 export const getAdminStats = async (date: string) => {
     try {
-        const coll = collection(db, "game_logs");
+        const coll = collection(db, "game_logs_hang10");
         const q = query(coll, where("date", "==", date));
         const snapshot = await getAggregateFromServer(q, {
             totalGames: count(),
@@ -117,7 +117,7 @@ export const getAdminStats = async (date: string) => {
 
 export const getRecentGames = async (limitCount: number = 20, date?: string) => {
     try {
-        const coll = collection(db, "game_logs");
+        const coll = collection(db, "game_logs_hang10");
         let q;
 
         if (date) {

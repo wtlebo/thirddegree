@@ -129,7 +129,7 @@ export const LoginPage = () => {
         return (
             <div style={{ padding: '20px', color: 'white', maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
                 <h1 style={{ marginBottom: '20px' }}>Welcome!</h1>
-                <p>You've been invited to join Hang 5.</p>
+                <p>You've been invited to join Hang 10.</p>
                 <p style={{ marginBottom: '20px', opacity: 0.8 }}>Please choose your "Puzzle Master Handle". This name will appear publicly on puzzles you create.</p>
 
                 <form onSubmit={handleCreateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>

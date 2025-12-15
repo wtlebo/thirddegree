@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { UserStats } from '../types';
 import { logGameResult, type GuessLog } from '../services/analytics';
 
-const STATS_KEY = 'thirddegree_stats';
+const STATS_KEY = 'hang10_stats';
 
 const INITIAL_STATS: UserStats = {
     gamesPlayed: 0,
@@ -77,11 +77,20 @@ export const useStats = () => {
         saveStats(newStats);
 
         // Log to Firebase
+        // Scoring: 10 points max. Minus 2 for every strike.
+        // 0 strikes = 10
+        // 1 strike = 8
+        // 2 strikes = 6
+        // 3 strikes = 4
+        // 4 strikes = 2
+        // 5 strikes (Lost) = 0
+        const score = won ? 2 * (5 - totalStrikes) : 0;
+
         await logGameResult({
             date: date,
             status: won ? 'won' : 'lost',
             strikes: totalStrikes,
-            score: won ? 5 - totalStrikes : 0,
+            score: score,
             guesses
         });
     };

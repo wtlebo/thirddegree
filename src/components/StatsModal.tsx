@@ -54,7 +54,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
 
     const getDailyMessage = (status: 'won' | 'lost', strikes: number) => {
         if (status === 'lost') return "WIPE OUT";
-        if (strikes === 0) return "HANG 5";
+        if (strikes === 0) return "HANG 10";
         if (strikes === 1) return "TUBULAR";
         if (strikes === 2) return "RADICAL";
         if (strikes === 3) return "GNARLY";
@@ -75,7 +75,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content stats-modal" onClick={e => e.stopPropagation()} style={{ position: 'relative', paddingTop: '40px' }}>
-                <button className="close-btn" onClick={onClose} style={{ position: 'absolute', right: '15px', top: '10px' }}>&times;</button>
+                <button className="modal-close" onClick={onClose} style={{ position: 'absolute', right: '15px', top: '10px' }}>&times;</button>
 
                 {latestGameSummary && (
                     <div className="daily-summary" style={{ marginBottom: '30px', borderBottom: '1px solid var(--color-border)', paddingBottom: '20px' }}>
@@ -127,7 +127,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                 <h3>Guess Distribution</h3>
                 <div className="distribution-chart">
                     <div className="dist-row">
-                        <span className="dist-label">Hang 5</span>
+                        <span className="dist-label">Hang 10</span>
                         <div className="dist-bar-container">
                             <div className="dist-bar" style={{
                                 width: getWidth(stats.winDistribution.perfect),

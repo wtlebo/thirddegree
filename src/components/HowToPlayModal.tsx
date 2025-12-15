@@ -19,7 +19,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose 
 
                 <div style={{ textAlign: 'left', color: 'var(--color-text)', lineHeight: '1.6' }}>
                     <p style={{ marginBottom: '1rem' }}>
-                        <strong>Hang 5</strong> is a daily word puzzle game. Your goal is to solve 5 puzzles with as few strikes as possible.
+                        <strong>Hang 10</strong> is a daily word puzzle game. Your goal is to solve 5 puzzles with as few strikes as possible.
                     </p>
 
                     <h3 style={{ color: 'var(--color-secondary)', marginTop: '1.5rem', marginBottom: '0.5rem' }}>Rules</h3>
@@ -43,24 +43,24 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose 
                     <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '10px 20px', alignItems: 'center' }}>
                         {/* Rows */}
                         <span>0 Strikes</span>
-                        <span style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>HANG 5</span>
-                        <span style={{ fontWeight: 'bold' }}>5 pts</span>
+                        <span style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>HANG 10</span>
+                        <span style={{ fontWeight: 'bold' }}>10 pts</span>
 
                         <span>1 Strike</span>
                         <span style={{ color: 'var(--color-primary)' }}>TUBULAR</span>
-                        <span>4 pts</span>
+                        <span>8 pts</span>
 
                         <span>2 Strikes</span>
                         <span style={{ color: 'var(--color-primary)' }}>RADICAL</span>
-                        <span>3 pts</span>
+                        <span>6 pts</span>
 
                         <span>3 Strikes</span>
                         <span style={{ color: 'var(--color-primary)' }}>GNARLY</span>
-                        <span>2 pts</span>
+                        <span>4 pts</span>
 
                         <span>4 Strikes</span>
                         <span style={{ color: 'var(--color-primary)' }}>CLOSE CALL</span>
-                        <span>1 pt</span>
+                        <span>2 pts</span>
 
                         <span>5 Strikes</span>
                         <span style={{ color: 'var(--color-error)' }}>WIPE OUT</span>
