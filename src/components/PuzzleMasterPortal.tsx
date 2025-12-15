@@ -10,7 +10,7 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const PuzzleMasterPortal = () => {
     const [viewDate, setViewDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
-    const [existingPuzzles, setExistingPuzzles] = useState<Set<string>>(new Set());
+    const [existingPuzzles, setExistingPuzzles] = useState<Map<string, string>>(new Map());
     const { currentUser } = useUsers();
 
     // Editor State
@@ -22,7 +22,8 @@ export const PuzzleMasterPortal = () => {
     const [aiTheme, setAiTheme] = useState('');
     const [aiLoading, setAiLoading] = useState(false);
 
-    // ... (rest of the file until editor-header)
+    // Real-time validation state
+    const [validationErrors, setValidationErrors] = useState<{ [index: number]: string | null }>({});
 
 
     // Initial load for calendar
@@ -101,7 +102,7 @@ export const PuzzleMasterPortal = () => {
             const words = p.answer.split(' ');
             for (const word of words) {
                 if (word.length > 10) {
-                    return `Puzzle #${i + 1}: Word "${word}" is too long (Max 10 chars).`;
+                    return `Puzzle #${i + 1}: Word "${word}" is too long (Max 10 chars. per word).`;
                 }
                 if (seenWords.has(word) && word.length > 2) {
                     repeats.add(word);
@@ -165,16 +166,37 @@ export const PuzzleMasterPortal = () => {
             const dayStr = String(i).padStart(2, '0');
             const dateStr = `${year}-${month}-${dayStr}`;
             const isToday = dateStr === new Date().toLocaleDateString('en-CA');
-            const hasPuzzle = existingPuzzles.has(dateStr);
+            const author = existingPuzzles.get(dateStr);
+            const hasPuzzle = !!author;
 
             days.push(
                 <div
                     key={i}
                     className={`calendar-day ${isToday ? 'today' : ''} ${hasPuzzle ? 'has-puzzle' : ''}`}
                     onClick={() => handleDateClick(i)}
+                    style={{ position: 'relative' }}
                 >
-                    {i}
-                    {hasPuzzle && <div className="dot" />}
+                    <span style={{ zIndex: 1 }}>{i}</span>
+                    {hasPuzzle && (
+                        <>
+                            <div className="dot" />
+                            <div style={{
+                                fontSize: '0.6rem',
+                                position: 'absolute',
+                                bottom: '2px',
+                                left: 0,
+                                right: 0,
+                                textAlign: 'center',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                padding: '0 2px',
+                                color: 'rgba(255,255,255,0.7)'
+                            }}>
+                                {author}
+                            </div>
+                        </>
+                    )}
                 </div>
             );
         }
@@ -350,15 +372,42 @@ export const PuzzleMasterPortal = () => {
                                         <input
                                             value={p.answer}
                                             onChange={e => {
-                                                const val = e.target.value.toUpperCase().replace(/[^A-Z ]/g, '');
+                                                // Allow typing freely, validate real-time
+                                                const val = e.target.value;
+                                                const newPuzzles = [...puzzleData.puzzles];
+                                                newPuzzles[idx] = { ...p, answer: val };
+                                                setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
+
+                                                // Real-time validation check
+                                                let errorMsg = null;
+                                                const words = val.toUpperCase().split(' ');
+                                                for (const w of words) {
+                                                    if (w.length > 10) {
+                                                        errorMsg = "Max 10 chars. per word";
+                                                        break;
+                                                    }
+                                                }
+                                                setValidationErrors(prev => ({ ...prev, [idx]: errorMsg }));
+                                            }}
+                                            onBlur={() => {
+                                                // Format on blur
+                                                const val = p.answer.toUpperCase().replace(/[^A-Z ]/g, '');
                                                 const newPuzzles = [...puzzleData.puzzles];
                                                 newPuzzles[idx] = { ...p, answer: val };
                                                 setPuzzleData({ ...puzzleData, puzzles: newPuzzles as any });
                                             }}
                                             maxLength={50}
                                             disabled={isReadOnly}
-                                            style={{ width: '100%' }}
+                                            style={{
+                                                width: '100%',
+                                                borderColor: validationErrors[idx] ? 'var(--color-error)' : undefined
+                                            }}
                                         />
+                                        {validationErrors[idx] && (
+                                            <div style={{ color: 'var(--color-error)', fontSize: '0.8rem', marginTop: '2px' }}>
+                                                {validationErrors[idx]}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

@@ -34,7 +34,7 @@ export const getPuzzleByDate = async (date: string): Promise<PuzzleDocument | nu
     }
 };
 
-export const getPuzzleStatusForMonth = async (year: number, month: number): Promise<Set<string>> => {
+export const getPuzzleStatusForMonth = async (year: number, month: number): Promise<Map<string, string>> => {
     // Month is 1-12
     const startStr = `${year}-${String(month).padStart(2, '0')}-01`;
     // simplistic end of month, essentially start of next month
@@ -49,9 +49,10 @@ export const getPuzzleStatusForMonth = async (year: number, month: number): Prom
     );
 
     const snapshot = await getDocs(q);
-    const existingDates = new Set<string>();
+    const existingPuzzles = new Map<string, string>();
     snapshot.forEach(doc => {
-        existingDates.add(doc.id);
+        const data = doc.data();
+        existingPuzzles.set(doc.id, data.author || 'Anonymous');
     });
-    return existingDates;
+    return existingPuzzles;
 };

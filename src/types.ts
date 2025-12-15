@@ -7,6 +7,7 @@ export interface Puzzle {
 export interface DailySet {
     date: string; // YYYY-MM-DD
     puzzles: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle];
+    author?: string;
 }
 
 export interface PuzzleDocument extends DailySet {

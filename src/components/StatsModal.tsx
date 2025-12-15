@@ -10,9 +10,10 @@ interface StatsModalProps {
         status: 'won' | 'lost';
         strikes: number;
     } | null;
+    puzzleAuthor?: string;
 }
 
-export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, latestGameSummary }) => {
+export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, latestGameSummary, puzzleAuthor }) => {
     const [globalAverage, setGlobalAverage] = useState<string>("-");
 
     useEffect(() => {
@@ -198,16 +199,34 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                     paddingTop: '1rem',
                     borderTop: '1px solid var(--color-border)',
                     display: 'flex',
-                    justifyContent: 'space-between',
+                    flexDirection: 'column',
+                    gap: '10px',
                     alignItems: 'center',
                     fontSize: '0.9rem',
                     color: 'var(--color-secondary)'
                 }}>
-                    <div>{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                        <span>Global Avg:</span>
-                        <span style={{ fontWeight: 'bold', color: 'var(--color-text)', fontSize: '1.1rem' }}>{globalAverage}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                        <div>{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <span>Global Avg:</span>
+                            <span style={{ fontWeight: 'bold', color: 'var(--color-text)', fontSize: '1.1rem' }}>{globalAverage}</span>
+                        </div>
                     </div>
+
+                    {puzzleAuthor && (
+                        <div style={{
+                            fontSize: '0.8rem',
+                            opacity: 0.8,
+                            borderTop: '1px solid rgba(255,255,255,0.1)',
+                            width: '100%',
+                            textAlign: 'center',
+                            paddingTop: '10px',
+                            fontStyle: 'italic',
+                            color: 'var(--color-primary)'
+                        }}>
+                            Puzzle created by: {puzzleAuthor}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -112,6 +112,7 @@ const GameContainer = ({ dailySet }: { dailySet: DailySet }) => {
                 isOpen={isStatsOpen}
                 onClose={() => setIsStatsOpen(false)}
                 latestGameSummary={latestGameSummary}
+                puzzleAuthor={dailySet?.author}
             />
 
             <HowToPlayModal
