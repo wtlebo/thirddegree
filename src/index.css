@@ -649,6 +649,13 @@ button[class^="btn-"] {
   grid-template-columns: repeat(7, 1fr);
   gap: 10px;
   width: 100%;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .calendar-grid {
+    width: 70%;
+  }
 }
 
 .calendar-header {
