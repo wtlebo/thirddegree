@@ -6,7 +6,7 @@ const ALLOWED_USERS_COLLECTION = 'allowed_users';
 const USERS_COLLECTION = 'users';
 
 // Check if an email is in the allowed list
-export const checkUserAllowed = async (email: string): Promise<{ allowed: boolean, role?: 'admin' | 'pm' }> => {
+export const checkUserAllowed = async (email: string): Promise<{ allowed: boolean, role?: 'admin' | 'pm' | 'player' }> => {
     // Basic normalization
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -52,7 +52,7 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 };
 
 // Create a new user profile
-export const createUserProfile = async (uid: string, email: string, handle: string, role: 'admin' | 'pm'): Promise<void> => {
+export const createUserProfile = async (uid: string, email: string, handle: string, role: 'admin' | 'pm' | 'player'): Promise<void> => {
     if (!uid) throw new Error("User ID is required to create a profile");
 
     const profile: UserProfile = {

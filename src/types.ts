@@ -48,13 +48,13 @@ export interface UserProfile {
     uid: string;
     email: string;
     handle: string;
-    role: 'admin' | 'pm';
+    role: 'admin' | 'pm' | 'player';
     createdAt: any;
 }
 
 export interface AllowedUser {
     email: string;
-    role: 'admin' | 'pm';
+    role: 'admin' | 'pm' | 'player';
     addedBy: string;
     addedAt: any;
 }

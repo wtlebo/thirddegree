@@ -14,12 +14,8 @@ export const LoginPage = () => {
     const [creationError, setCreationError] = useState('');
     const [isCreating, setIsCreating] = useState(false);
 
-    useEffect(() => {
-        // If we have a full profile, we recall redirecting
-        if (currentUser) {
-            navigate('/admin');
-        }
-    }, [currentUser, navigate]);
+    // UseEffect redirect removed to allow users to see the Profile/Logout page
+    // Users can navigate to specific tools via buttons now.
 
     const handleLogin = async (providerName: 'google' | 'facebook' | 'apple') => {
         let provider: any;
@@ -70,8 +66,61 @@ export const LoginPage = () => {
         setIsCreating(false);
     };
 
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            navigate('/'); // Go home after logout
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    };
+
     if (loading) {
         return <div style={{ color: 'white', textAlign: 'center', marginTop: '100px' }}>Loading...</div>;
+    }
+
+    // Scenario 0: Logged In and Has Profile -> Show Profile / Logout View
+    if (currentUser) {
+        return (
+            <div style={{ padding: '20px', color: 'white', maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
+                <h1 style={{ marginBottom: '10px', color: 'var(--color-primary)' }}>My Account</h1>
+
+                <div style={{ background: 'rgba(255,255,255,0.05)', padding: '30px', borderRadius: '15px' }}>
+                    <div style={{
+                        width: '80px', height: '80px', borderRadius: '50%', background: 'var(--color-secondary)', color: 'black',
+                        display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '2rem', fontWeight: 'bold',
+                        margin: '0 auto 20px auto'
+                    }}>
+                        {currentUser.handle.charAt(0).toUpperCase()}
+                    </div>
+
+                    <h2 style={{ marginBottom: '5px' }}>{currentUser.handle}</h2>
+                    <p style={{ opacity: 0.6, marginBottom: '30px' }}>{currentUser.role === 'player' ? 'Player' : currentUser.role.toUpperCase()}</p>
+
+                    {(currentUser.role === 'admin' || currentUser.role === 'pm') && (
+                        <button
+                            onClick={() => navigate('/admin')}
+                            style={{
+                                width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '5px', border: 'none',
+                                background: 'var(--color-primary)', color: 'black', fontWeight: 'bold', cursor: 'pointer'
+                            }}
+                        >
+                            Enter Admin Portal
+                        </button>
+                    )}
+
+                    <button
+                        onClick={handleSignOut}
+                        style={{
+                            width: '100%', padding: '12px', borderRadius: '5px', border: '1px solid rgba(255,255,255,0.2)',
+                            background: 'transparent', color: 'white', cursor: 'pointer'
+                        }}
+                    >
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     // Scenario 1: Not logged in at all
