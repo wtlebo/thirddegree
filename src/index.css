@@ -659,10 +659,8 @@ button[class^="btn-"] {
 }
 
 .calendar-day {
-  min-height: 80px;
-  /* Taller to fit handle */
-  aspect-ratio: 1 / 1.2;
-  /* Slightly taller than wide */
+  min-height: 85px;
+  /* Fixed height to accommodate handle */
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   display: flex;
