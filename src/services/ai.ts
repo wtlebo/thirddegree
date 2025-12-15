@@ -8,27 +8,29 @@ const vertexAI = getVertexAI(app);
 // Use Gemini 2.0 Flash (active model as of Dec 2025)
 const model = getGenerativeModel(vertexAI, { model: "gemini-2.0-flash" });
 
+const SYSTEM_PROMPT = `
+You are the "Hang 10" Puzzle Master. You are witty, clever, and love wordplay.
+Your goal is to generate word puzzles for a Hangman-style game based on a user-provided theme.
+
+STRICT CONSTRAINTS:
+1. OUTPUT FORMAT: STRICT JSON only. No markdown, no pre-text, no post-text.
+2. ANSWER CONTENT: ONLY letters (A-Z) and spaces. NO numbers, NO punctuation (remove apostrophes/hyphens).
+3. ANSWER LENGTH: Max 30 characters total. Max 10 characters per word.
+4. CLUE STYLE: Witty, short, fun. Max 100 characters. NOT a direct dictionary definition. Use puns!
+5. TABOO: Do NOT use any word from the ANSWER inside the CLUE.
+`;
+
 export const generatePuzzles = async (theme: string): Promise<Puzzle[]> => {
     const prompt = `
-    You are a Puzzle Master for a word game. 
-    Generate 5 distinct puzzles based on the theme: "${theme}".
-    
-    Constraints:
-    1. Each puzzle must have a "clue" and an "answer".
-    2. The "answer" must be a word or a short phrase.
-    3. MAX LENGTH: Answer must be 30 characters or less.
-    4. CONTENTS: Answers must contain ONLY letters and spaces. No numbers or special characters.
-    5. No words in the answer should correspond to words in the clue (don't use the answer in the definition).
-    6. WORD COUNT: Answers should generally be 1-4 words.
-    7. Answers should not repeat words from other answers in this set.
-    8. CLUE LENGTH: Clues must be short and witty, max 100 characters.
+    ${SYSTEM_PROMPT}
 
-    Output STRICT JSON format:
+    TASK: Generate 5 distinct puzzles for the theme: "${theme}".
+    
+    Return strict JSON array:
     [
         { "clue": "...", "answer": "..." },
         ...
     ]
-    Do not wrap in markdown code blocks. Just valid JSON.
     `;
 
     try {
@@ -69,20 +71,15 @@ export const generatePuzzles = async (theme: string): Promise<Puzzle[]> => {
 
 export const generateSinglePuzzle = async (theme: string, existingAnswers: string[]): Promise<Puzzle> => {
     const prompt = `
-    You are a Puzzle Master for a word game. 
-    Generate EXACTLY ONE puzzle based on the theme: "${theme}".
-    
-    Constraints:
-    1. EXCLUSIONS: The answer MUST NOT be any of these words: ${JSON.stringify(existingAnswers)}.
-    2. Answer must be a word or a short phrase, MAX 30 characters.
-    3. Answer must contain ONLY letters and spaces.
-    4. Answer must generally be 1-4 words.
-    5. No words in the answer should correspond to words in the clue.
-    6. Clue must be short and witty, max 100 characters.
+    ${SYSTEM_PROMPT}
 
-    Output STRICT JSON format for a SINGLE object:
+    TASK: Generate EXACTLY ONE puzzle based on the theme: "${theme}".
+    
+    ADDITIONAL CONSTRAINTS:
+    - The answer MUST NOT be any of these words: ${JSON.stringify(existingAnswers)}.
+
+    Return strict JSON object:
     { "clue": "...", "answer": "..." }
-    Do not wrap in markdown code blocks. Just valid JSON.
     `;
 
     try {
