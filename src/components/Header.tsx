@@ -109,10 +109,10 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPl
                 <div className="lives-display">
                     {Array(5).fill(0).map((_, i) => (
                         <span key={i} className={`life-icon ${i < (5 - strikes) ? 'active' : 'lost'}`} style={{ color: '#F7FFF7' }}>
-                            {/* White Breaking Wave (Curl) */}
+                            {/* Barrel/Tube Breaking Wave (More Break) */}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="28" height="28">
-                                <path d="M2,19 C4,19 6,12 11,10 C16,8 19,12 17,15 C16,16 14,15 14,13" />
-                                <path d="M15,16 C17,16 21,18 22,19" />
+                                <path d="M2,18 C2,18 6,8 14,8 C19,8 20,14 16,15 C13,16 12,13 14,11" />
+                                <path d="M16,18 C18,17 21,18 22,20" />
                             </svg>
                         </span>
                     ))}
