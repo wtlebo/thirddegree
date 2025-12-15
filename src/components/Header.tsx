@@ -13,80 +13,11 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPl
     return (
         <header className="game-header">
             <div className="logo-container" style={{ position: 'relative', overflow: 'hidden', padding: '20px 0' }}>
-                <svg className="game-logo-svg" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" style={{ maxWidth: '400px' }}>
-
-                    {/* 1. Sun (Top Left) */}
-                    <g transform="translate(60, 40)">
-                        <circle cx="0" cy="0" r="18" fill="var(--color-secondary)" />
-                        {/* Sun Rays */}
-                        {[...Array(8)].map((_, i) => (
-                            <line
-                                key={i}
-                                x1="0" y1="-22" x2="0" y2="-28"
-                                stroke="var(--color-secondary)"
-                                strokeWidth="3"
-                                transform={`rotate(${i * 45})`}
-                                strokeLinecap="round"
-                            />
-                        ))}
-                    </g>
-
-                    {/* 2. Main Title "HANG 10" */}
-                    <text
-                        x="200"
-                        y="50"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        style={{
-                            fontFamily: 'var(--font-heading)',
-                            fontSize: '48px',
-                            fill: 'var(--color-secondary)',
-                            stroke: 'var(--color-accent)',
-                            strokeWidth: '1.5px',
-                            letterSpacing: '2px'
-                        }}
-                    >
-                        HANG 10
-                    </text>
-
-                    {/* 3. Decorative Waves across the bottom */}
-                    {/* Top Wave (Coral) */}
-                    <path
-                        d="M0,80 Q50,60 100,80 T200,80 T300,80 T400,80"
-                        fill="none"
-                        stroke="var(--color-accent)"
-                        strokeWidth="4"
-                        opacity="0.8"
-                    />
-                    {/* Middle Wave (Yellow) */}
-                    <path
-                        d="M0,90 Q50,70 100,90 T200,90 T300,90 T400,90"
-                        fill="none"
-                        stroke="var(--color-secondary)"
-                        strokeWidth="4"
-                        opacity="0.8"
-                    />
-                    {/* Bottom Wave (Teal) */}
-                    <path
-                        d="M0,100 Q50,80 100,100 T200,100 T300,100 T400,100"
-                        fill="none"
-                        stroke="var(--color-primary)"
-                        strokeWidth="4"
-                        opacity="0.8"
-                    />
-
-                    {/* 4. Surfer (Riding the waves on the right) */}
-                    <g transform="translate(300, 75) scale(0.8)">
-                        {/* Surfboard */}
-                        <ellipse cx="0" cy="15" rx="30" ry="5" fill="var(--color-accent)" transform="rotate(-10)" />
-                        {/* Stick Figure Surfer */}
-                        <line x1="-5" y1="12" x2="5" y2="-5" stroke="var(--color-text)" strokeWidth="3" strokeLinecap="round" /> {/* Legs/Body */}
-                        <line x1="5" y1="-5" x2="10" y2="-15" stroke="var(--color-text)" strokeWidth="3" strokeLinecap="round" /> {/* Torso */}
-                        <circle cx="12" cy="-18" r="4" fill="var(--color-text)" /> {/* Head */}
-                        <line x1="5" y1="-10" x2="-10" y2="-10" stroke="var(--color-text)" strokeWidth="3" strokeLinecap="round" /> {/* Back Arm */}
-                        <line x1="5" y1="-10" x2="20" y2="-5" stroke="var(--color-text)" strokeWidth="3" strokeLinecap="round" /> {/* Front Arm */}
-                    </g>
-                </svg>
+                <img
+                    src="/header_banner.png"
+                    alt="Hang 10 Header"
+                    style={{ width: '100%', maxWidth: '600px', height: 'auto', display: 'block', margin: '0 auto' }}
+                />
             </div>
 
             <div className="header-controls">
