@@ -34,11 +34,11 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
         : 0;
 
     const totalScore =
-        (stats.winDistribution.perfect * 5) +
-        (stats.winDistribution.oneStrike * 4) +
-        (stats.winDistribution.twoStrikes * 3) +
-        (stats.winDistribution.threeStrikes * 2) +
-        (stats.winDistribution.fourStrikes * 1);
+        (stats.winDistribution.perfect * 10) +
+        (stats.winDistribution.oneStrike * 8) +
+        (stats.winDistribution.twoStrikes * 6) +
+        (stats.winDistribution.threeStrikes * 4) +
+        (stats.winDistribution.fourStrikes * 2);
 
     const averageScore = stats.gamesPlayed > 0
         ? (totalScore / stats.gamesPlayed).toFixed(2)
@@ -75,7 +75,29 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content stats-modal" onClick={e => e.stopPropagation()} style={{ position: 'relative', paddingTop: '40px' }}>
-                <button className="modal-close" onClick={onClose} style={{ position: 'absolute', right: '15px', top: '10px' }}>&times;</button>
+                <button
+                    className="modal-close-icon"
+                    onClick={onClose}
+                    style={{
+                        position: 'absolute',
+                        right: '15px',
+                        top: '15px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: 'var(--color-text)',
+                        opacity: 0.7,
+                        transition: 'opacity 0.2s',
+                        padding: '5px'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '0.7'}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
 
                 {latestGameSummary && (
                     <div className="daily-summary" style={{ marginBottom: '30px', borderBottom: '1px solid var(--color-border)', paddingBottom: '20px' }}>
@@ -91,7 +113,15 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                         </h1>
                         <p style={{ fontSize: '1.2rem', color: 'var(--color-text)' }}>
                             {latestGameSummary.status === 'won'
-                                ? `You completed today's puzzles with ${latestGameSummary.strikes} strike${latestGameSummary.strikes === 1 ? '' : 's'}.`
+                                ? (
+                                    <>
+                                        {latestGameSummary.strikes === 0 && "Great Job! Zero strikes = 10 points!"}
+                                        {latestGameSummary.strikes === 1 && "Nice! One strike = 8 points!"}
+                                        {latestGameSummary.strikes === 2 && "Solid! Two strikes = 6 points."}
+                                        {latestGameSummary.strikes === 3 && "Phew! Three strikes = 4 points."}
+                                        {latestGameSummary.strikes === 4 && "Close one! Four strikes = 2 points."}
+                                    </>
+                                )
                                 : "Better luck next time!"}
                         </p>
                     </div>
@@ -138,7 +168,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                         </div>
                     </div>
                     <div className="dist-row">
-                        <span className="dist-label">Tubular</span>
+                        <span className="dist-label">Tubular (8)</span>
                         <div className="dist-bar-container">
                             <div className="dist-bar" style={{
                                 width: getWidth(stats.winDistribution.oneStrike),
@@ -149,7 +179,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                         </div>
                     </div>
                     <div className="dist-row">
-                        <span className="dist-label">Radical</span>
+                        <span className="dist-label">Radical (6)</span>
                         <div className="dist-bar-container">
                             <div className="dist-bar" style={{
                                 width: getWidth(stats.winDistribution.twoStrikes),
@@ -160,7 +190,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                         </div>
                     </div>
                     <div className="dist-row">
-                        <span className="dist-label">Gnarly</span>
+                        <span className="dist-label">Gnarly (4)</span>
                         <div className="dist-bar-container">
                             <div className="dist-bar" style={{
                                 width: getWidth(stats.winDistribution.threeStrikes),
@@ -171,7 +201,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                         </div>
                     </div>
                     <div className="dist-row">
-                        <span className="dist-label">Close Call</span>
+                        <span className="dist-label">Close Call (2)</span>
                         <div className="dist-bar-container">
                             <div className="dist-bar" style={{
                                 width: getWidth(stats.winDistribution.fourStrikes),
@@ -182,7 +212,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                         </div>
                     </div>
                     <div className="dist-row">
-                        <span className="dist-label">Wipe Out</span>
+                        <span className="dist-label">Wipe Out (0)</span>
                         <div className="dist-bar-container">
                             <div className="dist-bar" style={{
                                 width: getWidth(stats.winDistribution.failed),

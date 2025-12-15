@@ -66,13 +66,25 @@ import { getAggregateFromServer, average, count, query, where } from "firebase/f
 
 export const getDailyAverageScore = async (date: string): Promise<number | null> => {
     try {
-        const coll = collection(db, "game_logs_hang10");
+        // REBRAND DATE: 2025-12-15
+        // If the puzzle is from before the rebrand, check the old collection and normalize score.
+        const isLegacy = date < '2025-12-15';
+        const collectionName = isLegacy ? "game_logs" : "game_logs_hang10";
+
+        const coll = collection(db, collectionName);
         const q = query(coll, where("date", "==", date));
         const snapshot = await getAggregateFromServer(q, {
             averageScore: average("score")
         });
 
-        return snapshot.data().averageScore;
+        const rawAvg = snapshot.data().averageScore;
+
+        if (rawAvg === null) return null;
+
+        // Old scores were out of 5. New are out of 10.
+        // Normalize old scores by multiplying by 2.
+        return isLegacy ? rawAvg * 2 : rawAvg;
+
     } catch (error) {
         console.error("Error fetching daily average:", error);
         return null;
