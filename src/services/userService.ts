@@ -35,7 +35,8 @@ export const checkUserAllowed = async (email: string): Promise<{ allowed: boolea
         return { allowed: true, role: data.role };
     }
 
-    return { allowed: false };
+    // Default to allowed 'player' if not explicitly invited as admin/pm
+    return { allowed: true, role: 'player' };
 };
 
 // Get the user's profile

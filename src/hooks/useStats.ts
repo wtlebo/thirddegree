@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import type { UserStats } from '../types';
-import { logGameResult, type GuessLog } from '../services/analytics';
+import { db, logGameResult, type GuessLog } from '../services/analytics';
+import { useUsers } from '../contexts/UsersContext';
 
 const STATS_KEY = 'hang10_stats';
 
@@ -22,13 +24,14 @@ const INITIAL_STATS: UserStats = {
 
 export const useStats = () => {
     const [stats, setStats] = useState<UserStats>(INITIAL_STATS);
+    const { firebaseUser } = useUsers();
 
+    // Load from local storage initially
     useEffect(() => {
         const storedStats = localStorage.getItem(STATS_KEY);
         if (storedStats) {
             try {
                 const parsed = JSON.parse(storedStats);
-                // Migration: Ensure all distribution keys exist
                 const merged = {
                     ...INITIAL_STATS,
                     ...parsed,
@@ -44,9 +47,65 @@ export const useStats = () => {
         }
     }, []);
 
-    const saveStats = (newStats: UserStats) => {
+    // Sync with Cloud when User logs in
+    useEffect(() => {
+        if (!firebaseUser) return;
+
+        const syncStats = async () => {
+            const userStatsRef = doc(db, 'users', firebaseUser.uid, 'data', 'stats');
+
+            try {
+                const docSnap = await getDoc(userStatsRef);
+
+                if (docSnap.exists()) {
+                    // Cloud stats exist -> Download and use them (Cloud is truth)
+                    // In a more complex world, we might merge, but for now assuming Cloud is authority 
+                    // unless we want to catch "offline plays". 
+                    // Let's stick to: Cloud wins.
+                    const cloudStats = docSnap.data() as UserStats;
+                    setStats(cloudStats);
+                    localStorage.setItem(STATS_KEY, JSON.stringify(cloudStats));
+                } else {
+                    // Cloud is empty -> Upload Local stats (Migration from Anonymous)
+                    const localString = localStorage.getItem(STATS_KEY);
+                    let statsToUpload = INITIAL_STATS;
+
+                    if (localString) {
+                        const parsed = JSON.parse(localString);
+                        statsToUpload = {
+                            ...INITIAL_STATS,
+                            ...parsed,
+                            winDistribution: {
+                                ...INITIAL_STATS.winDistribution,
+                                ...parsed.winDistribution
+                            }
+                        };
+                    }
+
+                    await setDoc(userStatsRef, statsToUpload);
+                    // No need to setStats, we already have it locally
+                }
+            } catch (e) {
+                console.error("Error syncing stats:", e);
+            }
+        };
+
+        syncStats();
+    }, [firebaseUser]);
+
+    const saveStats = async (newStats: UserStats) => {
         setStats(newStats);
         localStorage.setItem(STATS_KEY, JSON.stringify(newStats));
+
+        // If logged in, push to Cloud
+        if (firebaseUser) {
+            try {
+                const userStatsRef = doc(db, 'users', firebaseUser.uid, 'data', 'stats');
+                await setDoc(userStatsRef, newStats);
+            } catch (e) {
+                console.error("Failed to save stats to cloud:", e);
+            }
+        }
     };
 
     const recordGame = async (won: boolean, totalStrikes: number, guesses: GuessLog[], date: string) => {
@@ -76,14 +135,8 @@ export const useStats = () => {
 
         saveStats(newStats);
 
-        // Log to Firebase
-        // Scoring: 10 points max. Minus 2 for every strike.
-        // 0 strikes = 10
-        // 1 strike = 8
-        // 2 strikes = 6
-        // 3 strikes = 4
-        // 4 strikes = 2
-        // 5 strikes (Lost) = 0
+        // Log to Firebase Global Logs
+        // Scoring...
         const score = won ? 2 * (5 - totalStrikes) : 0;
 
         await logGameResult({
