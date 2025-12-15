@@ -109,9 +109,9 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPl
                 <div className="lives-display">
                     {Array(5).fill(0).map((_, i) => (
                         <span key={i} className={`life-icon ${i < (5 - strikes) ? 'active' : 'lost'}`}>
-                            {/* Minimalist Wave Icon (PNG) */}
+                            {/* Minimalist Wave Icon (PNG) - v2 - CACHE BUSTER */}
                             <img
-                                src="/wave_icon.png"
+                                src="/wave_icon_v2.png"
                                 alt="Wave"
                                 style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }}
                             />
