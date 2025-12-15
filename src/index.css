@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Shrikhand&display=swap');
+
 :root {
   /* Retro Surf Palette */
   --color-bg: #1A535C;
@@ -22,7 +24,7 @@
   /* Darker Navy for used keys */
 
   --font-family: 'Inter', sans-serif;
-  /* Keep Inter for now, maybe change later */
+  --font-heading: 'Shrikhand', cursive;
 }
 
 * {
