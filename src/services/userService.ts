@@ -1,5 +1,5 @@
 import { db } from './analytics';
-import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs, writeBatch, query, where } from 'firebase/firestore';
 import type { UserProfile, AllowedUser } from '../types';
 
 const ALLOWED_USERS_COLLECTION = 'allowed_users';
@@ -99,4 +99,32 @@ export const inviteUser = async (email: string, role: 'admin' | 'pm', addedByUid
 export const getAllInvites = async (): Promise<AllowedUser[]> => {
     const snapshot = await getDocs(collection(db, ALLOWED_USERS_COLLECTION));
     return snapshot.docs.map(doc => doc.data() as AllowedUser);
+};
+
+// Update user handle and retroactively update all their puzzles
+export const updateUserHandle = async (uid: string, oldHandle: string, newHandle: string): Promise<void> => {
+    if (!uid || !newHandle.trim()) throw new Error("Invalid User ID or Handle");
+    const normalizedHandle = newHandle.trim();
+
+    // 1. Update the User Profile
+    const userRef = doc(db, USERS_COLLECTION, uid);
+    await setDoc(userRef, { handle: normalizedHandle }, { merge: true });
+
+    // 2. Find all puzzles by the old handle
+    const puzzlesRef = collection(db, 'puzzles');
+    const q = query(puzzlesRef, where('author', '==', oldHandle));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return;
+
+    // 3. Batch update the puzzles
+    // Firestore batches are limited to 500 ops. If a user has > 500 puzzles, we'd need chunks.
+    // For now, assuming < 500 for this scale.
+    const batch = writeBatch(db);
+
+    snapshot.docs.forEach(doc => {
+        batch.update(doc.ref, { author: normalizedHandle });
+    });
+
+    await batch.commit();
 };

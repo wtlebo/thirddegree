@@ -56,13 +56,14 @@ const GameDetailsModal = ({ game, onClose }: { game: GameLog | null, onClose: ()
 
 import { UserManagement } from '../components/UserManagement';
 import { useUsers } from '../contexts/UsersContext';
+import { updateUserHandle } from '../services/userService';
 
 export const AdminPage = () => {
     const dailyPuzzle = getDailyPuzzle();
     const { currentUser } = useUsers();
 
     // Default to 'dashboard', 'puzzles', or 'users'
-    const [mode, setMode] = useState<'dashboard' | 'puzzles' | 'users'>('dashboard');
+    const [mode, setMode] = useState<'dashboard' | 'puzzles' | 'users' | 'profile'>('dashboard');
     const [selectedDate, setSelectedDate] = useState(dailyPuzzle.date);
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [recentGames, setRecentGames] = useState<GameLog[]>([]);
@@ -159,6 +160,17 @@ export const AdminPage = () => {
                     >
                         Puzzle Master
                     </button>
+                    <button
+                        onClick={() => setMode('profile')}
+                        style={{
+                            background: 'none', border: 'none',
+                            color: mode === 'profile' ? 'var(--color-primary)' : 'var(--color-text)',
+                            fontSize: '1.2rem', cursor: 'pointer', paddingBottom: '10px',
+                            borderBottom: mode === 'profile' ? '2px solid var(--color-primary)' : '2px solid transparent'
+                        }}
+                    >
+                        My Profile
+                    </button>
                     {currentUser?.role === 'admin' && (
                         <button
                             onClick={() => setMode('users')}
@@ -212,6 +224,71 @@ export const AdminPage = () => {
             {mode === 'users' && <UserManagement />}
 
             {mode === 'puzzles' && <PuzzleMasterPortal />}
+
+            {mode === 'profile' && (
+                <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                    <div className="admin-stats-container">
+                        {(() => {
+                            const myStats = pmStats.find(s => s.handle === currentUser?.handle);
+                            return (
+                                <>
+                                    <div className="admin-stat-card">
+                                        <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Created</h3>
+                                        <div className="admin-stat-value" style={{ color: 'var(--color-primary)' }}>{myStats?.totalCreated || 0}</div>
+                                    </div>
+                                    <div className="admin-stat-card">
+                                        <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Published</h3>
+                                        <div className="admin-stat-value" style={{ color: 'var(--color-secondary)' }}>{myStats?.publishedCount || 0}</div>
+                                    </div>
+                                    <div className="admin-stat-card">
+                                        <h3 style={{ margin: '0 0 10px 0', opacity: 0.8 }}>Avg Score</h3>
+                                        <div className="admin-stat-value" style={{ color: 'var(--color-accent)' }}>{myStats?.averageGlobalScore || '-'}</div>
+                                    </div>
+                                </>
+                            );
+                        })()}
+                    </div>
+
+                    <div style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px' }}>
+                        <h2 style={{ marginTop: 0, marginBottom: '20px', borderBottom: '1px solid var(--color-border)', paddingBottom: '10px' }}>Edit Profile</h2>
+
+                        <div className="form-group">
+                            <label>Handle (Public Name)</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input
+                                    type="text"
+                                    defaultValue={currentUser?.handle}
+                                    id="handle-input"
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    className="btn-confirm"
+                                    onClick={async () => {
+                                        const input = document.getElementById('handle-input') as HTMLInputElement;
+                                        const newHandle = input.value;
+                                        if (newHandle && newHandle !== currentUser?.handle && currentUser?.uid) {
+                                            if (confirm(`Change handle to "${newHandle}"? This will update all your past puzzles.`)) {
+                                                try {
+                                                    await updateUserHandle(currentUser.uid, currentUser.handle, newHandle);
+                                                    alert("Handle updated! Reloading...");
+                                                    window.location.reload();
+                                                } catch (e: any) {
+                                                    alert("Error updating handle: " + e.message);
+                                                }
+                                            }
+                                        }
+                                    }}
+                                >
+                                    Update
+                                </button>
+                            </div>
+                            <p style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '5px' }}>
+                                Changing your handle will automatically update the "Created by" text on all your existing puzzles.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {mode === 'dashboard' && (
                 <>
