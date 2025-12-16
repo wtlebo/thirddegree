@@ -12,7 +12,7 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPl
 
     return (
         <header className="game-header">
-            <div className="logo-container" style={{ position: 'relative', overflow: 'hidden', padding: '20px 0' }}>
+            <div className="logo-container" style={{ position: 'relative', overflow: 'hidden', padding: '5px 0' }}>
                 <img
                     src="/header_banner.png"
                     alt="Hang 10 Header"
