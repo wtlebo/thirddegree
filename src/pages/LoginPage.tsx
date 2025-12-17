@@ -59,6 +59,7 @@ export const LoginPage = () => {
 
             // Refresh context to pull the new profile
             await refreshProfile();
+            navigate('/'); // Redirect to game immediately
         } catch (err: any) {
             console.error("Profile creation error:", err);
             setCreationError(err.message);

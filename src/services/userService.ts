@@ -95,6 +95,21 @@ export const inviteUser = async (email: string, role: 'admin' | 'pm', addedByUid
     };
 
     await setDoc(docRef, invite);
+
+    // Also look for an existing user profile with this email and update their role immediately
+    // usage of 'users' collection requires querying since ID is UID, not email.
+    const usersRef = collection(db, USERS_COLLECTION);
+    const q = query(usersRef, where('email', '==', normalizedEmail));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+        // Should only be one, but iterate just in case
+        const batch = writeBatch(db);
+        querySnapshot.forEach((doc) => {
+            batch.update(doc.ref, { role: role });
+        });
+        await batch.commit();
+    }
 };
 
 export const getAllInvites = async (): Promise<AllowedUser[]> => {

@@ -41,13 +41,21 @@ export const UserManagement = () => {
         try {
             // Check if already exists
             const existing = await checkUserAllowed(inviteEmail);
-            if (existing.allowed) {
-                setError("User is already allowed (Role: " + existing.role + ")");
+
+            // If they exist AND have the exact same role, block it.
+            if (existing.allowed && existing.role === inviteRole) {
+                setError(`User already exists as ${existing.role.toUpperCase()}`);
                 return;
             }
 
+            // Otherwise (brand new user OR existing user changing roles), proceed.
             await inviteUser(inviteEmail, inviteRole, currentUser.uid);
-            setMessage(`Invited ${inviteEmail} as ${inviteRole.toUpperCase()}`);
+
+            if (existing.allowed) {
+                setMessage(`Updated ${inviteEmail} to ${inviteRole.toUpperCase()}`);
+            } else {
+                setMessage(`Invited ${inviteEmail} as ${inviteRole.toUpperCase()}`);
+            }
             setInviteEmail('');
             loadInvites();
         } catch (err: any) {
