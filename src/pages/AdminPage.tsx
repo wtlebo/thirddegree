@@ -60,6 +60,28 @@ import { updateUserHandle } from '../services/userService';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { getTrendData, type TrendDataPoint } from '../services/analytics';
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+            <div style={{ backgroundColor: '#222', border: '1px solid #444', padding: '10px', borderRadius: '5px' }}>
+                <p style={{ margin: '0 0 5px', fontWeight: 'bold' }}>{label}</p>
+                {data.author && (
+                    <p style={{ margin: '0 0 10px', fontSize: '0.9rem', color: '#ccc' }}>
+                        Puzzle Master: <span style={{ color: 'var(--color-primary)' }}>{data.author}</span>
+                    </p>
+                )}
+                {payload.map((p: any, index: number) => (
+                    <p key={index} style={{ margin: '0', color: p.color, fontSize: '0.9rem' }}>
+                        {p.name}: {p.value}
+                    </p>
+                ))}
+            </div>
+        );
+    }
+    return null;
+};
+
 const TrendsDashboard = () => {
     const [data, setData] = useState<TrendDataPoint[]>([]);
     const [loading, setLoading] = useState(true);
@@ -101,7 +123,7 @@ const TrendsDashboard = () => {
                             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
                             <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} angle={-45} textAnchor="end" height={60} />
                             <YAxis stroke="#aaa" width={40} />
-                            <Tooltip contentStyle={{ backgroundColor: '#222', border: '1px solid #444' }} />
+                            <Tooltip content={<CustomTooltip />} />
                             <Legend verticalAlign="top" height={36} />
                             <Line type="monotone" dataKey="plays" name="Total Plays" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
                         </LineChart>
