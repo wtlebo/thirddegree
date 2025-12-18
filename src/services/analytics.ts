@@ -62,7 +62,7 @@ export const logGameResult = async (gameLog: GameLog) => {
     }
 };
 
-import { getAggregateFromServer, average, count, query, where } from "firebase/firestore";
+import { query, where } from "firebase/firestore";
 
 export const getDailyAverageScore = async (date: string): Promise<number | null> => {
     try {
