@@ -285,6 +285,7 @@ export interface TrendDataPoint {
     wins: number;
     avgScore: number;
     avgRating: number | null;
+    author?: string;
 }
 
 export const getTrendData = async (days: number = 30): Promise<TrendDataPoint[]> => {
@@ -295,8 +296,8 @@ export const getTrendData = async (days: number = 30): Promise<TrendDataPoint[]>
         const startStr = start.toISOString().split('T')[0];
 
         // Container for aggregation
-        // Map<date, { plays, wins, scoreSum, ratingSum, ratingCount }>
-        const agg = new Map<string, { plays: number, wins: number, scoreSum: number, ratingSum: number, ratingCount: number }>();
+        // Map<date, { plays, wins, scoreSum, ratingSum, ratingCount, author? }>
+        const agg = new Map<string, { plays: number, wins: number, scoreSum: number, ratingSum: number, ratingCount: number, author?: string }>();
 
         const getAgg = (date: string) => {
             if (!agg.has(date)) agg.set(date, { plays: 0, wins: 0, scoreSum: 0, ratingSum: 0, ratingCount: 0 });
@@ -341,7 +342,21 @@ export const getTrendData = async (days: number = 30): Promise<TrendDataPoint[]>
             entry.ratingCount++;
         });
 
-        // 4. Format for Recharts
+        // 4. Fetch Puzzle Authors
+        const puzzleQ = query(
+            collection(db, "puzzles"),
+            where('date', '>=', startStr)
+        );
+        const puzzleSnap = await getDocs(puzzleQ);
+        puzzleSnap.forEach(doc => {
+            const d = doc.data();
+            // We might have game logs for a date but no puzzle doc if it was static/legacy?
+            // Or vice versa. Just set it.
+            const entry = getAgg(doc.id); // doc.id is the date string
+            entry.author = d.author;
+        });
+
+        // 5. Format for Recharts
         // We want a sorted array of all dates in range, even if empty? 
         // Or just the ones we have? Let's do a continuous range filling.
         const result: TrendDataPoint[] = [];
@@ -355,7 +370,8 @@ export const getTrendData = async (days: number = 30): Promise<TrendDataPoint[]>
                     wins: data.plays > 0 ? data.wins : 0, // Raw count of wins
                     // We can also calculate winRate in UI or here. Let's return counts.
                     avgScore: data.plays > 0 ? parseFloat((data.scoreSum / data.plays).toFixed(2)) : 0,
-                    avgRating: data.ratingCount > 0 ? parseFloat((data.ratingSum / data.ratingCount).toFixed(2)) : null
+                    avgRating: data.ratingCount > 0 ? parseFloat((data.ratingSum / data.ratingCount).toFixed(2)) : null,
+                    author: data.author
                 });
             } else {
                 // Push zero entry for continuity or skip? Recharts handles gaps okay, but zeros are better for "0 plays".
