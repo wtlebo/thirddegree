@@ -277,3 +277,96 @@ export const getMonthlyStats = async (year: number, month: number): Promise<Map<
     }
     return statsMap;
 };
+
+// Helper to getting trend data for graphs
+export interface TrendDataPoint {
+    date: string;
+    plays: number;
+    wins: number;
+    avgScore: number;
+    avgRating: number | null;
+}
+
+export const getTrendData = async (days: number = 30): Promise<TrendDataPoint[]> => {
+    try {
+        const today = new Date();
+        const start = new Date();
+        start.setDate(today.getDate() - days);
+        const startStr = start.toISOString().split('T')[0];
+
+        // Container for aggregation
+        // Map<date, { plays, wins, scoreSum, ratingSum, ratingCount }>
+        const agg = new Map<string, { plays: number, wins: number, scoreSum: number, ratingSum: number, ratingCount: number }>();
+
+        const getAgg = (date: string) => {
+            if (!agg.has(date)) agg.set(date, { plays: 0, wins: 0, scoreSum: 0, ratingSum: 0, ratingCount: 0 });
+            return agg.get(date)!;
+        };
+
+        // 1. Fetch Game Logs (New)
+        const newQ = query(collection(db, "game_logs_hang10"), where('date', '>=', startStr));
+        const newSnap = await getDocs(newQ);
+        newSnap.forEach(doc => {
+            const d = doc.data();
+            const entry = getAgg(d.date);
+            entry.plays++;
+            entry.scoreSum += d.score;
+            if (d.status === 'won') entry.wins++;
+        });
+
+        // 2. Fetch Game Logs (Legacy) if needed
+        if (startStr < '2025-12-15') {
+            const legQ = query(collection(db, "game_logs"), where('date', '>=', startStr));
+            const legSnap = await getDocs(legQ);
+            legSnap.forEach(doc => {
+                const d = doc.data();
+                if (d.date < '2025-12-15') {
+                    const entry = getAgg(d.date);
+                    entry.plays++;
+                    entry.scoreSum += (d.score * 2); // Normalize
+                    // Legacy didn't consistently have status='won' in same format, assume score > 0 is something? 
+                    // actually legacy has status 'won' or 'lost' too.
+                    if (d.status === 'won') entry.wins++;
+                }
+            });
+        }
+
+        // 3. Fetch Ratings
+        const rateQ = query(collection(db, "puzzle_ratings"), where('date', '>=', startStr));
+        const rateSnap = await getDocs(rateQ);
+        rateSnap.forEach(doc => {
+            const d = doc.data();
+            const entry = getAgg(d.date);
+            entry.ratingSum += d.rating;
+            entry.ratingCount++;
+        });
+
+        // 4. Format for Recharts
+        // We want a sorted array of all dates in range, even if empty? 
+        // Or just the ones we have? Let's do a continuous range filling.
+        const result: TrendDataPoint[] = [];
+        for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toISOString().split('T')[0];
+            const data = agg.get(dateStr);
+            if (data) {
+                result.push({
+                    date: dateStr,
+                    plays: data.plays,
+                    wins: data.plays > 0 ? data.wins : 0, // Raw count of wins
+                    // We can also calculate winRate in UI or here. Let's return counts.
+                    avgScore: data.plays > 0 ? parseFloat((data.scoreSum / data.plays).toFixed(2)) : 0,
+                    avgRating: data.ratingCount > 0 ? parseFloat((data.ratingSum / data.ratingCount).toFixed(2)) : null
+                });
+            } else {
+                // Push zero entry for continuity or skip? Recharts handles gaps okay, but zeros are better for "0 plays".
+                result.push({ date: dateStr, plays: 0, wins: 0, avgScore: 0, avgRating: null });
+            }
+        }
+
+        return result;
+
+    } catch (e) {
+        console.error("Error fetching trend data", e);
+        return [];
+    }
+};

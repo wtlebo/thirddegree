@@ -57,13 +57,88 @@ const GameDetailsModal = ({ game, onClose }: { game: GameLog | null, onClose: ()
 import { UserManagement } from '../components/UserManagement';
 import { useUsers } from '../contexts/UsersContext';
 import { updateUserHandle } from '../services/userService';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { getTrendData, type TrendDataPoint } from '../services/analytics';
+
+const TrendsDashboard = () => {
+    const [data, setData] = useState<TrendDataPoint[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [range, setRange] = useState(30);
+
+    useEffect(() => {
+        const load = async () => {
+            setLoading(true);
+            const res = await getTrendData(range);
+            setData(res);
+            setLoading(false);
+        };
+        load();
+    }, [range]);
+
+    if (loading) return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading trends...</div>;
+
+    return (
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <div style={{ marginBottom: '20px', textAlign: 'right' }}>
+                <select
+                    value={range}
+                    onChange={e => setRange(Number(e.target.value))}
+                    style={{ padding: '8px', borderRadius: '5px', background: 'var(--color-bg-secondary)', color: 'white', border: '1px solid var(--color-border)' }}
+                >
+                    <option value={14}>Last 14 Days</option>
+                    <option value={30}>Last 30 Days</option>
+                    <option value={60}>Last 60 Days</option>
+                    <option value={90}>Last 90 Days</option>
+                </select>
+            </div>
+
+            {/* CHART 1: PLAYS */}
+            <div style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', marginBottom: '20px' }}>
+                <h3 style={{ marginTop: 0 }}>Create/Play Activity</h3>
+                <div style={{ height: '300px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                            <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} />
+                            <YAxis stroke="#aaa" />
+                            <Tooltip contentStyle={{ backgroundColor: '#222', border: '1px solid #444' }} />
+                            <Legend />
+                            <Line type="monotone" dataKey="plays" name="Total Plays" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* CHART 2: SCORES & RATINGS */}
+            <div style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', marginBottom: '20px' }}>
+                <h3 style={{ marginTop: 0 }}>Puzzle Quality & Difficulty</h3>
+                <div style={{ height: '300px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                            <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} />
+                            <YAxis yAxisId="left" stroke="#aaa" orientation="left" domain={[0, 10]} />
+                            <YAxis yAxisId="right" stroke="#aaa" orientation="right" domain={[0, 100]} unit="%" />
+                            <Tooltip contentStyle={{ backgroundColor: '#222', border: '1px solid #444' }} />
+                            <Legend />
+                            <Line yAxisId="left" type="monotone" dataKey="avgScore" name="Avg Score (0-10)" stroke="var(--color-secondary)" strokeWidth={2} dot={false} />
+                            <Line yAxisId="left" type="monotone" dataKey="avgRating" name="Avg Rating (1-10)" stroke="var(--color-primary)" strokeWidth={2} dot={false} connectNulls />
+                            <Line yAxisId="right" type="monotone" dataKey="winRate" name="Win Rate %" stroke="var(--color-accent)" strokeWidth={2} dot={false}
+                                data={data.map(d => ({ ...d, winRate: d.plays > 0 ? Math.round((d.wins / d.plays) * 100) : null }))} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export const AdminPage = () => {
     const dailyPuzzle = getDailyPuzzle();
     const { currentUser } = useUsers();
 
     // Default to 'dashboard', 'puzzles', or 'users'
-    const [mode, setMode] = useState<'dashboard' | 'puzzles' | 'users' | 'profile'>('dashboard');
+    const [mode, setMode] = useState<'dashboard' | 'puzzles' | 'users' | 'profile' | 'trends'>('dashboard');
     const [selectedDate, setSelectedDate] = useState(dailyPuzzle.date);
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [recentGames, setRecentGames] = useState<GameLog[]>([]);
@@ -178,6 +253,17 @@ export const AdminPage = () => {
                     >
                         My Profile
                     </button>
+                    <button
+                        onClick={() => setMode('trends')}
+                        style={{
+                            background: 'none', border: 'none',
+                            color: mode === 'trends' ? 'var(--color-primary)' : 'var(--color-text)',
+                            fontSize: '1.2rem', cursor: 'pointer', paddingBottom: '10px',
+                            borderBottom: mode === 'trends' ? '2px solid var(--color-primary)' : '2px solid transparent'
+                        }}
+                    >
+                        Trends
+                    </button>
                     {currentUser?.role === 'admin' && (
                         <button
                             onClick={() => setMode('users')}
@@ -231,6 +317,10 @@ export const AdminPage = () => {
             {mode === 'users' && <UserManagement />}
 
             {mode === 'puzzles' && <PuzzleMasterPortal />}
+
+            {mode === 'trends' && (
+                <TrendsDashboard />
+            )}
 
             {mode === 'profile' && (
                 <div style={{ maxWidth: '600px', margin: '0 auto' }}>
