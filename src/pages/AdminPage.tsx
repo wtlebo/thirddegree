@@ -94,7 +94,7 @@ const TrendsDashboard = () => {
 
             {/* CHART 1: PLAYS */}
             <div style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', marginBottom: '20px' }}>
-                <h3 style={{ marginTop: 0 }}>Create/Play Activity</h3>
+                <h3 style={{ marginTop: 0 }}>Play Activity</h3>
                 <div style={{ height: '300px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data}>
