@@ -111,6 +111,16 @@ export const LoginPage = () => {
                     )}
 
                     <button
+                        onClick={() => navigate('/')}
+                        style={{
+                            width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '5px', border: 'none',
+                            background: '#4CAF50', color: 'white', fontWeight: 'bold', cursor: 'pointer'
+                        }}
+                    >
+                        Back to Game
+                    </button>
+
+                    <button
                         onClick={handleSignOut}
                         style={{
                             width: '100%', padding: '12px', borderRadius: '5px', border: '1px solid rgba(255,255,255,0.2)',

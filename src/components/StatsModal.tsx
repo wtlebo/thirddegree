@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { UserStats } from '../types';
-import { getDailyAverageScore } from '../services/analytics';
+import { getDailyAverageScore, submitPuzzleRating } from '../services/analytics';
 
 interface StatsModalProps {
     stats: UserStats;
@@ -243,6 +243,77 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                     </div>
 
                 </div>
+
+                {latestGameSummary && (
+                    <div className="rating-area" style={{ marginTop: '20px', textAlign: 'center' }}>
+                        <RatingComponent />
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const RatingComponent = () => {
+    const [rating, setRating] = useState<number | null>(null);
+    const [submitted, setSubmitted] = useState(false);
+
+    const handleRate = async (value: number) => {
+        setRating(value);
+        setSubmitted(true);
+        // Fire and forget
+        const today = new Date().toISOString().split('T')[0];
+        try {
+            await submitPuzzleRating(today, value);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    if (submitted) {
+        return (
+            <div style={{ color: 'var(--color-primary)', animation: 'fadeIn 0.5s', fontWeight: 'bold' }}>
+                Thanks for your feedback!
+            </div>
+        );
+    }
+
+    return (
+        <div>
+            <h3 style={{ fontSize: '1rem', marginBottom: '10px', opacity: 0.9 }}>Rate Today's Puzzle</h3>
+            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                    <button
+                        key={num}
+                        onClick={() => handleRate(num)}
+                        style={{
+                            width: '35px',
+                            height: '35px',
+                            borderRadius: '50%',
+                            border: '1px solid var(--color-border)',
+                            background: 'rgba(255,255,255,0.05)',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}
+                        onMouseEnter={e => {
+                            e.currentTarget.style.background = 'var(--color-primary)';
+                            e.currentTarget.style.color = 'black';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                        }}
+                        onMouseLeave={e => {
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                            e.currentTarget.style.color = 'white';
+                            e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                    >
+                        {num}
+                    </button>
+                ))}
             </div>
         </div>
     );

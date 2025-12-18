@@ -1,6 +1,6 @@
 import { db } from './analytics';
 import { collection, getDocs } from 'firebase/firestore';
-import { getDailyAverageScore } from './analytics';
+import { getDailyAverageScore, getDailyAverageRating } from './analytics';
 import type { PuzzleDocument } from '../types';
 
 export interface PMStat {
@@ -8,6 +8,7 @@ export interface PMStat {
     totalCreated: number;
     publishedCount: number;
     averageGlobalScore: number;
+    averageRating: number | null;
 }
 
 export const getPMStats = async (): Promise<PMStat[]> => {
@@ -38,22 +39,34 @@ export const getPMStats = async (): Promise<PMStat[]> => {
             const totalCreated = authorsPuzzles.length;
 
             // "Published" means date <= today (has been playable)
-            const publishedPuzzles = authorsPuzzles.filter(p => p.date <= today);
+            const publishedPuzzles = authorsPuzzles.filter(p => p.date <= today && p.status !== 'draft');
             const publishedCount = publishedPuzzles.length;
 
             let totalScoreSum = 0;
             let scoredPuzzlesCount = 0;
 
-            // 4. Fetch Average Score for Published Puzzles
+            let totalRatingSum = 0;
+            let ratedPuzzlesCount = 0;
+
+            // 4. Fetch Average Score AND Rating for Published Puzzles
             // Executing in parallel for speed
             if (publishedCount > 0) {
-                const scorePromises = publishedPuzzles.map(p => getDailyAverageScore(p.date));
-                const scores = await Promise.all(scorePromises);
+                const results = await Promise.all(publishedPuzzles.map(async p => {
+                    const [score, rating] = await Promise.all([
+                        getDailyAverageScore(p.date),
+                        getDailyAverageRating(p.date)
+                    ]);
+                    return { score, rating };
+                }));
 
-                scores.forEach(score => {
+                results.forEach(({ score, rating }) => {
                     if (score !== null) {
                         totalScoreSum += score;
                         scoredPuzzlesCount++;
+                    }
+                    if (rating !== null) {
+                        totalRatingSum += rating;
+                        ratedPuzzlesCount++;
                     }
                 });
             }
@@ -62,11 +75,16 @@ export const getPMStats = async (): Promise<PMStat[]> => {
                 ? parseFloat((totalScoreSum / scoredPuzzlesCount).toFixed(1))
                 : 0;
 
+            const averageRating = ratedPuzzlesCount > 0
+                ? parseFloat((totalRatingSum / ratedPuzzlesCount).toFixed(1))
+                : null;
+
             stats.push({
                 handle,
                 totalCreated,
                 publishedCount,
-                averageGlobalScore
+                averageGlobalScore,
+                averageRating
             });
         }
 

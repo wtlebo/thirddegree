@@ -67,22 +67,30 @@ import { getAggregateFromServer, average, count, query, where } from "firebase/f
 export const getDailyAverageScore = async (date: string): Promise<number | null> => {
     try {
         // REBRAND DATE: 2025-12-15
-        // If the puzzle is from before the rebrand, check the old collection and normalize score.
         const isLegacy = date < '2025-12-15';
         const collectionName = isLegacy ? "game_logs" : "game_logs_hang10";
 
         const coll = collection(db, collectionName);
         const q = query(coll, where("date", "==", date));
-        const snapshot = await getAggregateFromServer(q, {
-            averageScore: average("score")
+        // Use getDocs instead of aggregate to avoid index requirement
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) return null;
+
+        let totalScore = 0;
+        let count = 0;
+
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            totalScore += d.score;
+            count++;
         });
 
-        const rawAvg = snapshot.data().averageScore;
+        const rawAvg = count > 0 ? totalScore / count : null;
 
         if (rawAvg === null) return null;
 
-        // Old scores were out of 5. New are out of 10.
-        // Normalize old scores by multiplying by 2.
+        // Normalize old scores (out of 5) by multiplying by 2
         return isLegacy ? rawAvg * 2 : rawAvg;
 
     } catch (error) {
@@ -97,29 +105,29 @@ export const getAdminStats = async (date: string) => {
     try {
         const coll = collection(db, "game_logs_hang10");
         const q = query(coll, where("date", "==", date));
-        const snapshot = await getAggregateFromServer(q, {
-            totalGames: count(),
-            averageScore: average("score")
+
+        // Use getDocs to avoid index errors for now
+        const snapshot = await getDocs(q);
+
+        let totalGames = 0;
+        let totalWins = 0;
+        let totalScore = 0;
+
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            totalGames++;
+            if (d.status === 'won') {
+                totalWins++;
+            }
+            totalScore += d.score;
         });
 
-        // Calculate win rate manually for now (or add another aggregation)
-        // For simplicity, let's fetch a small batch to estimate or just use total games for now
-        // To get win rate properly with aggregation, we'd need to filter by status='won' and count, then divide.
-        // Let's do a second aggregation for wins.
-
-        const qWins = query(coll, where("date", "==", date), where("status", "==", "won"));
-        const snapshotWins = await getAggregateFromServer(qWins, {
-            totalWins: count()
-        });
-
-        const totalGames = snapshot.data().totalGames;
-        const totalWins = snapshotWins.data().totalWins;
-        const averageScore = snapshot.data().averageScore;
+        const averageScore = totalGames > 0 ? totalScore / totalGames : 0;
 
         return {
-            totalGames: totalGames || 0,
+            totalGames,
             winRate: totalGames ? (totalWins / totalGames) * 100 : 0,
-            averageScore: averageScore || 0
+            averageScore
         };
     } catch (error) {
         console.error("Error fetching admin stats:", error);
@@ -147,4 +155,125 @@ export const getRecentGames = async (limitCount: number = 20, date?: string) => 
         console.error("Error fetching recent games:", error);
         throw error;
     }
+};
+
+export const submitPuzzleRating = async (date: string, rating: number) => {
+    try {
+        const user = await ensureAuth();
+        // Allow anonymous ratings? Yes, for now.
+
+        await addDoc(collection(db, "puzzle_ratings"), {
+            date,
+            rating,
+            userId: user?.uid || 'anonymous',
+            timestamp: serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Error submitting rating:", error);
+    }
+};
+
+export const getDailyAverageRating = async (date: string): Promise<number | null> => {
+    try {
+        const coll = collection(db, "puzzle_ratings");
+        const q = query(coll, where("date", "==", date));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) return null;
+
+        let totalRating = 0;
+        let count = 0;
+
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            totalRating += d.rating;
+            count++;
+        });
+
+        return count > 0 ? totalRating / count : null;
+    } catch (error) {
+        console.error("Error fetching daily average rating:", error);
+        return null;
+    }
+};
+
+export const getMonthlyStats = async (year: number, month: number): Promise<Map<string, { rating: number | null, score: number | null, plays: number }>> => {
+    const startStr = `${year}-${String(month).padStart(2, '0')}-01`;
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const nextYear = month === 12 ? year + 1 : year;
+    const endStr = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
+
+    const statsMap = new Map<string, { rating: number | null, score: number | null, plays: number }>();
+
+    try {
+        // Internal helper for aggregation
+        const sums = new Map<string, { rSum: number, rCount: number, sSum: number, sCount: number, plays: number }>();
+        const getSumEntry = (date: string) => {
+            if (!sums.has(date)) sums.set(date, { rSum: 0, rCount: 0, sSum: 0, sCount: 0, plays: 0 });
+            return sums.get(date)!;
+        };
+
+        // 1. Fetch Ratings
+        const ratingQ = query(
+            collection(db, "puzzle_ratings"),
+            where('date', '>=', startStr),
+            where('date', '<', endStr)
+        );
+        const ratingSnap = await getDocs(ratingQ);
+        ratingSnap.forEach(doc => {
+            const d = doc.data();
+            const curr = getSumEntry(d.date);
+            curr.rSum += d.rating;
+            curr.rCount++;
+        });
+
+        // 2. Fetch NEW Scores (Hang 10)
+        const newScoreQ = query(
+            collection(db, "game_logs_hang10"),
+            where('date', '>=', startStr),
+            where('date', '<', endStr)
+        );
+        const newScoreSnap = await getDocs(newScoreQ);
+        newScoreSnap.forEach(doc => {
+            const d = doc.data();
+            const curr = getSumEntry(d.date);
+            curr.sSum += d.score;
+            curr.sCount++;
+            curr.plays++;
+        });
+
+        // 3. Fetch LEGACY Scores (Hang 5, score out of 5)
+        // Only fetch if the month includes dates before 2025-12-15
+        if (startStr < '2025-12-15') {
+            const legacyQ = query(
+                collection(db, "game_logs"),
+                where('date', '>=', startStr),
+                where('date', '<', endStr)
+            );
+            const legacySnap = await getDocs(legacyQ);
+            legacySnap.forEach(doc => {
+                const d = doc.data();
+                // legacy cutoff check just in case of overlap
+                if (d.date < '2025-12-15') {
+                    const curr = getSumEntry(d.date);
+                    curr.sSum += (d.score * 2); // Normalize to 10
+                    curr.sCount++;
+                    curr.plays++;
+                }
+            });
+        }
+
+        // 4. Compute Final Stats
+        for (const [date, data] of sums.entries()) {
+            statsMap.set(date, {
+                rating: data.rCount > 0 ? parseFloat((data.rSum / data.rCount).toFixed(1)) : null,
+                score: data.sCount > 0 ? parseFloat((data.sSum / data.sCount).toFixed(1)) : null,
+                plays: data.plays
+            });
+        }
+
+    } catch (error) {
+        console.error("Error fetching monthly stats:", error);
+    }
+    return statsMap;
 };

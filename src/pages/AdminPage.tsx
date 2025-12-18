@@ -86,8 +86,15 @@ export const AdminPage = () => {
     };
 
     const sortedPmStats = [...pmStats].sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+        const valA = a[sortConfig.key];
+        const valB = b[sortConfig.key];
+
+        // Handle nulls (treat as -1 or infinity depending on desire, here we typically treat as 0 for stats)
+        const numA = typeof valA === 'number' ? valA : 0;
+        const numB = typeof valB === 'number' ? valB : 0;
+
+        if (numA < numB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (numA > numB) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
     });
 
@@ -394,6 +401,9 @@ export const AdminPage = () => {
                                             <th onClick={() => handleSort('averageGlobalScore')} style={{ padding: '10px', cursor: 'pointer', userSelect: 'none' }}>
                                                 Avg Global Score {sortConfig.key === 'averageGlobalScore' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
                                             </th>
+                                            <th onClick={() => handleSort('averageRating')} style={{ padding: '10px', cursor: 'pointer', userSelect: 'none' }}>
+                                                Avg Rating {sortConfig.key === 'averageRating' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -403,6 +413,7 @@ export const AdminPage = () => {
                                                 <td style={{ padding: '10px' }}>{stat.totalCreated}</td>
                                                 <td style={{ padding: '10px' }}>{stat.publishedCount}</td>
                                                 <td style={{ padding: '10px' }}>{stat.averageGlobalScore > 0 ? stat.averageGlobalScore : '-'}</td>
+                                                <td style={{ padding: '10px' }}>{stat.averageRating ? stat.averageRating : '-'}</td>
                                             </tr>
                                         ))}
                                         {sortedPmStats.length === 0 && (

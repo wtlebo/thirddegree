@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPuzzleStatusForMonth, savePuzzle, getPuzzleByDate } from '../services/puzzles';
+import { getMonthlyStats } from '../services/analytics';
 import { generatePuzzles, generateSinglePuzzle } from '../services/ai';
 import { PuzzleBoard } from '../components/PuzzleBoard';
 import { useUsers } from '../contexts/UsersContext';
@@ -11,6 +12,7 @@ export const PuzzleMasterPortal = () => {
     const [viewDate, setViewDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [existingPuzzles, setExistingPuzzles] = useState<Map<string, string>>(new Map());
+    const [monthlyStats, setMonthlyStats] = useState<Map<string, { rating: number | null, score: number | null, plays: number }>>(new Map());
     const { currentUser } = useUsers();
 
     // Editor State
@@ -34,8 +36,13 @@ export const PuzzleMasterPortal = () => {
     const loadMonthStatus = async () => {
         const year = viewDate.getFullYear();
         const month = viewDate.getMonth() + 1;
-        const stati = await getPuzzleStatusForMonth(year, month);
+        const [stati, stats] = await Promise.all([
+            getPuzzleStatusForMonth(year, month),
+            getMonthlyStats(year, month)
+        ]);
+        console.log("Portal Loaded Stats:", stats, "Size:", stats.size);
         setExistingPuzzles(stati);
+        setMonthlyStats(stats);
     };
 
     const handleDateClick = async (day: number) => {
@@ -166,38 +173,66 @@ export const PuzzleMasterPortal = () => {
             const dayStr = String(i).padStart(2, '0');
             const dateStr = `${year}-${month}-${dayStr}`;
             const isToday = dateStr === new Date().toLocaleDateString('en-CA');
+            const isPast = dateStr < new Date().toLocaleDateString('en-CA');
             const author = existingPuzzles.get(dateStr);
             const hasPuzzle = !!author;
+            const stats = monthlyStats.get(dateStr);
 
             days.push(
                 <div
                     key={i}
                     className={`calendar-day ${isToday ? 'today' : ''} ${hasPuzzle ? 'has-puzzle' : ''}`}
                     onClick={() => handleDateClick(i)}
-                    style={{ position: 'relative' }}
+                    style={{
+                        position: 'relative',
+                        background: isPast ? 'rgba(255,255,255,0.03)' : undefined, // Dim past days
+                        borderColor: isPast ? 'rgba(255,255,255,0.05)' : undefined
+                    }}
                 >
-                    <span style={{ zIndex: 1 }}>{i}</span>
-                    {hasPuzzle && (
+                    <span style={{ zIndex: 1, opacity: isPast ? 0.5 : 1 }}>{i}</span>
+
+                    {/* Stats Overlay - Show even if 'hasPuzzle' is false for legacy data support */}
+                    {isPast && stats && (
                         <>
-                            <div className="dot" />
                             <div style={{
-                                fontSize: '0.6rem',
-                                position: 'absolute',
-                                bottom: '2px',
-                                left: 0,
-                                right: 0,
-                                textAlign: 'center',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                padding: '0 2px',
-                                color: 'rgba(255,255,255,0.7)'
+                                position: 'absolute', top: '2px', left: '2px', right: '2px',
+                                display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem'
                             }}>
-                                {author}
+                                {stats.rating ? <span style={{ color: '#FFD700' }}>★ {stats.rating}</span> : <span />}
+                                {stats.score ? <span style={{ opacity: 0.7 }}>Sc: {stats.score}</span> : <span />}
+                            </div>
+                            <div style={{
+                                position: 'absolute', top: '15px', right: '2px',
+                                fontSize: '0.6rem', opacity: 0.5, fontStyle: 'italic'
+                            }}>
+                                {stats.plays} plays
                             </div>
                         </>
                     )}
-                </div>
+
+                    {
+                        hasPuzzle && (
+                            <>
+                                <div className="dot" />
+                                <div style={{
+                                    fontSize: '0.6rem',
+                                    position: 'absolute',
+                                    bottom: '2px',
+                                    left: 0,
+                                    right: 0,
+                                    textAlign: 'center',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    padding: '0 2px',
+                                    color: 'rgba(255,255,255,0.7)'
+                                }}>
+                                    {author}
+                                </div>
+                            </>
+                        )
+                    }
+                </div >
             );
         }
 
