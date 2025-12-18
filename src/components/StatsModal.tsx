@@ -255,7 +255,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
 };
 
 const RatingComponent = () => {
-    const [rating, setRating] = useState<number | null>(null);
+    const [userRating, setUserRating] = useState<number | null>(null);
     const [submitted, setSubmitted] = useState(false);
 
     const handleRate = async (value: number) => {
