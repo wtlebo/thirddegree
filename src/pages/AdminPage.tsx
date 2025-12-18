@@ -95,14 +95,14 @@ const TrendsDashboard = () => {
             {/* CHART 1: PLAYS */}
             <div style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', marginBottom: '20px' }}>
                 <h3 style={{ marginTop: 0 }}>Play Activity</h3>
-                <div style={{ height: '300px' }}>
+                <div style={{ height: '350px' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data}>
+                        <LineChart data={data} syncId="trends" margin={{ top: 10, right: 50, left: 0, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                            <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} />
-                            <YAxis stroke="#aaa" />
+                            <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} angle={-45} textAnchor="end" height={60} />
+                            <YAxis stroke="#aaa" width={40} />
                             <Tooltip contentStyle={{ backgroundColor: '#222', border: '1px solid #444' }} />
-                            <Legend />
+                            <Legend verticalAlign="top" height={36} />
                             <Line type="monotone" dataKey="plays" name="Total Plays" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
                         </LineChart>
                     </ResponsiveContainer>
@@ -112,15 +112,15 @@ const TrendsDashboard = () => {
             {/* CHART 2: SCORES & RATINGS */}
             <div style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', marginBottom: '20px' }}>
                 <h3 style={{ marginTop: 0 }}>Puzzle Quality & Difficulty</h3>
-                <div style={{ height: '300px' }}>
+                <div style={{ height: '350px' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data}>
+                        <LineChart data={data} syncId="trends" margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                            <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} />
-                            <YAxis yAxisId="left" stroke="#aaa" orientation="left" domain={[0, 10]} />
-                            <YAxis yAxisId="right" stroke="#aaa" orientation="right" domain={[0, 100]} unit="%" />
+                            <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} angle={-45} textAnchor="end" height={60} />
+                            <YAxis yAxisId="left" stroke="#aaa" orientation="left" domain={[0, 10]} width={40} />
+                            <YAxis yAxisId="right" stroke="#aaa" orientation="right" domain={[0, 100]} unit="%" width={40} />
                             <Tooltip contentStyle={{ backgroundColor: '#222', border: '1px solid #444' }} />
-                            <Legend />
+                            <Legend verticalAlign="top" height={36} />
                             <Line yAxisId="left" type="monotone" dataKey="avgScore" name="Avg Score (0-10)" stroke="var(--color-secondary)" strokeWidth={2} dot={false} />
                             <Line yAxisId="left" type="monotone" dataKey="avgRating" name="Avg Rating (1-10)" stroke="var(--color-primary)" strokeWidth={2} dot={false} connectNulls />
                             <Line yAxisId="right" type="monotone" dataKey="winRate" name="Win Rate %" stroke="var(--color-accent)" strokeWidth={2} dot={false}
