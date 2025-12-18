@@ -255,11 +255,9 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
 };
 
 const RatingComponent = () => {
-    const [userRating, setUserRating] = useState<number | null>(null);
     const [submitted, setSubmitted] = useState(false);
 
     const handleRate = async (value: number) => {
-        setRating(value);
         setSubmitted(true);
         // Fire and forget
         const today = new Date().toISOString().split('T')[0];
