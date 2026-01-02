@@ -191,23 +191,15 @@ export const PuzzleMasterPortal = () => {
                 >
                     <span style={{ zIndex: 1, opacity: isPast ? 0.5 : 1 }}>{i}</span>
 
-                    {/* Stats Overlay - Show even if 'hasPuzzle' is false for legacy data support */}
+                    {/* Stats Overlay - Simplified to just Plays at top */}
                     {isPast && stats && (
-                        <>
-                            <div style={{
-                                position: 'absolute', top: '2px', left: '2px', right: '2px',
-                                display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem'
-                            }}>
-                                {stats.rating ? <span style={{ color: '#FFD700' }}>★ {stats.rating}</span> : <span />}
-                                {stats.score ? <span style={{ opacity: 0.7 }}>Sc: {stats.score}</span> : <span />}
-                            </div>
-                            <div style={{
-                                position: 'absolute', top: '15px', right: '2px',
-                                fontSize: '0.6rem', opacity: 0.5, fontStyle: 'italic'
-                            }}>
-                                {stats.plays} plays
-                            </div>
-                        </>
+                        <div style={{
+                            position: 'absolute', top: '5px', left: 0, right: 0,
+                            textAlign: 'center', fontSize: '0.75rem', fontWeight: 'bold',
+                            color: 'var(--color-primary)', textShadow: '0 1px 2px rgba(0,0,0,0.8)'
+                        }}>
+                            {stats.plays > 0 ? `${stats.plays} plays` : ''}
+                        </div>
                     )}
 
                     {
@@ -290,15 +282,32 @@ export const PuzzleMasterPortal = () => {
                 <div className="editor-form">
                     {isReadOnly && (
                         <div style={{
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            padding: '10px',
-                            borderRadius: '5px',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            padding: '15px',
+                            borderRadius: '10px',
                             marginBottom: '20px',
-                            textAlign: 'center',
-                            border: '1px solid var(--color-secondary)',
-                            color: 'var(--color-secondary)'
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-text)'
                         }}>
-                            🔒 Locked (Past Date)
+                            <h3 style={{ margin: '0 0 15px 0', textAlign: 'center', color: 'var(--color-primary)' }}>Archived Puzzle Stats</h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>{monthlyStats.get(selectedDate)?.plays || 0}</div>
+                                    <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Plays</div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--color-secondary)' }}>{monthlyStats.get(selectedDate)?.score || '-'}</div>
+                                    <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Avg Score</div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--color-accent)' }}>{monthlyStats.get(selectedDate)?.rating || '-'}</div>
+                                    <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Rating</div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#fff' }}>{puzzleData.author}</div>
+                                    <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Puzzle Master</div>
+                                </div>
+                            </div>
                         </div>
                     )}
 
