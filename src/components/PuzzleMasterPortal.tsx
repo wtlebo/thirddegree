@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { getPuzzleStatusForMonth, savePuzzle, getPuzzleByDate } from '../services/puzzles';
 import { getMonthlyStats } from '../services/analytics';
-import { generatePuzzles, generateSinglePuzzle } from '../services/ai';
+// Import new functions
+import { generatePuzzles, generateSinglePuzzle, generateIdeaList, generateHistoryEvents } from '../services/ai';
+// ... existing imports ...
 import { PuzzleBoard } from '../components/PuzzleBoard';
 import { useUsers } from '../contexts/UsersContext';
 import type { PuzzleDocument, Puzzle } from '../types';
@@ -23,6 +25,14 @@ export const PuzzleMasterPortal = () => {
     const [showPreview, setShowPreview] = useState(false);
     const [aiTheme, setAiTheme] = useState('');
     const [aiLoading, setAiLoading] = useState(false);
+
+    // New Tools State
+    const [ideaTopic, setIdeaTopic] = useState('');
+    const [ideaList, setIdeaList] = useState<string[]>([]);
+    const [ideaLoading, setIdeaLoading] = useState(false);
+
+    const [historyEvents, setHistoryEvents] = useState<{ event: string, link: string }[]>([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
 
     // Real-time validation state
     const [validationErrors, setValidationErrors] = useState<{ [index: number]: string | null }>({});
@@ -466,6 +476,92 @@ export const PuzzleMasterPortal = () => {
                             <button onClick={handleSave} disabled={loading} className="save-btn">
                                 {loading ? 'Saving...' : 'Save Puzzle'}
                             </button>
+                        </div>
+                    )}
+
+                    {!isReadOnly && (
+                        <div style={{ marginTop: '40px', borderTop: '1px solid #444', paddingTop: '20px' }}>
+                            <h3 style={{ color: 'var(--color-primary)' }}>🛠️ Puzzle Master Tools</h3>
+
+                            {/* Tool 1: Idea Generator */}
+                            <div style={{ marginBottom: '30px', background: 'rgba(255,255,255,0.03)', padding: '15px', borderRadius: '10px' }}>
+                                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>💡 Inspiration List Generator</label>
+                                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                                    <input
+                                        value={ideaTopic}
+                                        onChange={e => setIdeaTopic(e.target.value)}
+                                        placeholder="Enter topic (e.g. '90s Sitcoms', 'Types of Cheese')"
+                                        style={{ flex: 1, padding: '8px', borderRadius: '5px', border: 'none' }}
+                                    />
+                                    <button
+                                        onClick={async () => {
+                                            if (!ideaTopic) return;
+                                            setIdeaLoading(true);
+                                            const res = await generateIdeaList(ideaTopic);
+                                            setIdeaList(res);
+                                            setIdeaLoading(false);
+                                        }}
+                                        disabled={ideaLoading}
+                                        style={{
+                                            background: 'var(--color-secondary)', color: 'black', border: 'none',
+                                            padding: '8px 15px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
+                                        }}
+                                    >
+                                        {ideaLoading ? 'Generating...' : 'Get Ideas'}
+                                    </button>
+                                </div>
+                                {ideaList.length > 0 && (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                        {ideaList.map((item, i) => (
+                                            <span key={i} style={{
+                                                background: 'rgba(255,255,255,0.1)', padding: '4px 10px',
+                                                borderRadius: '15px', fontSize: '0.9rem'
+                                            }}>
+                                                {item}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Tool 2: This Day in History */}
+                            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '15px', borderRadius: '10px' }}>
+                                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>📅 This Day in History ({selectedDate})</label>
+                                <button
+                                    onClick={async () => {
+                                        if (!selectedDate) return;
+                                        setHistoryLoading(true);
+                                        const res = await generateHistoryEvents(selectedDate);
+                                        setHistoryEvents(res);
+                                        setHistoryLoading(false);
+                                    }}
+                                    disabled={historyLoading}
+                                    style={{
+                                        background: 'var(--color-accent)', color: 'white', border: 'none',
+                                        padding: '8px 15px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', marginBottom: '15px'
+                                    }}
+                                >
+                                    {historyLoading ? 'Searching parameters of time...' : 'Find Historical Events & Birthdays'}
+                                </button>
+
+                                {historyEvents.length > 0 && (
+                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                        {historyEvents.map((evt, i) => (
+                                            <li key={i} style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                                <div style={{ marginBottom: '3px' }}>{evt.event}</div>
+                                                <a
+                                                    href={evt.link}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    style={{ color: 'var(--color-primary)', fontSize: '0.85rem', textDecoration: 'none' }}
+                                                >
+                                                    Read on Wikipedia →
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

@@ -104,3 +104,51 @@ export const generateSinglePuzzle = async (theme: string, existingAnswers: strin
         throw error;
     }
 };
+
+export const generateIdeaList = async (topic: string): Promise<string[]> => {
+    const prompt = `
+    Persona: You are a helpful creative assistant.
+    TASK: Generate a list of 20 items related to the topic: "${topic}".
+    These items are intended to inspire puzzle answers (short phrases, famous people, things, etc.).
+    
+    Return strict JSON array of strings:
+    ["Item 1", "Item 2", ...]
+    `;
+
+    try {
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(cleanText);
+    } catch (error) {
+        console.error("Error generating idea list:", error);
+        return [];
+    }
+};
+
+export const generateHistoryEvents = async (date: string): Promise<{ event: string, link: string }[]> => {
+    const prompt = `
+    Persona: You are a historian.
+    TASK: List 5-10 notable historical events, holidays, or famous birthdays that happened on this date: "${date}" (Month/Day is key, ignore year for finding the event, but mention the year in the event text).
+    
+    Structure the response as a valid JSON array of objects:
+    [
+        { "event": "Description of event (Year)", "link": "https://en.wikipedia.org/wiki/..." },
+        ...
+    ]
+    Ensure the links are valid Wikipedia URLs if possible.
+    `;
+
+    try {
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleanText);
+        // Validate array structure
+        if (Array.isArray(parsed)) return parsed;
+        return [];
+    } catch (error) {
+        console.error("Error generating history events:", error);
+        return [];
+    }
+};
