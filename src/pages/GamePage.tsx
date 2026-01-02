@@ -120,31 +120,7 @@ const GameContainer = ({ dailySet }: { dailySet: DailySet }) => {
                 onClose={() => setIsHowToPlayOpen(false)}
             />
 
-            <a
-                href="/login"
-                style={{
-                    position: 'fixed',
-                    bottom: '10px',
-                    right: '10px',
-                    opacity: 0.1,
-                    transition: 'opacity 0.3s',
-                    cursor: 'pointer',
-                    zIndex: 1000
-                }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '0.5'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '0.1'}
-                title="Admin Portal"
-            >
-                <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path d="M11.5 2C11.5 2 7 8 7 14C7 18 9.5 22 12 22C14.5 22 17 18 17 14C17 8 12.5 2 12.5 2C12.5 2 12 1.5 11.5 2Z" fill="white" />
-                </svg>
-            </a>
+
         </div>
     );
 };
