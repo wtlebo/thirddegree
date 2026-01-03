@@ -970,3 +970,12 @@ button[class^="btn-"] {
     padding-top: 0;
   }
 }
+.calendar-day.status-draft {
+  background-color: rgba(255, 193, 7, 0.25) !important;
+  border: 2px dashed #ffc107 !important;
+}
+
+.calendar-day.status-review {
+  background-color: rgba(220, 53, 69, 0.25) !important;
+  border: 2px solid #dc3545 !important;
+}

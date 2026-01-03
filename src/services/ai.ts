@@ -126,10 +126,17 @@ export const generateIdeaList = async (topic: string): Promise<string[]> => {
     }
 };
 
-export const generateHistoryEvents = async (date: string): Promise<{ event: string, link: string }[]> => {
+export const generateHistoryEvents = async (date: string, existingEvents: string[] = []): Promise<{ event: string, link: string }[]> => {
+    // Convert YYYY-MM-DD to "Month Day"
+    const dateObj = new Date(date + 'T12:00:00');
+    const readableDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
     const prompt = `
     Persona: You are a historian.
-    TASK: List 5-10 notable historical events, holidays, or famous birthdays that happened on this date: "${date}" (Month/Day is key, ignore year for finding the event, but mention the year in the event text).
+    TASK: List 10 notable historical events that happened on ${readableDate} (in any year).
+    
+    EXCLUDE: Do NOT include birthdays or recurring holidays/observances.
+    EXCLUDE: Do NOT include any of these: ${JSON.stringify(existingEvents)}
     
     Structure the response as a valid JSON array of objects:
     [
@@ -142,13 +149,105 @@ export const generateHistoryEvents = async (date: string): Promise<{ event: stri
     try {
         const result = await model.generateContent(prompt);
         const text = result.response.text();
-        const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const firstBracket = cleanText.indexOf('[');
+        const lastBracket = cleanText.lastIndexOf(']');
+        if (firstBracket !== -1 && lastBracket !== -1) {
+            cleanText = cleanText.substring(firstBracket, lastBracket + 1);
+        }
         const parsed = JSON.parse(cleanText);
-        // Validate array structure
         if (Array.isArray(parsed)) return parsed;
         return [];
     } catch (error) {
         console.error("Error generating history events:", error);
+        return [];
+    }
+};
+
+export const generateBirthdays = async (date: string, existing: string[] = []): Promise<{ event: string, link: string }[]> => {
+    // Convert YYYY-MM-DD to "Month Day" (e.g. "January 2") to avoid year confusion
+    const dateObj = new Date(date + 'T12:00:00'); // T12 to avoid timezone shift
+    const readableDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+    const prompt = `
+    Persona: You are a strict fact-checker and trivia expert.
+    TASK: List 10 REAL, FAMOUS people born on ${readableDate}.
+    
+    CRITICAL RULES:
+    1. VERIFY that the person was actually born on ${readableDate}. Do NOT guess.
+    2. Do NOT include fictional characters unless specified.
+    3. EXCLUDE: ${JSON.stringify(existing)}
+    
+    Structure the response as a valid JSON array of objects:
+    [
+        { "event": "Name (Birth Year) - Short description", "link": "https://en.wikipedia.org/wiki/..." },
+        ...
+    ]
+    Example: { "event": "Isaac Asimov (1920) - American writer and professor of biochemistry", "link": "https://en.wikipedia.org/wiki/Isaac_Asimov" }
+    
+    Ensure the links are valid Wikipedia URLs.
+    `;
+
+    try {
+        console.log(`Searching birthdays for ${date}...`);
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        console.log("Birthdays Raw AI Response:", text);
+
+        let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        // Robust extraction: find the outer brackets
+        const firstBracket = cleanText.indexOf('[');
+        const lastBracket = cleanText.lastIndexOf(']');
+        if (firstBracket !== -1 && lastBracket !== -1) {
+            cleanText = cleanText.substring(firstBracket, lastBracket + 1);
+        }
+        const parsed = JSON.parse(cleanText);
+
+        if (Array.isArray(parsed)) {
+            console.log("Parsed birthdays:", parsed.length);
+            return parsed;
+        }
+        console.warn("Birthdays parsed result is not an array:", parsed);
+        return [];
+    } catch (error) {
+        console.error("Error generating birthdays:", error);
+        return [];
+    }
+};
+
+export const generateNationalDays = async (date: string, existing: string[] = []): Promise<{ event: string, link: string }[]> => {
+    // Convert YYYY-MM-DD to "Month Day" to avoid year confusion
+    const dateObj = new Date(date + 'T12:00:00');
+    const readableDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+    const prompt = `
+    Persona: You are a fan of fun holidays and observances.
+    TASK: List 10 "National Days", international observances, or fun holidays that fall on ${readableDate}.
+    
+    EXCLUDE: Do NOT include any of these: ${JSON.stringify(existing)}
+    
+    Structure the response as a valid JSON array of objects:
+    [
+        { "event": "Holiday Name", "link": "https://en.wikipedia.org/wiki/..." },
+        ...
+    ]
+    Ensure the links are valid Wikipedia URLs if possible.
+    `;
+
+    try {
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const firstBracket = cleanText.indexOf('[');
+        const lastBracket = cleanText.lastIndexOf(']');
+        if (firstBracket !== -1 && lastBracket !== -1) {
+            cleanText = cleanText.substring(firstBracket, lastBracket + 1);
+        }
+        const parsed = JSON.parse(cleanText);
+        if (Array.isArray(parsed)) return parsed;
+        return [];
+    } catch (error) {
+        console.error("Error generating national days:", error);
         return [];
     }
 };

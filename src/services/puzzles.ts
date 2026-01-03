@@ -1,17 +1,18 @@
 import { db, auth } from './analytics';
-import { doc, getDoc, setDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, query } from 'firebase/firestore';
 import type { PuzzleDocument, Puzzle } from '../types';
 
 const COLLECTION_NAME = 'puzzles';
 
-export const savePuzzle = async (date: string, puzzles: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle], author?: string): Promise<void> => {
+export const savePuzzle = async (date: string, puzzles: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle], author?: string, status: 'draft' | 'review' | 'published' = 'published', approvedBy?: string): Promise<void> => {
     if (!auth.currentUser) throw new Error("Must be logged in to save puzzles");
 
     const puzzleDoc: PuzzleDocument = {
         date,
         puzzles,
         author: author || 'Anonymous',
-        status: 'published', // For now, we just save as published/ready. later we can add draft support if needed
+        approvedBy: approvedBy || null,
+        status,
         createdAt: new Date()
     };
 
@@ -34,7 +35,7 @@ export const getPuzzleByDate = async (date: string): Promise<PuzzleDocument | nu
     }
 };
 
-export const getPuzzleStatusForMonth = async (year: number, month: number): Promise<Map<string, string>> => {
+export const getPuzzleStatusForMonth = async (year: number, month: number): Promise<Map<string, { author: string, status: 'draft' | 'review' | 'published', approvedBy?: string }>> => {
     // Month is 1-12
     const startStr = `${year}-${String(month).padStart(2, '0')}-01`;
     // simplistic end of month, essentially start of next month
@@ -42,17 +43,28 @@ export const getPuzzleStatusForMonth = async (year: number, month: number): Prom
     const nextYear = month === 12 ? year + 1 : year;
     const endStr = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
 
-    const q = query(
-        collection(db, COLLECTION_NAME),
-        where('date', '>=', startStr),
-        where('date', '<', endStr)
-    );
-
+    // Fetch all puzzles for robustness against indexing issues
+    const q = query(collection(db, COLLECTION_NAME));
     const snapshot = await getDocs(q);
-    const existingPuzzles = new Map<string, string>();
+
+    const existingPuzzles = new Map<string, { author: string, status: 'draft' | 'review' | 'published', approvedBy?: string }>();
     snapshot.forEach(doc => {
-        const data = doc.data();
-        existingPuzzles.set(doc.id, data.author || 'Anonymous');
+        const id = doc.id;
+        // Client-side date filter
+        if (id >= startStr && id < endStr) {
+            const data = doc.data() as PuzzleDocument;
+            existingPuzzles.set(id, {
+                author: data.author || 'Anonymous',
+                status: data.status || 'published',
+                approvedBy: data.approvedBy || undefined
+            });
+        }
     });
     return existingPuzzles;
 };
+export const deletePuzzle = async (date: string): Promise<void> => {
+    if (!auth.currentUser) throw new Error("Must be logged in to delete puzzles");
+    await deleteDoc(doc(db, COLLECTION_NAME, date));
+};
+
+

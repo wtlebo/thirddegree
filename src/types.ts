@@ -2,6 +2,7 @@ export interface Puzzle {
     clue: string;
     answer: string;
     revealOrder: string[]; // Pre-shuffled list of unique letters for consistent reveals
+    comment?: string;
 }
 
 export interface DailySet {
@@ -12,8 +13,9 @@ export interface DailySet {
 
 export interface PuzzleDocument extends DailySet {
     author?: string;
+    approvedBy?: string | null;
     createdAt?: any;
-    status: 'draft' | 'published';
+    status: 'draft' | 'review' | 'published';
 }
 
 export type GameStatus = 'playing' | 'won' | 'lost';

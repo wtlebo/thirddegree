@@ -1,0 +1,12 @@
+// Add these match blocks to your Firestore Security Rules
+// via the Firebase Console -> Firestore Database -> Rules tab
+
+// Allow access to puzzle ratings
+match /puzzle_ratings/{document=**} {
+  allow read, write: if request.auth != null;
+}
+
+// Allow access to the new game logs
+match /game_logs_hang10/{document=**} {
+  allow read, write: if request.auth != null;
+}

@@ -86,6 +86,7 @@ const TrendsDashboard = () => {
     const [data, setData] = useState<TrendDataPoint[]>([]);
     const [loading, setLoading] = useState(true);
     const [range, setRange] = useState(30);
+    const [visible, setVisible] = useState({ score: true, rating: true, winRate: true });
 
     useEffect(() => {
         const load = async () => {
@@ -134,6 +135,22 @@ const TrendsDashboard = () => {
             {/* CHART 2: SCORES & RATINGS */}
             <div style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', marginBottom: '20px' }}>
                 <h3 style={{ marginTop: 0 }}>Puzzle Quality & Difficulty</h3>
+
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', justifyContent: 'center', fontSize: '0.9rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', color: 'var(--color-secondary)' }}>
+                        <input type="checkbox" checked={visible.score} onChange={e => setVisible({ ...visible, score: e.target.checked })} />
+                        Avg Score
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', color: 'var(--color-primary)' }}>
+                        <input type="checkbox" checked={visible.rating} onChange={e => setVisible({ ...visible, rating: e.target.checked })} />
+                        Avg Rating
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', color: 'var(--color-accent)' }}>
+                        <input type="checkbox" checked={visible.winRate} onChange={e => setVisible({ ...visible, winRate: e.target.checked })} />
+                        Win Rate
+                    </label>
+                </div>
+
                 <div style={{ height: '350px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data} syncId="trends" margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
@@ -143,9 +160,9 @@ const TrendsDashboard = () => {
                             <YAxis yAxisId="right" stroke="#aaa" orientation="right" domain={[0, 100]} unit="%" width={40} />
                             <Tooltip contentStyle={{ backgroundColor: '#222', border: '1px solid #444' }} />
                             <Legend verticalAlign="top" height={36} />
-                            <Line yAxisId="left" type="monotone" dataKey="avgScore" name="Avg Score (0-10)" stroke="var(--color-secondary)" strokeWidth={2} dot={false} />
-                            <Line yAxisId="left" type="monotone" dataKey="avgRating" name="Avg Rating (1-10)" stroke="var(--color-primary)" strokeWidth={2} dot={false} connectNulls />
-                            <Line yAxisId="right" type="monotone" dataKey="winRate" name="Win Rate %" stroke="var(--color-accent)" strokeWidth={2} dot={false}
+                            <Line yAxisId="left" type="monotone" dataKey="avgScore" name="Avg Score (0-10)" stroke="var(--color-secondary)" strokeWidth={2} dot={false} hide={!visible.score} />
+                            <Line yAxisId="left" type="monotone" dataKey="avgRating" name="Avg Rating (1-10)" stroke="var(--color-primary)" strokeWidth={2} dot={false} connectNulls hide={!visible.rating} />
+                            <Line yAxisId="right" type="monotone" dataKey="winRate" name="Win Rate %" stroke="var(--color-accent)" strokeWidth={2} dot={false} hide={!visible.winRate}
                                 data={data.map(d => ({ ...d, winRate: d.plays > 0 ? Math.round((d.wins / d.plays) * 100) : null }))} />
                         </LineChart>
                     </ResponsiveContainer>
