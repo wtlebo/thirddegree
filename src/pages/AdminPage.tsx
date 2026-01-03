@@ -513,7 +513,7 @@ export const AdminPage = () => {
                                 </table>
                             </div>
 
-                            <h2 style={{ marginTop: '40px', marginBottom: '20px' }}>Puzzle Master Leaderboard</h2>
+                            <h2 style={{ marginTop: '40px', marginBottom: '20px' }}>Puzzle Master Stats</h2>
                             <div className="admin-table-container">
                                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                                     <thead>

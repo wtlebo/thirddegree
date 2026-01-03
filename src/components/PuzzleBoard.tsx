@@ -54,7 +54,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                 className={`puzzle-row level-${levelIndex} ${rowClass}`}
                 ref={el => { rowRefs.current[levelIndex] = el; }}
             >
-                <div className="puzzle-label">{levelIndex + 1}</div>
+
                 <div className="puzzle-letters">
                     {puzzle.answer.split(' ').map((word, wordIndex) => (
                         <div key={wordIndex} className="word-wrapper">

@@ -286,13 +286,14 @@ export const PuzzleMasterPortal = () => {
             });
 
             setSuccessMsg("Puzzle deleted successfully.");
+            setLoading(false);
             setSelectedDate(null); // Return to calendar
         } catch (e: any) {
             console.error("Delete failed:", e);
             setError("Failed to delete puzzle: " + e.message);
             alert("❌ Delete Failed: " + e.message);
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -1083,7 +1084,7 @@ export const PuzzleMasterPortal = () => {
                 <button onClick={() => changeMonth(1)}>→</button>
             </div>
             {renderCalendar()}
-            <p className="portal-footer">Thanks to our Puzzle Masters for creating the fun!</p>
+            <p className="portal-footer">Big thanks to all of our PMs!</p>
         </div>
     );
 };
