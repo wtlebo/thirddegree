@@ -1163,37 +1163,45 @@ button[class^="btn-"] {
   animation: popShine 0.6s ease-out forwards, nervousShake 0.5s linear infinite 1s;
 }
 
-/* Wipe Out - Drip Down */
+/* Wipe Out - Drip Down & Return */
 @keyframes hingeDrop {
   0% {
     transform: rotate(0);
     transform-origin: top left;
-    animation-timing-function: ease-in-out;
+    opacity: 1;
   }
 
   20%,
   60% {
     transform: rotate(80deg);
     transform-origin: top left;
-    animation-timing-function: ease-in-out;
   }
 
   40%,
   80% {
     transform: rotate(60deg);
     transform-origin: top left;
-    animation-timing-function: ease-in-out;
     opacity: 1;
   }
 
-  100% {
+  90% {
     transform: translate(0, 700px);
     opacity: 0;
+  }
+
+  91% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 1;
   }
 }
 
 .anim-wipeout {
-  animation: hingeDrop 2s ease-in-out forwards;
+  animation: hingeDrop 3s ease-in-out forwards;
   color: #888 !important;
   /* Force grey */
 }
