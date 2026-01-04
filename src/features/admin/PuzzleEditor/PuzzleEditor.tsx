@@ -29,6 +29,7 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
     const [formData, setFormData] = useState<PuzzleDocument | null>(null);
     const [isPreviewing, setIsPreviewing] = useState(false);
     const [showStyleGuide, setShowStyleGuide] = useState(false);
+    const [theme, setTheme] = useState('');
 
     // Sync remote data
     // 1. Sync remote data (only when remote data actually changes)
@@ -137,6 +138,28 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
 
     const isApprovable = formData.status === 'review' || formData.status === 'published';
 
+    const handleSingleMagic = async (idx: number) => {
+        if (!theme.trim()) {
+            alert("Please enter a theme in the Magic Generator first!");
+            return;
+        }
+        if (!formData) return;
+
+        try {
+            // Import dynamically to avoid top-level issues if not used
+            const { generateSinglePuzzle } = await import('../../../services/ai');
+            const currentAnswers = formData.puzzles.filter(p => p.answer).map(p => p.answer);
+
+            const newPuzzle = await generateSinglePuzzle(theme, currentAnswers);
+
+            const newPuzzles = [...formData.puzzles];
+            newPuzzles[idx] = newPuzzle;
+            setFormData({ ...formData, puzzles: newPuzzles as any });
+        } catch (e: any) {
+            alert(`Magic Fill failed: ${e.message}`);
+        }
+    };
+
     return (
         <div className="puzzle-editor">
             {/* Header */}
@@ -211,7 +234,11 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
                 {/* Stacked AI Tools */}
                 <div className="ai-tools-stack" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
                     <IdeaListTool />
-                    <InspirationTool onPuzzlesGenerated={(p) => setFormData({ ...formData, puzzles: p })} />
+                    <InspirationTool
+                        theme={theme}
+                        onThemeChange={setTheme}
+                        onPuzzlesGenerated={(p) => setFormData({ ...formData, puzzles: p })}
+                    />
 
                     {/* Horizontal Group for smaller tools */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px' }}>
@@ -231,6 +258,22 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
                                     <button onClick={() => movePuzzle(idx, -1)}>▲</button>
                                     <button onClick={() => movePuzzle(idx, 1)}>▼</button>
                                 </div>
+                                <button
+                                    className="magic-wand-btn"
+                                    onClick={() => handleSingleMagic(idx)}
+                                    title="Magic Fill this clue (uses Theme)"
+                                    style={{
+                                        background: 'var(--color-primary)',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '1.2rem',
+                                        padding: '0 5px',
+                                        marginLeft: '5px'
+                                    }}
+                                >
+                                    ✨
+                                </button>
                             </div>
 
                             <div className="puzzle-inputs">

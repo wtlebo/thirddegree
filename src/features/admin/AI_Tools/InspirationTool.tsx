@@ -4,10 +4,12 @@ import type { Puzzle } from '../../../lib/schemas';
 
 interface InspirationToolProps {
     onPuzzlesGenerated: (puzzles: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle]) => void;
+    theme: string;
+    onThemeChange: (theme: string) => void;
 }
 
-export const InspirationTool: React.FC<InspirationToolProps> = ({ onPuzzlesGenerated }) => {
-    const [theme, setTheme] = useState('');
+export const InspirationTool: React.FC<InspirationToolProps> = ({ onPuzzlesGenerated, theme, onThemeChange }) => {
+    // Local loading/error state remains here as it's specific to this generator action
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -37,7 +39,7 @@ export const InspirationTool: React.FC<InspirationToolProps> = ({ onPuzzlesGener
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <input
                         value={theme}
-                        onChange={e => setTheme(e.target.value)}
+                        onChange={e => onThemeChange(e.target.value)}
                         placeholder="Enter a theme..."
                         style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #444', background: 'rgba(0,0,0,0.2)', color: 'white' }}
                     />
