@@ -56,38 +56,48 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
             >
 
                 <div className="puzzle-letters">
-                    {puzzle.answer.split(' ').map((word, wordIndex) => (
-                        <div key={wordIndex} className="word-wrapper">
-                            {word.split('').map((char, charIndex) => {
-                                const upperChar = char.toUpperCase();
-                                let content = '';
-                                let statusClass = '';
+                    {puzzle.answer.split(' ').map((word, wordIndex) => {
+                        // Check for long word shrinking (logic: if ANY word in the puzzle is >= 10 chars, shrink ALL)
+                        const isPuzzleLong = puzzle.answer.split(' ').some(w => w.length >= 10);
+                        const wrapperClass = `word-wrapper ${isPuzzleLong ? 'long-word' : ''}`;
 
-                                if (showAll) {
-                                    content = upperChar;
-                                    statusClass = 'revealed';
-                                } else if (isCurrent) {
-                                    if (guessedLetters.has(upperChar)) {
+                        return (
+                            <div key={wordIndex} className={wrapperClass}>
+                                {word.split('').map((char, charIndex) => {
+                                    const upperChar = char.toUpperCase();
+                                    const isSymbol = /[^A-Z]/.test(upperChar);
+                                    let content = '';
+                                    let statusClass = '';
+
+                                    if (isSymbol) {
                                         content = upperChar;
-                                        statusClass = 'guessed';
-                                    } else if (revealedLetters.has(upperChar)) {
+                                        statusClass = 'symbol-box';
+                                    } else if (showAll) {
                                         content = upperChar;
-                                        statusClass = 'revealed-start';
+                                        statusClass = 'revealed';
+                                    } else if (isCurrent) {
+                                        if (guessedLetters.has(upperChar)) {
+                                            content = upperChar;
+                                            statusClass = 'guessed';
+                                        } else if (revealedLetters.has(upperChar)) {
+                                            content = upperChar;
+                                            statusClass = 'revealed-start';
+                                        }
+                                    } else if (isFuture) {
+                                        // Locked
+                                        content = '';
+                                        statusClass = 'locked';
                                     }
-                                } else if (isFuture) {
-                                    // Locked
-                                    content = '';
-                                    statusClass = 'locked';
-                                }
 
-                                return (
-                                    <div key={`${wordIndex}-${charIndex}`} className={`letter-box ${statusClass}`}>
-                                        {content}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ))}
+                                    return (
+                                        <div key={`${wordIndex}-${charIndex}`} className={`letter-box ${statusClass}`}>
+                                            {content}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        );
+                    })}
                 </div>
                 {isCurrent && <div className="puzzle-clue">{puzzle.clue}</div>}
                 {showAll && !isCurrent && <div className="puzzle-clue">{puzzle.clue}</div>}

@@ -22,12 +22,13 @@ const INITIAL_STATS: UserStats = {
     lastPlayedDate: null,
 };
 
-export const useStats = () => {
+export const useStats = (enabled: boolean = true) => {
     const [stats, setStats] = useState<UserStats>(INITIAL_STATS);
     const { firebaseUser } = useUsers();
 
     // Load from local storage initially
     useEffect(() => {
+        if (!enabled) return;
         const storedStats = localStorage.getItem(STATS_KEY);
         if (storedStats) {
             try {
@@ -45,11 +46,11 @@ export const useStats = () => {
                 console.error('Failed to parse stats:', e);
             }
         }
-    }, []);
+    }, [enabled]);
 
     // Sync with Cloud when User logs in
     useEffect(() => {
-        if (!firebaseUser) return;
+        if (!enabled || !firebaseUser) return;
 
         const syncStats = async () => {
             const userStatsRef = doc(db, 'users', firebaseUser.uid, 'data', 'stats');

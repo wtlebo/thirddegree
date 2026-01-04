@@ -147,7 +147,10 @@ export const generateHistoryEvents = async (date: string, existingEvents: string
     `;
 
     try {
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: 'application/json' }
+        });
         const text = result.response.text();
         let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
         const firstBracket = cleanText.indexOf('[');
@@ -189,10 +192,11 @@ export const generateBirthdays = async (date: string, existing: string[] = []): 
     `;
 
     try {
-        console.log(`Searching birthdays for ${date}...`);
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: 'application/json' }
+        });
         const text = result.response.text();
-        console.log("Birthdays Raw AI Response:", text);
 
         let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
         // Robust extraction: find the outer brackets
@@ -204,7 +208,6 @@ export const generateBirthdays = async (date: string, existing: string[] = []): 
         const parsed = JSON.parse(cleanText);
 
         if (Array.isArray(parsed)) {
-            console.log("Parsed birthdays:", parsed.length);
             return parsed;
         }
         console.warn("Birthdays parsed result is not an array:", parsed);
@@ -235,7 +238,10 @@ export const generateNationalDays = async (date: string, existing: string[] = []
     `;
 
     try {
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: 'application/json' }
+        });
         const text = result.response.text();
         let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
         const firstBracket = cleanText.indexOf('[');

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Shrikhand&display=swap');
+@import './styles/design-tokens.css';
 
 :root {
   /* Retro Surf Palette */
@@ -262,6 +263,24 @@ main {
 
 .letter-box.revealed {
   color: #aaa;
+}
+
+/* Special styling for punctuation (spaces, dashes, quotes) */
+.letter-box.symbol-box {
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  width: auto;
+  min-width: 10px;
+  padding: 0 2px;
+}
+
+/* Shrink boxes for long words (10+ chars) */
+.word-wrapper.long-word .letter-box:not(.symbol-box) {
+  width: 22px;
+  height: 30px;
+  font-size: 1rem;
 }
 
 .puzzle-clue {
@@ -970,6 +989,7 @@ button[class^="btn-"] {
     padding-top: 0;
   }
 }
+
 .calendar-day.status-draft {
   background-color: rgba(255, 193, 7, 0.25) !important;
   border: 2px dashed #ffc107 !important;
