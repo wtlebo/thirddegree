@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { DailySet, GameState } from '../types';
 import { getRevealedLetters, isPuzzleSolved } from '../utils/gameUtils';
 import type { GuessLog } from '../services/analytics';
@@ -9,6 +9,24 @@ export interface ExtendedGameState extends GameState {
 
 export const useGameState = (dailySet: DailySet) => {
     const [gameState, setGameState] = useState<ExtendedGameState>(() => {
+        // Try to load from local storage
+        try {
+            const storageKey = `thirddegree_gamestate_${dailySet.date}`;
+            const saved = localStorage.getItem(storageKey);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Hydrate Arrays back to Sets
+                return {
+                    ...parsed,
+                    guessedLetters: new Set(parsed.guessedLetters),
+                    revealedLetters: new Set(parsed.revealedLetters),
+                    dailySet // Always use the fresh dailySet
+                };
+            }
+        } catch (e) {
+            console.error("Failed to load game state:", e);
+        }
+
         // Initial state setup
         const initialLevel = 0;
         const initialRevealed = getRevealedLetters(dailySet.puzzles[0], 2);
@@ -24,6 +42,24 @@ export const useGameState = (dailySet: DailySet) => {
             guesses: []
         };
     });
+
+    // Persist state on change
+    useEffect(() => {
+        try {
+            const storageKey = `thirddegree_gamestate_${dailySet.date}`;
+            const stateToSave = {
+                ...gameState,
+                dailySet: undefined, // Don't save the full dailySet
+                guessedLetters: Array.from(gameState.guessedLetters),
+                revealedLetters: Array.from(gameState.revealedLetters)
+            };
+            localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+        } catch (e) {
+            console.error("Failed to save game state:", e);
+        }
+    }, [gameState, dailySet.date]);
+
+    // Handle user guesses
 
     const handleGuess = useCallback((letter: string) => {
         if (gameState.status !== 'playing') return;

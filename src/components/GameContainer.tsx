@@ -30,11 +30,21 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
 
     // Check if already played today (SKIP if previewing)
     useEffect(() => {
-        if (!isPreview && stats.lastPlayedDate === dailySet.date) {
-            setHasPlayedToday(true);
-            setIsStatsOpen(true);
+        if (!isPreview) {
+            // Restore from persisted state if available
+            if (gameState.status !== 'playing' && !latestGameSummary) {
+                setLatestGameSummary({ status: gameState.status, strikes: gameState.strikes });
+            }
+
+            if (stats.lastPlayedDate === dailySet.date) {
+                setHasPlayedToday(true);
+                // If we have a summary, open stats immediately
+                if (gameState.status !== 'playing') {
+                    setIsStatsOpen(true);
+                }
+            }
         }
-    }, [stats.lastPlayedDate, dailySet.date, isPreview]);
+    }, [stats.lastPlayedDate, dailySet.date, isPreview, gameState.status, gameState.strikes, latestGameSummary]);
 
     // Record game result when finished (SKIP if previewing)
     useEffect(() => {

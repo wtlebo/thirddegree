@@ -98,157 +98,153 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
                     </svg>
                 </button>
 
-                {latestGameSummary && (
-                    <div className="daily-summary" style={{ marginBottom: '30px', borderBottom: '1px solid var(--color-border)', paddingBottom: '20px' }}>
-                        <h1 style={{
-                            fontSize: '3rem',
-                            color: 'var(--color-secondary)', // Pop with Yellow
-                            margin: '0 0 10px 0',
-                            textTransform: 'uppercase',
-                            letterSpacing: '3px',
-                            textShadow: '2px 2px 0px rgba(0,0,0,0.3)'
-                        }}>
-                            {getDailyMessage(latestGameSummary.status, latestGameSummary.strikes)}
-                        </h1>
-                        <p style={{ fontSize: '1.2rem', color: 'var(--color-text)' }}>
-                            {latestGameSummary.status === 'won'
-                                ? (
-                                    <>
-                                        {latestGameSummary.strikes === 0 && "Great Job! Zero strikes = 10 points!"}
-                                        {latestGameSummary.strikes === 1 && "Nice! One strike = 8 points!"}
-                                        {latestGameSummary.strikes === 2 && "Solid! Two strikes = 6 points."}
-                                        {latestGameSummary.strikes === 3 && "Phew! Three strikes = 4 points."}
-                                        {latestGameSummary.strikes === 4 && "Close one! Four strikes = 2 points."}
-                                    </>
-                                )
-                                : "Better luck next time!"}
-                        </p>
-                    </div>
-                )}
+                <div className="stats-content">
+                    {/* SECTION A: Today's Result & Header */}
+                    <div className="daily-summary" style={{ marginBottom: '20px', borderBottom: '1px solid var(--color-border)', paddingBottom: '20px', textAlign: 'center' }}>
 
-                <div className="stats-header" style={{ justifyContent: 'center', marginBottom: '1rem' }}>
-                    <h2>Statistics</h2>
+                        {/* Date & Global Avg Row */}
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center', marginBottom: '10px', fontSize: '0.9rem', color: '#888' }}>
+                            <span>{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                            <span>•</span>
+                            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                <span>Global Avg:</span>
+                                <span style={{ fontWeight: 'bold', color: 'var(--color-text)' }}>{globalAverage}</span>
+                            </div>
+                        </div>
+
+                        {latestGameSummary ? (
+                            <>
+                                <h1 style={{
+                                    fontSize: '3rem',
+                                    color: 'var(--color-secondary)',
+                                    margin: '0 0 10px 0',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '3px',
+                                    textShadow: '2px 2px 0px rgba(0,0,0,0.3)'
+                                }}>
+                                    {getDailyMessage(latestGameSummary.status, latestGameSummary.strikes)}
+                                </h1>
+                                <p style={{ fontSize: '1.2rem', color: 'var(--color-text)' }}>
+                                    {latestGameSummary.status === 'won'
+                                        ? (
+                                            <>
+                                                {latestGameSummary.strikes === 0 && "Great Job! Zero strikes = 10 points!"}
+                                                {latestGameSummary.strikes === 1 && "Nice! One strike = 8 points!"}
+                                                {latestGameSummary.strikes === 2 && "Solid! Two strikes = 6 points."}
+                                                {latestGameSummary.strikes === 3 && "Phew! Three strikes = 4 points."}
+                                                {latestGameSummary.strikes === 4 && "Close one! Four strikes = 2 points."}
+                                            </>
+                                        )
+                                        : "Better luck next time!"}
+                                </p>
+                            </>
+                        ) : (
+                            <h2 style={{ color: 'var(--color-text)', opacity: 0.7, margin: '10px 0' }}>Stats & History</h2>
+                        )}
+                    </div>
+
+                    {/* SECTION B: Lifetime Stats */}
+                    <h3 style={{ textAlign: 'center', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', color: '#666' }}>Lifetime Stats</h3>
+                    <div className="stats-grid" style={{ marginBottom: '30px' }}>
+                        <div className="stat-item">
+                            <div className="stat-value">{stats.gamesPlayed}</div>
+                            <div className="stat-label">Played</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-value">{winPercentage}</div>
+                            <div className="stat-label">Win %</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-value">{stats.currentStreak}</div>
+                            <div className="stat-label">Current Streak</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-value">{stats.maxStreak}</div>
+                            <div className="stat-label">Max Streak</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-value">{averageScore}</div>
+                            <div className="stat-label">Avg Score</div>
+                        </div>
+                    </div>
+
+                    {/* SECTION C: Guess Distribution */}
+                    <h3 style={{ textAlign: 'center', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', color: '#666' }}>Point Distribution</h3>
+                    <div className="distribution-chart">
+                        <div className="dist-row">
+                            <span className="dist-label">Hang 10</span>
+                            <div className="dist-bar-container">
+                                <div className="dist-bar" style={{
+                                    width: getWidth(stats.winDistribution.perfect),
+                                    background: getBarColor(isToday(0))
+                                }}>
+                                    {stats.winDistribution.perfect}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="dist-row">
+                            <span className="dist-label">Tubular (8)</span>
+                            <div className="dist-bar-container">
+                                <div className="dist-bar" style={{
+                                    width: getWidth(stats.winDistribution.oneStrike),
+                                    background: getBarColor(isToday(1))
+                                }}>
+                                    {stats.winDistribution.oneStrike}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="dist-row">
+                            <span className="dist-label">Radical (6)</span>
+                            <div className="dist-bar-container">
+                                <div className="dist-bar" style={{
+                                    width: getWidth(stats.winDistribution.twoStrikes),
+                                    background: getBarColor(isToday(2))
+                                }}>
+                                    {stats.winDistribution.twoStrikes}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="dist-row">
+                            <span className="dist-label">Gnarly (4)</span>
+                            <div className="dist-bar-container">
+                                <div className="dist-bar" style={{
+                                    width: getWidth(stats.winDistribution.threeStrikes),
+                                    background: getBarColor(isToday(3))
+                                }}>
+                                    {stats.winDistribution.threeStrikes}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="dist-row">
+                            <span className="dist-label">Close Call (2)</span>
+                            <div className="dist-bar-container">
+                                <div className="dist-bar" style={{
+                                    width: getWidth(stats.winDistribution.fourStrikes),
+                                    background: getBarColor(isToday(4))
+                                }}>
+                                    {stats.winDistribution.fourStrikes}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="dist-row">
+                            <span className="dist-label">Wipe Out (0)</span>
+                            <div className="dist-bar-container">
+                                <div className="dist-bar" style={{
+                                    width: getWidth(stats.winDistribution.failed),
+                                    background: getBarColor(isToday('failed'))
+                                }}>
+                                    {stats.winDistribution.failed}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {latestGameSummary && (
+                        <div className="rating-area" style={{ marginTop: '20px', textAlign: 'center', borderTop: '1px solid var(--color-border)', paddingTop: '20px' }}>
+                            <RatingComponent />
+                        </div>
+                    )}
                 </div>
-
-                <div className="stats-grid">
-                    <div className="stat-item">
-                        <div className="stat-value">{stats.gamesPlayed}</div>
-                        <div className="stat-label">Played</div>
-                    </div>
-                    <div className="stat-item">
-                        <div className="stat-value">{winPercentage}</div>
-                        <div className="stat-label">Win %</div>
-                    </div>
-                    <div className="stat-item">
-                        <div className="stat-value">{stats.currentStreak}</div>
-                        <div className="stat-label">Current Streak</div>
-                    </div>
-                    <div className="stat-item">
-                        <div className="stat-value">{stats.maxStreak}</div>
-                        <div className="stat-label">Max Streak</div>
-                    </div>
-                    <div className="stat-item">
-                        <div className="stat-value">{averageScore}</div>
-                        <div className="stat-label">Avg Score</div>
-                    </div>
-                </div>
-
-                <h3>Guess Distribution</h3>
-                <div className="distribution-chart">
-                    <div className="dist-row">
-                        <span className="dist-label">Hang 10</span>
-                        <div className="dist-bar-container">
-                            <div className="dist-bar" style={{
-                                width: getWidth(stats.winDistribution.perfect),
-                                background: getBarColor(isToday(0))
-                            }}>
-                                {stats.winDistribution.perfect}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="dist-row">
-                        <span className="dist-label">Tubular (8)</span>
-                        <div className="dist-bar-container">
-                            <div className="dist-bar" style={{
-                                width: getWidth(stats.winDistribution.oneStrike),
-                                background: getBarColor(isToday(1))
-                            }}>
-                                {stats.winDistribution.oneStrike}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="dist-row">
-                        <span className="dist-label">Radical (6)</span>
-                        <div className="dist-bar-container">
-                            <div className="dist-bar" style={{
-                                width: getWidth(stats.winDistribution.twoStrikes),
-                                background: getBarColor(isToday(2))
-                            }}>
-                                {stats.winDistribution.twoStrikes}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="dist-row">
-                        <span className="dist-label">Gnarly (4)</span>
-                        <div className="dist-bar-container">
-                            <div className="dist-bar" style={{
-                                width: getWidth(stats.winDistribution.threeStrikes),
-                                background: getBarColor(isToday(3))
-                            }}>
-                                {stats.winDistribution.threeStrikes}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="dist-row">
-                        <span className="dist-label">Close Call (2)</span>
-                        <div className="dist-bar-container">
-                            <div className="dist-bar" style={{
-                                width: getWidth(stats.winDistribution.fourStrikes),
-                                background: getBarColor(isToday(4))
-                            }}>
-                                {stats.winDistribution.fourStrikes}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="dist-row">
-                        <span className="dist-label">Wipe Out (0)</span>
-                        <div className="dist-bar-container">
-                            <div className="dist-bar" style={{
-                                width: getWidth(stats.winDistribution.failed),
-                                background: getBarColor(isToday('failed'))
-                            }}>
-                                {stats.winDistribution.failed}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="stats-footer" style={{
-                    marginTop: '2rem',
-                    paddingTop: '1rem',
-                    borderTop: '1px solid var(--color-border)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                    alignItems: 'center',
-                    fontSize: '0.9rem',
-                    color: 'var(--color-secondary)'
-                }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                        <div>{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <span>Global Avg:</span>
-                            <span style={{ fontWeight: 'bold', color: 'var(--color-text)', fontSize: '1.1rem' }}>{globalAverage}</span>
-                        </div>
-                    </div>
-
-                </div>
-
-                {latestGameSummary && (
-                    <div className="rating-area" style={{ marginTop: '20px', textAlign: 'center' }}>
-                        <RatingComponent />
-                    </div>
-                )}
             </div>
         </div>
     );
