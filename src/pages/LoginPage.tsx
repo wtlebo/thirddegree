@@ -134,8 +134,8 @@ export const LoginPage = () => {
         );
     }
 
-    // Scenario 1: Not logged in at all
-    if (!firebaseUser) {
+    // Scenario 1: Not logged in at all or is Anonymous (Guest)
+    if (!firebaseUser || firebaseUser.isAnonymous) {
         return (
             <div style={{ padding: '20px', color: 'white', maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
                 <h1 style={{ marginBottom: '10px', color: 'var(--color-primary)' }}>Sign In / Sign Up</h1>
@@ -217,9 +217,9 @@ export const LoginPage = () => {
     if (!currentUser && firebaseUser) {
         return (
             <div style={{ padding: '20px', color: 'white', maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
-                <h1 style={{ marginBottom: '20px' }}>Welcome!</h1>
-                <p>You've been invited to join Hang 10.</p>
-                <p style={{ marginBottom: '20px', opacity: 0.8 }}>Please choose your "Puzzle Master Handle". This name will appear publicly on puzzles you create.</p>
+                <h1 style={{ marginBottom: '20px' }}>Setup Profile</h1>
+                <p>Welcome! Let's get you set up.</p>
+                <p style={{ marginBottom: '20px', opacity: 0.8 }}>Please choose your "Player Handle". This name will appear on the leaderboard.</p>
 
                 <form onSubmit={handleCreateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <div style={{ textAlign: 'left' }}>
