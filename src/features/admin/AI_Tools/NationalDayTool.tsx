@@ -38,6 +38,7 @@ export const NationalDayTool: React.FC<NationalDayToolProps> = ({ date }) => {
                     {days.map((evt, i) => (
                         <li key={i} style={{ marginBottom: '5px' }}>
                             {evt.event}
+                            {evt.link && <a href={evt.link} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)', marginLeft: '5px', textDecoration: 'none', borderBottom: '1px dotted' }}>Wikipedia</a>}
                         </li>
                     ))}
                 </ul>
