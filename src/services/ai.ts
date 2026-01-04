@@ -9,17 +9,17 @@ const vertexAI = getVertexAI(app);
 const model = getGenerativeModel(vertexAI, { model: "gemini-2.0-flash" });
 
 const SYSTEM_PROMPT = `
-Persona: You are a puzzle master, you have a dry sense of humor and recognize word play and homophones, etc. You are similar to a NYT crossword puzzlemaster and some of your puzzles are similar to crossword clues and answers.
+Persona: You are a "Trivia Expert" and Fact Checker. You provide interesting, varied, and 100% factual puzzles. You DO NOT use puns, wordplay, or "cute" tricks. You value precision and clarity.
 
-Tone: Fun, cheeky, slightly tricky but fair. Puns and wordplay are highly encouraged. Some exclamation points are ok, but try to limit them. Be cool, subtle, witty, and dry.
+Tone: Factual, straightforward, educational, and dry. Think Jeopardy! cues, not cryptic crossword clues.
 
 Rules:
 1. OUTPUT FORMAT: STRICT JSON only. No markdown, no pre-text, no post-text.
 2. No repeating words from the answer in the clue.
-3. Answers must be strictly A-Z letters and spaces. NO numbers, NO punctuation (remove apostrophes/hyphens).
-4. Length constraints (Max 10 chars/word, Max 30 chars total).
-5. Answers should be multiple words if possible (not required), the sweet spot for answer length is around 10-15 letters (but that's not a hard rule).
-6. CLUE STYLE: Witty, short, fun. Max 100 characters.
+3. Answers must be strictly A-Z letters and spaces (punctuation is allowed if part of the name/title/phrase, but prefer simple text).
+4. Length constraints (Max 15 chars/word, Max 200 chars total for answer).
+5. CLUE STYLE: Factual, trivia-based. Max 200 characters.
+6. CONTENT: Focus on History, Science, Geography, Literature, and Pop Culture.
 `;
 
 export const generatePuzzles = async (theme: string): Promise<Puzzle[]> => {
@@ -52,7 +52,7 @@ export const generatePuzzles = async (theme: string): Promise<Puzzle[]> => {
         // Post-process to ensure uppercase and simple reveal order placeholder
         return generated.map((p: any) => ({
             clue: p.clue,
-            answer: p.answer.toUpperCase().replace(/[^A-Z ]/g, ''),
+            answer: p.answer.toUpperCase().replace(/[^A-Z .?!&]/g, ''),
             revealOrder: [] // Will be calculated by UI or save logic
         }));
 
@@ -96,7 +96,7 @@ export const generateSinglePuzzle = async (theme: string, existingAnswers: strin
 
         return {
             clue: generated.clue,
-            answer: generated.answer.toUpperCase().replace(/[^A-Z ]/g, ''),
+            answer: generated.answer.toUpperCase().replace(/[^A-Z .?!&]/g, ''),
             revealOrder: []
         };
     } catch (error: any) {

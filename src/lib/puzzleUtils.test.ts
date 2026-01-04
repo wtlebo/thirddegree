@@ -8,11 +8,11 @@ const createMockPuzzle = (overrides: Partial<PuzzleDocument> = {}): PuzzleDocume
     status: 'draft',
     author: 'Test',
     puzzles: [
-        { clue: 'A', answer: 'B', revealOrder: ['B'] },
-        { clue: 'C', answer: 'D', revealOrder: ['D'] },
-        { clue: 'E', answer: 'F', revealOrder: ['F'] },
-        { clue: 'G', answer: 'H', revealOrder: ['H'] },
-        { clue: 'I', answer: 'J', revealOrder: ['J'] }
+        { clue: 'A.', answer: 'B', revealOrder: ['B'] },
+        { clue: 'C.', answer: 'D', revealOrder: ['D'] },
+        { clue: 'E.', answer: 'F', revealOrder: ['F'] },
+        { clue: 'G.', answer: 'H', revealOrder: ['H'] },
+        { clue: 'I.', answer: 'J', revealOrder: ['J'] }
     ],
     approvedBy: null,
     ...overrides
@@ -36,28 +36,28 @@ describe('validatePuzzle', () => {
         expect(validatePuzzle(doc, false)).toMatch(/Puzzle #1 is missing a clue/);
     });
 
-    it('allows special characters (hyphen, quotes, comma, ampersand)', () => {
+    it('allows special characters (hyphen, quotes, comma, ampersand, punctuation)', () => {
         const doc = createMockPuzzle();
-        doc.puzzles[0].answer = "R&B, IT'S-A-ME";
+        doc.puzzles[0].answer = "R&B, IT'S-A-ME! WHO?";
         expect(validatePuzzle(doc, true)).toBe(null);
     });
 
     it('rejects invalid characters', () => {
         const doc = createMockPuzzle();
-        doc.puzzles[0].answer = 'HELLO WORLD!'; // ! is invalid
+        doc.puzzles[0].answer = 'HELLO @WORLD'; // @ is invalid
         const result = validatePuzzle(doc, true);
         expect(result).toContain('invalid characters');
     });
 
     it('rejects too long answers', () => {
         const doc = createMockPuzzle();
-        doc.puzzles[0].answer = 'A'.repeat(51);
+        doc.puzzles[0].answer = 'A'.repeat(201);
         expect(validatePuzzle(doc, true)).toMatch(/too long/);
     });
 
     it('validates all sockets', () => {
         const doc = createMockPuzzle();
-        doc.puzzles[4].answer = 'BAD!';
+        doc.puzzles[4].answer = 'BAD@';
         expect(validatePuzzle(doc, true)).toMatch(/Puzzle #5/);
     });
 });

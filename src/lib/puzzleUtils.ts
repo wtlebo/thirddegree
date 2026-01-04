@@ -10,12 +10,12 @@ export const validatePuzzle = (data: PuzzleDocument, isDraft: boolean): string |
             if (!p.answer) return `Puzzle #${i + 1} is missing an answer.`;
         }
 
-        if (p.answer && p.answer.length > 100) return `Puzzle #${i + 1} answer is too long (max 100 chars).`;
+        if (p.answer && p.answer.length > 200) return `Puzzle #${i + 1} answer is too long (max 200 chars).`;
         if (p.answer && p.answer.split(' ').some(w => w.length > 15)) return `Puzzle #${i + 1} contains a word longer than 15 characters.`;
-        if (p.answer && !/^[A-Z '\-"“”,&]*$/.test(p.answer)) return `Puzzle #${i + 1} answer contains invalid characters (A-Z, space, hyphen, quotes, comma, & only).`;
+        if (p.answer && !/^[A-Z '\-"“”,&.?!]*$/.test(p.answer)) return `Puzzle #${i + 1} answer contains invalid characters (A-Z, space, hyphen, quotes, comma, &, ., ?, ! only).`;
 
         if (p.clue) {
-            if (p.clue.length > 100) return `Puzzle #${i + 1} clue is too long (max 100 chars).`;
+            if (p.clue.length > 200) return `Puzzle #${i + 1} clue is too long (max 200 chars).`;
             const lastChar = p.clue.trim().slice(-1);
             if (!['.', '!', '?', '"', '”'].includes(lastChar)) {
                 // Warning-like check, but we'll enforce it as requested
