@@ -71,6 +71,15 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
         return latestGameSummary.status === 'won' && latestGameSummary.strikes === strikes;
     };
 
+    const getAnimationClass = (status: 'won' | 'lost', strikes: number) => {
+        if (status === 'lost') return "anim-wipeout";
+        if (strikes === 0) return "anim-hang10";
+        if (strikes === 1) return "anim-tubular";
+        if (strikes === 2) return "anim-radical";
+        if (strikes === 3) return "anim-gnarly";
+        return "anim-closecall";
+    };
+
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content stats-modal" onClick={e => e.stopPropagation()} style={{ position: 'relative', paddingTop: '40px' }}>
@@ -114,7 +123,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
 
                         {latestGameSummary ? (
                             <>
-                                <h1 className="daily-message-anim" style={{
+                                <h1 className={getAnimationClass(latestGameSummary.status, latestGameSummary.strikes)} style={{
                                     fontSize: '3rem',
                                     color: 'var(--color-secondary)',
                                     margin: '0 0 10px 0',
