@@ -114,7 +114,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
 
                         {latestGameSummary ? (
                             <>
-                                <h1 style={{
+                                <h1 className="daily-message-anim" style={{
                                     fontSize: '3rem',
                                     color: 'var(--color-secondary)',
                                     margin: '0 0 10px 0',
@@ -253,10 +253,17 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, onClose, isOpen, 
 const RatingComponent = () => {
     const [submitted, setSubmitted] = useState(false);
 
+    useEffect(() => {
+        const today = new Date().toISOString().split('T')[0];
+        if (localStorage.getItem(`thirddegree_rated_${today}`)) {
+            setSubmitted(true);
+        }
+    }, []);
+
     const handleRate = async (value: number) => {
         setSubmitted(true);
-        // Fire and forget
         const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem(`thirddegree_rated_${today}`, 'true');
         try {
             await submitPuzzleRating(today, value);
         } catch (e) {
