@@ -56,14 +56,16 @@ export const useStats = (enabled: boolean = true) => {
             const userStatsRef = doc(db, 'users', firebaseUser.uid, 'data', 'stats');
 
             try {
+                console.log(`[StatsSync] Attempting sync for User: ${firebaseUser.uid} | Profile: ${currentUser?.handle} (${currentUser?.role})`);
                 const docSnap = await getDoc(userStatsRef);
 
                 if (docSnap.exists()) {
-                    // Cloud stats exist -> Download and use them (Cloud is truth)
+                    console.log("[StatsSync] Found cloud stats. Downloading.");
                     const cloudStats = docSnap.data() as UserStats;
                     setStats(cloudStats);
                     localStorage.setItem(STATS_KEY, JSON.stringify(cloudStats));
                 } else {
+                    console.log("[StatsSync] No cloud stats. Uploading local.");
                     // Cloud is empty -> Upload Local stats (Migration from Anonymous)
                     const localString = localStorage.getItem(STATS_KEY);
                     let statsToUpload = INITIAL_STATS;
@@ -81,10 +83,16 @@ export const useStats = (enabled: boolean = true) => {
                     }
 
                     await setDoc(userStatsRef, statsToUpload);
-                    // No need to setStats, we already have it locally
+                    console.log("[StatsSync] Upload complete.");
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.error("Error syncing stats:", e);
+                console.error("Debug Info:", {
+                    uid: firebaseUser.uid,
+                    anon: firebaseUser.isAnonymous,
+                    profileId: currentUser?.uid,
+                    role: currentUser?.role
+                });
             }
         };
 
