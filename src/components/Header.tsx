@@ -14,9 +14,9 @@ export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPl
         <header className="game-header">
             <div className="logo-container" style={{ position: 'relative', overflow: 'hidden', padding: '5px 0' }}>
                 <img
-                    src="/header_banner.png"
+                    src="/logo.png"
                     alt="Hang 10 Header"
-                    style={{ width: '100%', maxWidth: '600px', height: 'auto', display: 'block', margin: '0 auto' }}
+                    style={{ width: '100%', maxWidth: '300px', height: 'auto', display: 'block', margin: '0 auto' }}
                 />
             </div>
 

@@ -1,30 +1,43 @@
 :root {
-    /* Retro Surf Palette */
-    --color-bg: #1A535C;
-    /* Dark Navy / Deep Teal */
-    --color-text: #F7FFF7;
-    /* Sandy Beige / Off-white */
-    --color-primary: #4ECDC4;
-    /* Aqua / Teal */
-    --color-secondary: #FFE66D;
-    /* Sun-faded Yellow */
-    --color-accent: #FF6B6B;
-    /* Coral / Orange */
+    /* Brand Refresh: Purple Haze Palette */
+    --color-bg: #7D4191;
+    /* Primary Brand Purple */
+    --color-text: #FFFFFF;
+    /* White */
 
-    --color-error: #FF6B6B;
-    /* Using Accent for Error/Strike */
-    --color-border: #4ECDC4;
-    /* Aqua Border */
+    --color-primary: #FFD700;
+    /* Gold/Yellow for contrast (complementary to purple) or keep Aqua if brand guide allows */
+    /* Let's try to keep the high contrast pop. If Brand Guide has specifics, we'd use them. 
+       For now, assuming Aqua/Yellow still works as accent or adjusting slightly. 
+       Let's stick to the high-energy Retro contrast unless instructed otherwise. 
+       Actually, let's make Primary a bright distinct color against purple. */
+    --color-primary: #5DE2E7;
+    /* Bright Cyan - pops against purple */
 
-    --color-key-bg: #2C6E7A;
-    /* Lighter Navy for keys */
-    --color-key-used: #144048;
-    /* Darker Navy for used keys */
+    --color-secondary: #FFD166;
+    /* Warm Yellow */
+    --color-accent: #EF476F;
+    /* Hot Pink/Red */
 
+    --color-error: #EF476F;
+
+    --color-border: #9D61B1;
+    /* Lighter Purple for borders */
+
+    --color-key-bg: #5A2A6B;
+    /* Darker Purple for keys */
+    --color-key-used: #3D1C49;
+    /* Deepest Purple for used keys */
+
+    /* Typography */
+    /* Brand Guide calls for 'Mainstay Regular' and 'Axiforma'. 
+       Using 'Shrikhand' and 'Inter' as close Google Font alternatives until assets are provided. */
     --font-family: 'Inter', sans-serif;
+    /* Comparable to Axiforma */
     --font-heading: 'Shrikhand', cursive;
+    /* Comparable to Mainstay? */
 
-    /* Admin Specific (Derived from existing palette) */
-    --color-bg-secondary: #1e293b;
-    /* Admin panel backgrounds */
+    /* Admin Specific */
+    --color-bg-secondary: #5A2A6B;
+    /* Dark purple for admin panels */
 }

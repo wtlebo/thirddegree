@@ -1,32 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Shrikhand&display=swap');
 @import './styles/design-tokens.css';
 
-:root {
-  /* Retro Surf Palette */
-  --color-bg: #1A535C;
-  /* Dark Navy / Deep Teal */
-  --color-text: #F7FFF7;
-  /* Sandy Beige / Off-white */
-  --color-primary: #4ECDC4;
-  /* Aqua / Teal */
-  --color-secondary: #FFE66D;
-  /* Sun-faded Yellow */
-  --color-accent: #FF6B6B;
-  /* Coral / Orange */
-
-  --color-error: #FF6B6B;
-  /* Using Accent for Error/Strike */
-  --color-border: #4ECDC4;
-  /* Aqua Border */
-
-  --color-key-bg: #2C6E7A;
-  /* Lighter Navy for keys */
-  --color-key-used: #144048;
-  /* Darker Navy for used keys */
-
-  --font-family: 'Inter', sans-serif;
-  --font-heading: 'Shrikhand', cursive;
-}
+/* :root override removed - see design-tokens.css */
 
 * {
   box-sizing: border-box;
