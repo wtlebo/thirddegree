@@ -24,7 +24,7 @@ const INITIAL_STATS: UserStats = {
 
 export const useStats = (enabled: boolean = true) => {
     const [stats, setStats] = useState<UserStats>(INITIAL_STATS);
-    const { firebaseUser } = useUsers();
+    const { firebaseUser, currentUser } = useUsers();
 
     // Load from local storage initially
     useEffect(() => {
@@ -48,9 +48,9 @@ export const useStats = (enabled: boolean = true) => {
         }
     }, [enabled]);
 
-    // Sync with Cloud when User logs in
+    // Sync with Cloud when User is fully loaded (currentUser present)
     useEffect(() => {
-        if (!enabled || !firebaseUser) return;
+        if (!enabled || !firebaseUser || !currentUser) return;
 
         const syncStats = async () => {
             const userStatsRef = doc(db, 'users', firebaseUser.uid, 'data', 'stats');
@@ -60,9 +60,6 @@ export const useStats = (enabled: boolean = true) => {
 
                 if (docSnap.exists()) {
                     // Cloud stats exist -> Download and use them (Cloud is truth)
-                    // In a more complex world, we might merge, but for now assuming Cloud is authority 
-                    // unless we want to catch "offline plays". 
-                    // Let's stick to: Cloud wins.
                     const cloudStats = docSnap.data() as UserStats;
                     setStats(cloudStats);
                     localStorage.setItem(STATS_KEY, JSON.stringify(cloudStats));
@@ -92,14 +89,14 @@ export const useStats = (enabled: boolean = true) => {
         };
 
         syncStats();
-    }, [firebaseUser]);
+    }, [firebaseUser, currentUser, enabled]);
 
     const saveStats = async (newStats: UserStats) => {
         setStats(newStats);
         localStorage.setItem(STATS_KEY, JSON.stringify(newStats));
 
-        // If logged in, push to Cloud
-        if (firebaseUser) {
+        // If logged in AND has profile (permissions), push to Cloud
+        if (firebaseUser && currentUser) {
             try {
                 const userStatsRef = doc(db, 'users', firebaseUser.uid, 'data', 'stats');
                 await setDoc(userStatsRef, newStats);
