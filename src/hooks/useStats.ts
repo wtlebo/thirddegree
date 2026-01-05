@@ -56,43 +56,47 @@ export const useStats = (enabled: boolean = true) => {
             const userStatsRef = doc(db, 'users', firebaseUser.uid, 'data', 'stats');
 
             try {
-                console.log(`[StatsSync] Attempting sync for User: ${firebaseUser.uid} | Profile: ${currentUser?.handle} (${currentUser?.role})`);
                 const docSnap = await getDoc(userStatsRef);
 
-                if (docSnap.exists()) {
-                    console.log("[StatsSync] Found cloud stats. Downloading.");
-                    const cloudStats = docSnap.data() as UserStats;
-                    setStats(cloudStats);
-                    localStorage.setItem(STATS_KEY, JSON.stringify(cloudStats));
-                } else {
-                    console.log("[StatsSync] No cloud stats. Uploading local.");
-                    // Cloud is empty -> Upload Local stats (Migration from Anonymous)
-                    const localString = localStorage.getItem(STATS_KEY);
-                    let statsToUpload = INITIAL_STATS;
-
-                    if (localString) {
+                let startStats = INITIAL_STATS;
+                // Parse local stats to compare
+                const localString = localStorage.getItem(STATS_KEY);
+                let localStats = INITIAL_STATS;
+                if (localString) {
+                    try {
                         const parsed = JSON.parse(localString);
-                        statsToUpload = {
-                            ...INITIAL_STATS,
-                            ...parsed,
-                            winDistribution: {
-                                ...INITIAL_STATS.winDistribution,
-                                ...parsed.winDistribution
-                            }
-                        };
-                    }
-
-                    await setDoc(userStatsRef, statsToUpload);
-                    console.log("[StatsSync] Upload complete.");
+                        localStats = { ...INITIAL_STATS, ...parsed, winDistribution: { ...INITIAL_STATS.winDistribution, ...parsed.winDistribution } };
+                    } catch (e) { /* ignore */ }
                 }
-            } catch (e: any) {
+
+                if (docSnap.exists()) {
+                    const cloudStats = docSnap.data() as UserStats;
+
+                    // SMART MERGE STRATEGY:
+                    // If Local has MORE games played than Cloud, trust Local (it's likely more recent/rich)
+                    // Otherwise, trust Cloud (it's the source of truth)
+                    if (localStats.gamesPlayed > (cloudStats.gamesPlayed || 0)) {
+                        console.log("Local stats have more progress. Syncing Local -> Cloud.");
+                        startStats = localStats;
+                        await setDoc(userStatsRef, localStats); // Update Cloud
+                    } else {
+                        console.log("Cloud stats are up to date (or better). Syncing Cloud -> Local.");
+                        startStats = cloudStats;
+                    }
+                } else {
+                    // No Cloud data at all -> Upload Local
+                    console.log("No cloud stats found. Initializing from Local.");
+                    startStats = localStats;
+                    if (localStats.gamesPlayed > 0) {
+                        await setDoc(userStatsRef, localStats);
+                    }
+                }
+
+                setStats(startStats);
+                localStorage.setItem(STATS_KEY, JSON.stringify(startStats));
+
+            } catch (e) {
                 console.error("Error syncing stats:", e);
-                console.error("Debug Info:", {
-                    uid: firebaseUser.uid,
-                    anon: firebaseUser.isAnonymous,
-                    profileId: currentUser?.uid,
-                    role: currentUser?.role
-                });
             }
         };
 
