@@ -94,7 +94,8 @@ header h1 {
   align-items: center;
   position: absolute;
   right: 10px;
-  top: 50%;
+  top: 60%;
+  /* Nudged down from 50% per user request */
   transform: translateY(-50%);
   /* Center vertically in the row */
   z-index: 2;
