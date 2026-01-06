@@ -166,9 +166,10 @@ header h1 {
   transition: all 0.3s ease;
 }
 
-.life-icon svg {
-  width: 100%;
-  height: 100%;
+.life-icon img {
+  filter: var(--icon-filter);
+  /* Apply theme-based filter */
+  transition: all 0.3s ease;
 }
 
 .life-icon.active {
@@ -182,6 +183,16 @@ header h1 {
   /* Greyed out */
   opacity: 0.3;
   transform: scale(0.8);
+  /* Ensure lost lives also get the filter but muted */
+  filter: var(--icon-filter) grayscale(100%);
+}
+
+/* ... existing code ... */
+
+.letter-box.revealed {
+  color: var(--color-text);
+  /* Was #aaa, now uses theme text color (Dark Teal) */
+  opacity: 0.7;
 }
 
 main {

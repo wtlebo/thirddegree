@@ -1,40 +1,43 @@
 :root {
-   /* Brand Refresh: "Hang 10" Official Palette */
+    /* Brand Refresh: "Hang 10" LIGHT MODE Palette */
 
-   /* Backgrounds */
-   --color-bg: #13525D;
-   /* Dark Teal - Main Background */
-   --color-bg-secondary: #0e3f47;
-   /* Darker shade for panels/modals (Derived) */
+    /* Backgrounds */
+    --color-bg: #F4E1B6;
+    /* Beige - Main Background (User Request) */
+    --color-bg-secondary: #EAD090;
+    /* Slightly Darker/Gold Beige for panels */
 
-   /* Typography */
-   --color-text: #F4E1B6;
-   /* Light Beige - Primary Text (Highest contrast against BG) */
+    /* Typography */
+    --color-text: #13525D;
+    /* Dark Teal - Primary Text (High contrast against Beige) */
 
-   /* Brand Colors */
-   --color-primary: #F0AF39;
-   /* Golden Yellow - Primary Actions/Active States */
-   --color-secondary: #39A796;
-   /* Sea Green - Secondary Elements/Borders */
-   --color-accent: #D5743F;
-   /* Burnt Orange - Highlights/Accents */
+    /* Brand Colors */
+    --color-primary: #D5743F;
+    /* Burnt Orange - Primary Actions (Best contrast on Beige) */
+    --color-secondary: #39A796;
+    /* Sea Green - Secondary Elements */
+    --color-accent: #F0AF39;
+    /* Golden Yellow - Highlights */
 
-   /* Functional Colors */
-   --color-error: #B72F2B;
-   /* Brick Red - Errors/Strikes/Wrong Guesses */
-   --color-border: #39A796;
-   /* Sea Green - Borders */
+    /* Functional Colors */
+    --color-error: #B72F2B;
+    /* Brick Red */
+    --color-border: #13525D;
+    /* Dark Teal - Borders (for clear definition) */
 
-   /* Keyboard Logic */
-   --color-key-bg: #39A796;
-   /* Sea Green - Unused Keys */
-   --color-key-used: #0A2C32;
-   /* Deep Dark Teal - Used Keys (Push to background) */
-   /* Alternatively for Used: Use opacity or the secondary BG color */
+    /* Keyboard Logic */
+    --color-key-bg: #39A796;
+    /* Sea Green - Unused Keys */
+    --color-key-used: #886020;
+    /* Dark Gold/Brown - Used Keys (Pressed look) */
 
-   /* Typography Settings */
-   /* Brand Guide calls for 'Mainstay Regular' and 'Axiforma'. 
+    /* Icon Logic */
+    /* Invert white icons to dark teal for Light Mode */
+    --icon-filter: brightness(0) saturate(100%) invert(26%) sepia(16%) saturate(1966%) hue-rotate(143deg) brightness(96%) contrast(91%);
+
+    /* Typography Settings */
+    /* Brand Guide calls for 'Mainstay Regular' and 'Axiforma'. 
        Using 'Shrikhand' and 'Inter' as close Google Font alternatives until assets are provided. */
-   --font-family: 'Inter', sans-serif;
-   --font-heading: 'Shrikhand', cursive;
+    --font-family: 'Inter', sans-serif;
+    --font-heading: 'Shrikhand', cursive;
 }
