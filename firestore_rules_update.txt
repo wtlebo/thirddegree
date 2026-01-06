@@ -1,0 +1,24 @@
+// ---------------------------------------------------------
+// MISSING RULE FOR STATS SYNC
+// Add this block inside your existing "match /databases/{database}/documents" block
+// ---------------------------------------------------------
+
+match /users/{userId}/data/stats {
+  // Allow a user to read/write ONLY their own stats
+  allow read, write: if request.auth != null && request.auth.uid == userId;
+}
+
+// Example of where it should go:
+/*
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ... existing rules ...
+
+    match /users/{userId}/data/stats {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+  }
+}
+*/

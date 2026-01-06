@@ -1,0 +1,41 @@
+:root {
+    /* Brand Refresh: "Hang 10" SEA GREEN Palette */
+
+    /* Backgrounds */
+    --color-bg: #39A796;
+    /* Sea Green (User Request) */
+    --color-bg-secondary: #2C8C7D;
+    /* Darker Green for panels */
+
+    /* Typography */
+    --color-text: #F4E1B6;
+    /* Beige - Primary Text (Brand color, good contrast on Green) */
+
+    /* Brand Colors */
+    --color-primary: #F0AF39;
+    /* Golden Yellow - Primary Actions */
+    --color-secondary: #13525D;
+    /* Dark Teal - Secondary Elements */
+    --color-accent: #D5743F;
+    /* Burnt Orange - Highlights */
+
+    /* Functional Colors */
+    --color-error: #B72F2B;
+    /* Brick Red */
+    --color-border: #13525D;
+    /* Dark Teal - Borders */
+
+    /* Keyboard Logic */
+    --color-key-bg: #13525D;
+    /* Dark Teal keys */
+    --color-key-used: #0A2C32;
+    /* Deep Dark Teal - Used */
+
+    /* Icon Logic */
+    /* Reset filter for dark background (White icons should be white) */
+    --icon-filter: none;
+
+    /* Typography Settings */
+    --font-family: 'Inter', sans-serif;
+    --font-heading: 'Shrikhand', cursive;
+}

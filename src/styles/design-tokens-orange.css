@@ -1,0 +1,41 @@
+:root {
+    /* Brand Refresh: "Hang 10" BURNT ORANGE Palette */
+
+    /* Backgrounds */
+    --color-bg: #D5743F;
+    /* Burnt Orange (User Request) */
+    --color-bg-secondary: #C26535;
+    /* Darker Orange for panels */
+
+    /* Typography */
+    --color-text: #F4E1B6;
+    /* Beige - Primary Text */
+
+    /* Brand Colors */
+    --color-primary: #13525D;
+    /* Dark Teal - Primary Actions (Strong contrast on Orange) */
+    --color-secondary: #39A796;
+    /* Sea Green - Secondary Elements */
+    --color-accent: #F0AF39;
+    /* Golden Yellow - Highlights */
+
+    /* Functional Colors */
+    --color-error: #8B0000;
+    /* Dark Red - Standard Red #B72F2B might be lost on Orange */
+    --color-border: #F4E1B6;
+    /* Beige - Borders (for visibility) */
+
+    /* Keyboard Logic */
+    --color-key-bg: #13525D;
+    /* Dark Teal keys */
+    --color-key-used: #5D2906;
+    /* Deep Brown - Used */
+
+    /* Icon Logic */
+    /* Dark background (Orange) -> White icons are fine */
+    --icon-filter: none;
+
+    /* Typography Settings */
+    --font-family: 'Inter', sans-serif;
+    --font-heading: 'Shrikhand', cursive;
+}

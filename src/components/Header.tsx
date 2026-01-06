@@ -1,6 +1,8 @@
 import React from 'react';
 import { useUsers } from '../contexts/UsersContext';
 
+import logoFinal from '../assets/logo-final.png';
+
 interface HeaderProps {
     strikes: number;
     flashState?: 'correct' | 'incorrect' | null;
@@ -17,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ strikes, flashState, onStatsClic
             <div className="header-top-row">
                 <div className="logo-container">
                     <img
-                        src="/logo-final.png"
+                        src={logoFinal}
                         alt="Hang 10 Header"
                         className={`header-logo-img ${flashState || ''}`}
                     />
