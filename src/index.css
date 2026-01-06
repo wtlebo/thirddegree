@@ -169,8 +169,22 @@ header h1 {
 /* Wave Icon: CSS controlled via design-tokens variable */
 .life-icon img {
   filter: var(--icon-filter);
-  /* Theme determines if this needs inversion or color shift */
+  /* Controls White/Black base color */
   transition: all 0.3s ease;
+}
+
+.life-icon.active img {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.life-icon.lost img {
+  opacity: 0.1;
+  /* Almost invisible "Ghost" */
+  transform: scale(0.8) translateY(5px);
+  /* Drop down effect */
+  filter: drop-shadow(0 0 0 #B72F2B);
+  /* Attempt to tint red, though opacity kills it. Main effect is fading out */
 }
 
 /* RESTORED PUZZLE LAYOUT */
