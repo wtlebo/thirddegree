@@ -1,43 +1,40 @@
 :root {
-    /* Brand Refresh: Purple Haze Palette */
-    --color-bg: #7D4191;
-    /* Primary Brand Purple */
-    --color-text: #FFFFFF;
-    /* White */
+   /* Brand Refresh: "Hang 10" Official Palette */
 
-    --color-primary: #FFD700;
-    /* Gold/Yellow for contrast (complementary to purple) or keep Aqua if brand guide allows */
-    /* Let's try to keep the high contrast pop. If Brand Guide has specifics, we'd use them. 
-       For now, assuming Aqua/Yellow still works as accent or adjusting slightly. 
-       Let's stick to the high-energy Retro contrast unless instructed otherwise. 
-       Actually, let's make Primary a bright distinct color against purple. */
-    --color-primary: #5DE2E7;
-    /* Bright Cyan - pops against purple */
+   /* Backgrounds */
+   --color-bg: #13525D;
+   /* Dark Teal - Main Background */
+   --color-bg-secondary: #0e3f47;
+   /* Darker shade for panels/modals (Derived) */
 
-    --color-secondary: #FFD166;
-    /* Warm Yellow */
-    --color-accent: #EF476F;
-    /* Hot Pink/Red */
+   /* Typography */
+   --color-text: #F4E1B6;
+   /* Light Beige - Primary Text (Highest contrast against BG) */
 
-    --color-error: #EF476F;
+   /* Brand Colors */
+   --color-primary: #F0AF39;
+   /* Golden Yellow - Primary Actions/Active States */
+   --color-secondary: #39A796;
+   /* Sea Green - Secondary Elements/Borders */
+   --color-accent: #D5743F;
+   /* Burnt Orange - Highlights/Accents */
 
-    --color-border: #9D61B1;
-    /* Lighter Purple for borders */
+   /* Functional Colors */
+   --color-error: #B72F2B;
+   /* Brick Red - Errors/Strikes/Wrong Guesses */
+   --color-border: #39A796;
+   /* Sea Green - Borders */
 
-    --color-key-bg: #5A2A6B;
-    /* Darker Purple for keys */
-    --color-key-used: #3D1C49;
-    /* Deepest Purple for used keys */
+   /* Keyboard Logic */
+   --color-key-bg: #39A796;
+   /* Sea Green - Unused Keys */
+   --color-key-used: #0A2C32;
+   /* Deep Dark Teal - Used Keys (Push to background) */
+   /* Alternatively for Used: Use opacity or the secondary BG color */
 
-    /* Typography */
-    /* Brand Guide calls for 'Mainstay Regular' and 'Axiforma'. 
+   /* Typography Settings */
+   /* Brand Guide calls for 'Mainstay Regular' and 'Axiforma'. 
        Using 'Shrikhand' and 'Inter' as close Google Font alternatives until assets are provided. */
-    --font-family: 'Inter', sans-serif;
-    /* Comparable to Axiforma */
-    --font-heading: 'Shrikhand', cursive;
-    /* Comparable to Mainstay? */
-
-    /* Admin Specific */
-    --color-bg-secondary: #5A2A6B;
-    /* Dark purple for admin panels */
+   --font-family: 'Inter', sans-serif;
+   --font-heading: 'Shrikhand', cursive;
 }
