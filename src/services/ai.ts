@@ -18,7 +18,7 @@ Rules:
 2. No repeating words from the answer in the clue.
 3. Answers must be strictly A-Z letters and spaces (punctuation is allowed if part of the name/title/phrase, but prefer simple text).
 4. Length constraints (Max 15 chars/word, Max 200 chars total for answer).
-5. CLUE STYLE: Factual, trivia-based. Max 200 characters.
+5. CLUE STYLE: Factual, trivia-based. Max 200 characters. Suggest minimal punctuation (no trailing periods) unless required for tone (e.g. ?).
 6. CONTENT: Focus on History, Science, Geography, Literature, and Pop Culture.
 `;
 

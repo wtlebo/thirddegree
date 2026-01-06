@@ -16,11 +16,7 @@ export const validatePuzzle = (data: PuzzleDocument, isDraft: boolean): string |
 
         if (p.clue) {
             if (p.clue.length > 200) return `Puzzle #${i + 1} clue is too long (max 200 chars).`;
-            const lastChar = p.clue.trim().slice(-1);
-            if (!['.', '!', '?', '"', '”'].includes(lastChar)) {
-                // Warning-like check, but we'll enforce it as requested
-                return `Puzzle #${i + 1} clue must end in punctuation (., !, ? or quotes).`;
-            }
+            // Punctuation check removed per PM request (Jan 6 2026)
         }
     }
     return null;

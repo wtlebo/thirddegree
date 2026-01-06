@@ -19,7 +19,7 @@ export const StyleGuideModal: React.FC<StyleGuideModalProps> = ({ isOpen, onClos
                     <h3 style={{ color: 'var(--color-secondary)', marginBottom: '10px' }}>📝 Clues</h3>
                     <ul style={{ paddingLeft: '20px', lineHeight: '1.6' }}>
                         <li><strong>Max Length:</strong> 100 characters per clue.</li>
-                        <li><strong>Punctuation:</strong> Must end with <code>. ? !</code> or quotes.</li>
+                        <li><strong>Punctuation:</strong> Suggest no punctuation unless relevant to clue tone (i.e. ?)</li>
                         <li><strong>Emojis:</strong> Allowed (e.g. "Movie about 🦁👑").</li>
                         <li><strong>Tone:</strong> Witty, punny, or slightly tricky.</li>
                     </ul>
