@@ -166,93 +166,19 @@ header h1 {
   transition: all 0.3s ease;
 }
 
+/* Wave Icon: Use filter to invert white to dark. 
+   If filter creates a square, the PNG might not be transparent. 
+   Assuming PNG is transparent, 'invert(1)' turns white -> black. */
 .life-icon img {
-  filter: var(--icon-filter);
-  /* Apply theme-based filter */
+  filter: invert(1);
+  /* Simple invert. White icon -> Black icon. 
+     If this makes a square, the PNG has a white background, not transparent. */
   transition: all 0.3s ease;
+  mix-blend-mode: multiply;
+  /* If it has a white BG, this hides the white on beige */
 }
 
-.life-icon.active {
-  color: var(--color-primary);
-  /* Teal glow */
-  filter: drop-shadow(0 0 5px var(--color-primary));
-}
-
-.life-icon.lost {
-  color: var(--color-error);
-  /* Greyed out */
-  opacity: 0.3;
-  transform: scale(0.8);
-  /* Ensure lost lives also get the filter but muted */
-  filter: var(--icon-filter) grayscale(100%);
-}
-
-/* ... existing code ... */
-
-.letter-box.revealed {
-  color: var(--color-text);
-  /* Was #aaa, now uses theme text color (Dark Teal) */
-  opacity: 0.7;
-}
-
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 20px;
-  overflow-y: auto;
-  min-height: 0;
-  padding: 20px 0;
-  width: 100%;
-}
-
-/* Puzzle Board */
-.puzzle-board {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  align-items: center;
-  width: 100%;
-  padding-bottom: 20px;
-}
-
-.puzzle-row {
-  background: #1e1e1e;
-  padding: 10px;
-  border-radius: 8px;
-  opacity: 0.5;
-  transition: opacity 0.3s;
-}
-
-.puzzle-row.current {
-  opacity: 1;
-  border: 1px solid var(--color-border);
-}
-
-.puzzle-row.completed {
-  opacity: 0.8;
-}
-
-.puzzle-label {
-  font-size: 0.8rem;
-  color: #aaa;
-  margin-bottom: 5px;
-}
-
-.puzzle-letters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-  margin-bottom: 5px;
-}
-
-.word-wrapper {
-  display: flex;
-  gap: 5px;
-}
+/* ... existing ... */
 
 .letter-box {
   width: 30px;
@@ -265,6 +191,8 @@ main {
   font-size: 1.2rem;
   text-transform: uppercase;
   border-radius: 6px;
+  color: var(--color-text);
+  /* FORCE DARK TEXT FOR VISIBILITY */
 }
 
 .letter-box.guessed {
