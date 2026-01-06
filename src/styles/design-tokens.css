@@ -1,38 +1,38 @@
 :root {
-    /* Brand Refresh: "Hang 10" SEA GREEN Palette */
+    /* Brand Refresh: "Hang 10" BURNT ORANGE Palette */
 
     /* Backgrounds */
-    --color-bg: #39A796;
-    /* Sea Green (User Request) */
-    --color-bg-secondary: #2C8C7D;
-    /* Darker Green for panels */
+    --color-bg: #D5743F;
+    /* Burnt Orange (User Request) */
+    --color-bg-secondary: #C26535;
+    /* Darker Orange for panels */
 
     /* Typography */
     --color-text: #F4E1B6;
-    /* Beige - Primary Text (Brand color, good contrast on Green) */
+    /* Beige - Primary Text */
 
     /* Brand Colors */
-    --color-primary: #F0AF39;
-    /* Golden Yellow - Primary Actions */
-    --color-secondary: #13525D;
-    /* Dark Teal - Secondary Elements */
-    --color-accent: #D5743F;
-    /* Burnt Orange - Highlights */
+    --color-primary: #13525D;
+    /* Dark Teal - Primary Actions (Strong contrast on Orange) */
+    --color-secondary: #39A796;
+    /* Sea Green - Secondary Elements */
+    --color-accent: #F0AF39;
+    /* Golden Yellow - Highlights */
 
     /* Functional Colors */
-    --color-error: #B72F2B;
-    /* Brick Red */
-    --color-border: #13525D;
-    /* Dark Teal - Borders */
+    --color-error: #8B0000;
+    /* Dark Red - Standard Red #B72F2B might be lost on Orange */
+    --color-border: #F4E1B6;
+    /* Beige - Borders (for visibility) */
 
     /* Keyboard Logic */
     --color-key-bg: #13525D;
     /* Dark Teal keys */
-    --color-key-used: #0A2C32;
-    /* Deep Dark Teal - Used */
+    --color-key-used: #5D2906;
+    /* Deep Brown - Used */
 
     /* Icon Logic */
-    /* Reset filter for dark background (White icons should be white) */
+    /* Dark background (Orange) -> White icons are fine */
     --icon-filter: none;
 
     /* Typography Settings */
