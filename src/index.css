@@ -64,8 +64,8 @@ header h1 {
   max-width: 800px;
   margin: 0 auto;
   position: relative;
-  min-height: 120px;
-  /* Increased to fit vertical buttons */
+  min-height: 140px;
+  /* Increased to fit larger logo */
 }
 
 .logo-container {
@@ -73,13 +73,12 @@ header h1 {
   align-items: center;
   justify-content: center;
   z-index: 1;
-  /* Ensure logo is clickable if needed, though behind buttons if overlap? No, buttons are right. */
 }
 
 .header-logo-img {
-  max-width: 360px;
-  /* Doubled from 180px */
-  max-height: 100px;
+  max-width: 432px;
+  /* 360px * 1.2 = 432px */
+  max-height: 120px;
   /* Increased height allowance */
   width: auto;
   height: auto;
@@ -94,8 +93,8 @@ header h1 {
   align-items: center;
   position: absolute;
   right: 10px;
-  top: 60%;
-  /* Nudged down from 50% per user request */
+  top: 65%;
+  /* Nudged down further */
   transform: translateY(-50%);
   /* Center vertically in the row */
   z-index: 2;
