@@ -33,7 +33,7 @@
 
     /* Icon Logic */
     /* Reset filter for dark background (White icons should be white) */
-    --icon-filter: brightness(0) invert(1);
+    --icon-filter: none;
 
     /* Typography Settings */
     --font-family: 'Inter', sans-serif;
