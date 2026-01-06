@@ -17,7 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ strikes, flashState, onStatsClic
             <div className="header-top-row">
                 <div className="logo-container">
                     <img
-                        src="/logo-light.png"
+                        src="/logo-final.png"
                         alt="Hang 10 Header"
                         className={`header-logo-img ${flashState || ''}`}
                     />
