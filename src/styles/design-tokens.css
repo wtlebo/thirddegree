@@ -1,43 +1,41 @@
 :root {
-    /* Brand Refresh: "Hang 10" LIGHT MODE Palette */
+    /* Brand Refresh: "Hang 10" SEA GREEN Palette */
 
     /* Backgrounds */
-    --color-bg: #F4E1B6;
-    /* Beige - Main Background (User Request) */
-    --color-bg-secondary: #EAD090;
-    /* Slightly Darker/Gold Beige for panels */
+    --color-bg: #39A796;
+    /* Sea Green (User Request) */
+    --color-bg-secondary: #2C8C7D;
+    /* Darker Green for panels */
 
     /* Typography */
-    --color-text: #13525D;
-    /* Dark Teal - Primary Text (High contrast against Beige) */
+    --color-text: #F4E1B6;
+    /* Beige - Primary Text (Brand color, good contrast on Green) */
 
     /* Brand Colors */
-    --color-primary: #D5743F;
-    /* Burnt Orange - Primary Actions (Best contrast on Beige) */
-    --color-secondary: #39A796;
-    /* Sea Green - Secondary Elements */
-    --color-accent: #F0AF39;
-    /* Golden Yellow - Highlights */
+    --color-primary: #F0AF39;
+    /* Golden Yellow - Primary Actions */
+    --color-secondary: #13525D;
+    /* Dark Teal - Secondary Elements */
+    --color-accent: #D5743F;
+    /* Burnt Orange - Highlights */
 
     /* Functional Colors */
     --color-error: #B72F2B;
     /* Brick Red */
     --color-border: #13525D;
-    /* Dark Teal - Borders (for clear definition) */
+    /* Dark Teal - Borders */
 
     /* Keyboard Logic */
-    --color-key-bg: #39A796;
-    /* Sea Green - Unused Keys */
-    --color-key-used: #886020;
-    /* Dark Gold/Brown - Used Keys (Pressed look) */
+    --color-key-bg: #13525D;
+    /* Dark Teal keys */
+    --color-key-used: #0A2C32;
+    /* Deep Dark Teal - Used */
 
     /* Icon Logic */
-    /* Invert white icons to dark teal for Light Mode */
-    --icon-filter: brightness(0) saturate(100%) invert(26%) sepia(16%) saturate(1966%) hue-rotate(143deg) brightness(96%) contrast(91%);
+    /* Reset filter for dark background (White icons should be white) */
+    --icon-filter: brightness(0) invert(1);
 
     /* Typography Settings */
-    /* Brand Guide calls for 'Mainstay Regular' and 'Axiforma'. 
-       Using 'Shrikhand' and 'Inter' as close Google Font alternatives until assets are provided. */
     --font-family: 'Inter', sans-serif;
     --font-heading: 'Shrikhand', cursive;
 }

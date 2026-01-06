@@ -166,16 +166,11 @@ header h1 {
   transition: all 0.3s ease;
 }
 
-/* Wave Icon: Use filter to invert white to dark. 
-   If filter creates a square, the PNG might not be transparent. 
-   Assuming PNG is transparent, 'invert(1)' turns white -> black. */
+/* Wave Icon: CSS controlled via design-tokens variable */
 .life-icon img {
-  filter: invert(1);
-  /* Simple invert. White icon -> Black icon. 
-     If this makes a square, the PNG has a white background, not transparent. */
+  filter: var(--icon-filter);
+  /* Theme determines if this needs inversion or color shift */
   transition: all 0.3s ease;
-  mix-blend-mode: multiply;
-  /* If it has a white BG, this hides the white on beige */
 }
 
 /* RESTORED PUZZLE LAYOUT */
