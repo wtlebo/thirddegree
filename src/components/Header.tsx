@@ -3,22 +3,23 @@ import { useUsers } from '../contexts/UsersContext';
 
 interface HeaderProps {
     strikes: number;
+    flashState?: 'correct' | 'incorrect' | null;
     onStatsClick: () => void;
     onHowToPlayClick: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ strikes, onStatsClick, onHowToPlayClick }) => {
+export const Header: React.FC<HeaderProps> = ({ strikes, flashState, onStatsClick, onHowToPlayClick }) => {
     const { currentUser, firebaseUser } = useUsers();
 
     return (
-        <header className="game-header">
+        <header className="app-header">
             {/* Top Row: Logo (Left) and Controls (Right) */}
             <div className="header-top-row">
                 <div className="logo-container">
                     <img
                         src="/logo-light.png"
                         alt="Hang 10 Header"
-                        className="header-logo-img"
+                        className={`header-logo-img ${flashState || ''}`}
                     />
                 </div>
 

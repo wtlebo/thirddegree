@@ -112,10 +112,9 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
 
     return (
         <div className="app-container" style={isPreview ? { position: 'fixed', top: 0, left: 0, zIndex: 2000, background: 'var(--color-bg)' } : {}}>
-            <div className={`flash-overlay ${flashState || ''}`} /> {/* Flash Overlay */}
-
             <Header
                 strikes={gameState.strikes}
+                flashState={flashState} // Pass flash state for logo glow
                 onStatsClick={() => setIsStatsOpen(true)}
                 onHowToPlayClick={() => setIsHowToPlayOpen(true)}
             />

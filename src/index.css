@@ -350,35 +350,20 @@ main {
   color: var(--color-bg);
 }
 
-/* Flash Overlay for Guess Feedback */
-.flash-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 9999;
-  /* Force on top of everything */
-  opacity: 0;
-  transition: opacity 0.2s ease-out;
-  /* Faster punchy transition */
+/* Logo Glow Feedback */
+.header-logo-img {
+  /* Existing transition */
+  transition: filter 0.3s ease;
 }
 
-.flash-overlay.correct {
-  background-color: rgba(57, 167, 150, 0.5);
-  /* Stronger Sea Green */
-  backdrop-filter: brightness(1.3);
-  /* Actual glow effect */
-  opacity: 1;
+.header-logo-img.correct {
+  /* Sea Green Glow */
+  filter: drop-shadow(0 0 15px #39A796) drop-shadow(0 0 5px #39A796);
 }
 
-.flash-overlay.incorrect {
-  background-color: rgba(183, 47, 43, 0.5);
-  /* Stronger Red */
-  backdrop-filter: brightness(0.7) contrast(1.2);
-  /* Darken/Burn effect for wrong */
-  opacity: 1;
+.header-logo-img.incorrect {
+  /* Brick Red Glow */
+  filter: drop-shadow(0 0 15px #B72F2B) drop-shadow(0 0 5px #B72F2B);
 }
 
 .modal-overlay {
