@@ -27,7 +27,33 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
     const [hasPlayedToday, setHasPlayedToday] = useState(false);
 
     const [latestGameSummary, setLatestGameSummary] = useState<{ status: 'won' | 'lost'; strikes: number } | null>(null);
+    const [flashState, setFlashState] = useState<'correct' | 'incorrect' | null>(null);
 
+    // ... existing useEffects ...
+
+    // Trigger flash effect
+    const triggerFlash = (isCorrect: boolean) => {
+        setFlashState(isCorrect ? 'correct' : 'incorrect');
+        setTimeout(() => setFlashState(null), 300);
+    };
+
+    // Modified handleGuess to include flash triggering
+    const handleGameGuess = (letter: string) => {
+        if (!gameState.dailySet) return;
+
+        const currentPuzzle = gameState.dailySet.puzzles[gameState.currentLevel];
+        const upperLetter = letter.toUpperCase();
+
+        // Only flash if it's a NEW valid guess
+        if (!gameState.guessedLetters.has(upperLetter) && !gameState.revealedLetters.has(upperLetter)) {
+            const isCorrect = currentPuzzle.answer.toUpperCase().includes(upperLetter);
+            triggerFlash(isCorrect);
+        }
+
+        handleGuess(letter);
+    };
+
+    // ... existing useEffects (Reset confirmation) ...
     // Check if already played today (SKIP if previewing)
     useEffect(() => {
         if (!isPreview) {
@@ -69,13 +95,13 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
         if (confirmGuesses) {
             setSelectedLetter(letter);
         } else {
-            handleGuess(letter);
+            handleGameGuess(letter); // Use wrapper
         }
     };
 
     const confirmGuess = () => {
         if (selectedLetter) {
-            handleGuess(selectedLetter);
+            handleGameGuess(selectedLetter); // Use wrapper
             setSelectedLetter(null);
         }
     };
@@ -86,11 +112,15 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
 
     return (
         <div className="app-container" style={isPreview ? { position: 'fixed', top: 0, left: 0, zIndex: 2000, background: 'var(--color-bg)' } : {}}>
+            <div className={`flash-overlay ${flashState || ''}`} /> {/* Flash Overlay */}
+
             <Header
                 strikes={gameState.strikes}
                 onStatsClick={() => setIsStatsOpen(true)}
                 onHowToPlayClick={() => setIsHowToPlayOpen(true)}
             />
+
+            {/* ... rest of render ... */}
 
             {isPreview && (
                 <button
