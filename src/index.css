@@ -265,6 +265,8 @@ main {
 .letter-box.guessed {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
+  color: #000000;
+  /* High contrast text (matching given letters) */
 }
 
 .letter-box.revealed-start {
@@ -370,10 +372,7 @@ main {
   transition: filter 0.3s ease;
 }
 
-.header-logo-img.correct {
-  /* Sea Green Glow */
-  filter: drop-shadow(0 0 15px #39A796) drop-shadow(0 0 5px #39A796);
-}
+/* REMOVED: .header-logo-img.correct (User request to drop green flash) */
 
 .header-logo-img.incorrect {
   /* Brick Red Glow */
