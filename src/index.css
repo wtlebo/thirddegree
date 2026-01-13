@@ -741,8 +741,12 @@ button[class^="btn-"] {
 }
 
 .calendar-day.today {
-  border: 2px solid var(--color-primary);
+  border: 2px solid #a855f7 !important;
+  /* Purple */
+  background: rgba(168, 85, 247, 0.1);
   font-weight: bold;
+  z-index: 2;
+  /* Ensure it sits on top if needed */
 }
 
 .calendar-day.has-puzzle {

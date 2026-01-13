@@ -26,9 +26,14 @@ export const useStats = (enabled: boolean = true) => {
     const [stats, setStats] = useState<UserStats>(INITIAL_STATS);
     const { firebaseUser, currentUser } = useUsers();
 
+    const [isLoading, setIsLoading] = useState(true);
+
     // Load from local storage initially
     useEffect(() => {
-        if (!enabled) return;
+        if (!enabled) {
+            setIsLoading(false);
+            return;
+        }
         const storedStats = localStorage.getItem(STATS_KEY);
         if (storedStats) {
             try {
@@ -46,13 +51,26 @@ export const useStats = (enabled: boolean = true) => {
                 console.error('Failed to parse stats:', e);
             }
         }
-    }, [enabled]);
+        // If we are not expecting a user sync (e.g. anon only or just local), stop loading here?
+        // Actually, the next effect handles cloud sync.
+        // We should wait for that one if firebaseUser is present.
+        // If not firebaseUser, we are done loading.
+        if (!firebaseUser) {
+            setIsLoading(false);
+        }
+    }, [enabled, firebaseUser]);
 
     // Sync with Cloud when User is fully loaded (currentUser present)
     useEffect(() => {
-        if (!enabled || !firebaseUser || !currentUser) return;
+        if (!enabled) return;
+        if (!firebaseUser) {
+            // already handled in previous effect
+            return;
+        }
 
         const syncStats = async () => {
+            if (!currentUser) return; // Wait for full profile?
+
             const userStatsRef = doc(db, 'users', firebaseUser.uid, 'data', 'stats');
 
             try {
@@ -97,10 +115,14 @@ export const useStats = (enabled: boolean = true) => {
 
             } catch (e) {
                 console.error("Error syncing stats:", e);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        syncStats();
+        if (currentUser) {
+            syncStats();
+        }
     }, [firebaseUser, currentUser, enabled]);
 
     const saveStats = async (newStats: UserStats) => {
@@ -120,7 +142,10 @@ export const useStats = (enabled: boolean = true) => {
 
     const recordGame = async (won: boolean, totalStrikes: number, guesses: GuessLog[], date: string) => {
         // Prevent recording the same day twice (though UI should prevent this too)
-        if (stats.lastPlayedDate === date) return;
+        if (stats.lastPlayedDate === date) {
+            console.log("Game already recorded for this date. Skipping.");
+            return;
+        }
 
         const newStats = { ...stats };
         newStats.gamesPlayed += 1;
@@ -158,5 +183,5 @@ export const useStats = (enabled: boolean = true) => {
         });
     };
 
-    return { stats, recordGame };
+    return { stats, recordGame, isLoading };
 };

@@ -18,7 +18,7 @@ interface GameContainerProps {
 
 export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameContainerProps) => {
     const { gameState, handleGuess } = useGameState(dailySet);
-    const { stats, recordGame } = useStats(!isPreview);
+    const { stats, recordGame, isLoading: statsLoading } = useStats(!isPreview);
 
     const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
     const [confirmGuesses, setConfirmGuesses] = useState<boolean>(true);
@@ -56,7 +56,7 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
     // ... existing useEffects (Reset confirmation) ...
     // Check if already played today (SKIP if previewing)
     useEffect(() => {
-        if (!isPreview) {
+        if (!isPreview && !statsLoading) {
             // Restore from persisted state if available
             if (gameState.status !== 'playing' && !latestGameSummary) {
                 setLatestGameSummary({ status: gameState.status, strikes: gameState.strikes });
@@ -70,11 +70,17 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
                 }
             }
         }
-    }, [stats.lastPlayedDate, dailySet.date, isPreview, gameState.status, gameState.strikes, latestGameSummary]);
+    }, [stats.lastPlayedDate, dailySet.date, isPreview, gameState.status, gameState.strikes, latestGameSummary, statsLoading]);
 
     // Record game result when finished (SKIP if previewing)
     useEffect(() => {
-        if (gameState.status !== 'playing' && !hasPlayedToday) {
+        if (gameState.status !== 'playing' && !hasPlayedToday && !statsLoading) {
+            // DOUBLE CHECK: Avoid race condition where hook fires before hasPlayedToday updates
+            if (stats.lastPlayedDate === dailySet.date) {
+                setHasPlayedToday(true);
+                return;
+            }
+
             if (!isPreview) {
                 recordGame(gameState.status === 'won', gameState.strikes, gameState.guesses, dailySet.date);
                 setHasPlayedToday(true);
@@ -82,7 +88,7 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
             setLatestGameSummary({ status: gameState.status, strikes: gameState.strikes });
             setTimeout(() => setIsStatsOpen(true), 1500);
         }
-    }, [gameState.status, hasPlayedToday, recordGame, gameState.strikes, gameState.guesses, dailySet.date, isPreview]);
+    }, [gameState.status, hasPlayedToday, recordGame, gameState.strikes, gameState.guesses, dailySet.date, isPreview, stats.lastPlayedDate, statsLoading]);
 
     // Reset confirmation to ON when level changes
     useEffect(() => {

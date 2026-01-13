@@ -60,7 +60,9 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
         // Force Uppercase for saving and validation
         const sanitizedPuzzles = formData.puzzles.map(p => ({
             ...p,
-            answer: p.answer.toUpperCase()
+            answer: p.answer.toUpperCase(),
+            // Ensure revealOrder is clean (only uppercase, only chars present in answer)
+            revealOrder: p.revealOrder.filter(char => p.answer.toUpperCase().includes(char))
         })) as [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle];
 
         const sanitizedFormData = { ...formData, puzzles: sanitizedPuzzles };
@@ -71,11 +73,20 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
             return;
         }
 
-        const preparedPuzzles = sanitizedPuzzles.map(p => ({
-            ...p,
-            revealOrder: Array.from(new Set(p.answer.replace(/[^A-Z]/g, '').split('')))
-                .sort((a, b) => (a.charCodeAt(0) * 13 + 7) % 100 - (b.charCodeAt(0) * 13 + 7) % 100)
-        })) as [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle];
+        // Logic Change: Do NOT regenerate revealOrder here unconditionally.
+        // We rely on the form state (which is auto-updated on answer change or manually edited).
+        // Checks/Fallbacks just in case:
+        const preparedPuzzles = sanitizedPuzzles.map(p => {
+            // If revealOrder is empty but we have an answer, generate default
+            if (p.revealOrder.length === 0 && p.answer.length > 0) {
+                return {
+                    ...p,
+                    revealOrder: Array.from(new Set(p.answer.replace(/[^A-Z]/g, '').split('')))
+                        .sort((a, b) => (a.charCodeAt(0) * 13 + 7) % 100 - (b.charCodeAt(0) * 13 + 7) % 100)
+                };
+            }
+            return p;
+        }) as [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle];
 
         const docToSave: PuzzleDocument = {
             ...formData,
@@ -86,7 +97,7 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
 
         try {
             await saveMutation.mutateAsync(docToSave);
-            alert(`Saved as ${status}!`);
+            // alert(`Saved as ${status}!`); // Optional: Silent save often better or toast
         } catch (error: any) {
             console.error("Save failed:", error);
             alert(`Failed to save: ${error.message || "Unknown error"}`);
@@ -108,35 +119,14 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
         setFormData({ ...formData, puzzles: newPuzzles as any });
     };
 
-    if (isFetching && !formData) return <div>Loading...</div>;
-    if (!formData) return <div>Error init form</div>;
+    // Helper to generate default order
+    const generateDefaultRevealOrder = (answer: string) => {
+        return Array.from(new Set(answer.toUpperCase().replace(/[^A-Z]/g, '').split('')))
+            .sort((a, b) => (a.charCodeAt(0) * 13 + 7) % 100 - (b.charCodeAt(0) * 13 + 7) % 100)
+            .slice(0, 2);
+    };
 
-    if (isPreviewing && formData) {
-        // Create a mock DailySet for the preview
-        const mockDailySet = {
-            date: formData.date,
-            puzzles: formData.puzzles.map(p => {
-                const upperAnswer = p.answer.toUpperCase();
-                return {
-                    ...p,
-                    answer: upperAnswer,
-                    revealOrder: Array.from(new Set(upperAnswer.replace(/[^A-Z]/g, '').split('')))
-                        .sort((a, b) => (a.charCodeAt(0) * 13 + 7) % 100 - (b.charCodeAt(0) * 13 + 7) % 100)
-                };
-            }) as [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle],
-            author: formData.author
-        };
-
-        return (
-            <GameContainer
-                dailySet={mockDailySet}
-                onClose={() => setIsPreviewing(false)}
-                isPreview={true}
-            />
-        );
-    }
-
-    const isApprovable = formData.status === 'review' || formData.status === 'published';
+    const isApprovable = formData?.status === 'review' || formData?.status === 'published';
 
     const handleSingleMagic = async (idx: number) => {
         if (!theme.trim()) {
@@ -160,9 +150,13 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
         }
     };
 
+    if (isFetching && !formData) return <div>Loading...</div>;
+    // Guard against null formData before main render
+    if (!formData) return <div>Initializing Puzzle...</div>;
+
     return (
         <div className="puzzle-editor">
-            {/* Header */}
+            {/* ... header ... (unchanged) */}
             <div className="editor-header" style={{ flexDirection: 'column', gap: '15px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                     <button onClick={onBack} className="back-btn">← Back</button>
@@ -304,13 +298,44 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
                                         autoCorrect="on"
                                         style={{ textTransform: 'uppercase' }}
                                         onChange={e => {
-                                            const val = e.target.value; // Store as typed (allow lowercase for spellcheck)
+                                            const val = e.target.value.toUpperCase();
                                             const newP = [...formData.puzzles];
-                                            newP[idx] = { ...p, answer: val };
+                                            // Update Answer AND Regenerate Default Reveal Order
+                                            newP[idx] = {
+                                                ...p,
+                                                answer: val,
+                                                revealOrder: generateDefaultRevealOrder(val)
+                                            };
                                             setFormData({ ...formData, puzzles: newP as any });
                                         }}
                                     />
                                 </div>
+                                {/** REVEAL ORDER CONTROL START **/}
+                                <div className="input-group">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <label style={{ fontSize: '0.8rem', opacity: 0.7 }}>Starting Letters (2)</label>
+                                        <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>{p.revealOrder.join(', ')}</span>
+                                    </div>
+                                    <input
+                                        value={p.revealOrder.join('')}
+                                        maxLength={2}
+                                        onChange={e => {
+                                            const val = e.target.value.toUpperCase();
+                                            // Filter to only allow chars present in answer
+                                            const cleanVal = val.split('').filter(c => p.answer.toUpperCase().includes(c));
+                                            // Filter out duplicates (Set)
+                                            const distinctVal = Array.from(new Set(cleanVal)).slice(0, 2);
+
+                                            const newP = [...formData.puzzles];
+                                            newP[idx] = { ...p, revealOrder: distinctVal };
+                                            setFormData({ ...formData, puzzles: newP as any });
+                                        }}
+                                        placeholder="Pick 2 letters..."
+                                        style={{ background: 'rgba(255,255,255,0.05)', fontSize: '0.8rem', letterSpacing: '2px' }}
+                                    />
+                                    {/* Helper text removed as requested for simplicity */}
+                                </div>
+                                {/** REVEAL ORDER CONTROL END **/}
                                 <div className="input-group">
                                     <label style={{ fontSize: '0.8rem', opacity: 0.7 }}>Comment</label>
                                     <input

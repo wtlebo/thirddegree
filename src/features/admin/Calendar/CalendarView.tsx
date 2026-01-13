@@ -148,9 +148,27 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ viewDate, setViewDat
                 {renderCalendarGrid()}
             </div>
 
-            <div className="portal-footer" style={{ textAlign: 'center', marginTop: '30px' }}>
-                <p>Green = Published | Yellow = Draft | Red = Needs Review</p>
-                <p style={{ marginTop: '10px' }}>Big thanks to all of our PMs!</p>
+            <div className="portal-footer" style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                {/* Visual Legend */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: 'rgba(78, 205, 196, 0.6)', border: '1px solid #4ecdc4' }}></div>
+                        <span style={{ fontSize: '0.85rem' }}>Published</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: 'rgba(255, 193, 7, 0.25)', border: '1px dashed #ffc107' }}></div>
+                        <span style={{ fontSize: '0.85rem' }}>Draft</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: 'rgba(220, 53, 69, 0.25)', border: '1px solid #dc3545' }}></div>
+                        <span style={{ fontSize: '0.85rem' }}>Needs Review</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '16px', height: '16px', borderRadius: '4px', border: '2px solid #a855f7', background: 'rgba(168, 85, 247, 0.1)' }}></div>
+                        <span style={{ fontSize: '0.85rem' }}>Today</span>
+                    </div>
+                </div>
+                <p style={{ opacity: 0.6, fontSize: '0.8rem', fontStyle: 'italic' }}>Big thanks to all of our PMs!</p>
             </div>
         </div>
     );

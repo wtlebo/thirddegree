@@ -118,8 +118,8 @@ const TrendsDashboard = () => {
             {/* CHART 1: PLAYS */}
             <div style={{ background: 'var(--color-bg-secondary)', padding: '20px', borderRadius: '10px', marginBottom: '20px' }}>
                 <h3 style={{ marginTop: 0 }}>Play Activity</h3>
-                <div style={{ height: '350px' }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                <div style={{ height: '350px', width: '100%', minWidth: '300px' }}>
+                    <ResponsiveContainer width="99%" height="100%">
                         <LineChart data={data} syncId="trends" margin={{ top: 10, right: 50, left: 0, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
                             <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} angle={-45} textAnchor="end" height={60} />
@@ -151,8 +151,8 @@ const TrendsDashboard = () => {
                     </label>
                 </div>
 
-                <div style={{ height: '350px' }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                <div style={{ height: '350px', width: '100%', minWidth: '300px' }}>
+                    <ResponsiveContainer width="99%" height="100%">
                         <LineChart data={data} syncId="trends" margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#444" />
                             <XAxis dataKey="date" stroke="#aaa" tickFormatter={str => str.slice(5)} angle={-45} textAnchor="end" height={60} />

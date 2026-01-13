@@ -6,7 +6,7 @@ const createPuzzle = (clue: string, answer: string): Puzzle => {
     const uniqueLetters = Array.from(new Set(answer.replace(/[^A-Z]/g, '').split('')));
     const revealOrder = uniqueLetters.sort((a, b) => {
         return (a.charCodeAt(0) * 13 + 7) % 100 - (b.charCodeAt(0) * 13 + 7) % 100;
-    });
+    }).slice(0, 2);
 
     return { clue, answer, revealOrder };
 };
@@ -53,21 +53,58 @@ export const getDailyPuzzle = (): DailySet => {
     };
 };
 
-// New Async getter
+// New Cache Key
+const CACHE_KEY = 'hang10_daily_puzzle_cache';
+
+// New Async getter with Caching & Timeout
 export const fetchDailyPuzzle = async (): Promise<DailySet> => {
     const dateString = getTodayDateString();
 
-    // 1. Try to fetch from Firestore
+    // 1. Check Local Cache first (Instant load)
     try {
-        const remotePuzzle = await getPuzzleByDate(dateString);
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            const parsed = JSON.parse(cached) as DailySet;
+            if (parsed.date === dateString) {
+                console.log("Loaded puzzle from local cache");
+                // Return immediately, but maybe trigger a background refresh?
+                // For now, trust the cache to avoid reads.
+                return parsed;
+            }
+        }
+    } catch (e) {
+        console.warn("Retreiving cache failed:", e);
+    }
+
+    // 2. Try to fetch from Firestore with Timeout
+    try {
+        // Create a timeout promise
+        const timeout = new Promise<null>((_, reject) =>
+            setTimeout(() => reject(new Error("Firestore fetch timed out")), 5000) // 5s timeout
+        );
+
+        // Race Firestore against timeout
+        const remotePuzzle = await Promise.race([
+            getPuzzleByDate(dateString),
+            timeout
+        ]) as DailySet | null;
+
         if (remotePuzzle) {
             console.log("Fetched puzzle from Firestore for", dateString);
+
+            // Save to Cache
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(remotePuzzle));
+            } catch (e) {
+                console.warn("Failed to update cache:", e);
+            }
+
             return remotePuzzle;
         }
     } catch (e) {
-        console.warn("Failed to fetch from Firestore, falling back to local.", e);
+        console.warn("Failed to fetch from Firestore (or timed out), falling back to local.", e);
     }
 
-    // 2. Fallback to local
+    // 3. Fallback to local hardcoded data
     return getDailyPuzzle();
 };
