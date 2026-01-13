@@ -202,23 +202,60 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
                 </div>
 
                 {/* Action Bar */}
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <button onClick={() => alert('Preview not implemented yet!')} className="save-btn" style={{ background: '#3b82f6', color: 'white', flex: '1 1 100px' }}>👁️ Preview</button>
-                    <button onClick={() => handleSave('draft')} className="save-btn" style={{ background: '#ffc107', color: 'black', flex: '1 1 100px' }}>Save Draft</button>
-                    <button onClick={() => handleSave('review')} className="save-btn" style={{ background: '#dc3545', color: 'white', flex: '1 1 100px' }}>Submit Review</button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {/* Row 1: Preview */}
                     <button
-                        onClick={() => handleSave('published')}
+                        onClick={() => alert('Preview not implemented yet!')}
                         className="save-btn"
-                        disabled={!isApprovable}
-                        style={{
-                            background: isApprovable ? '#4ecdc4' : '#444',
-                            color: isApprovable ? 'black' : '#aaa',
-                            cursor: isApprovable ? 'pointer' : 'not-allowed',
-                            flex: '1 1 100px'
-                        }}
+                        style={{ background: '#3b82f6', color: 'white', width: '100%', padding: '12px' }}
                     >
-                        Approve
+                        👁️ Preview
                     </button>
+
+                    {/* Row 2: Actions */}
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                        <button
+                            onClick={() => handleSave('draft')}
+                            className="save-btn"
+                            disabled={formData.status === 'published'}
+                            style={{
+                                background: '#ffc107',
+                                color: 'black',
+                                flex: '1 1 100px',
+                                opacity: formData.status === 'published' ? 0.3 : 1,
+                                cursor: formData.status === 'published' ? 'not-allowed' : 'pointer'
+                            }}
+                        >
+                            Save Draft
+                        </button>
+                        <button
+                            onClick={() => handleSave('review')}
+                            className="save-btn"
+                            disabled={formData.status === 'published'}
+                            style={{
+                                background: '#dc3545',
+                                color: 'white',
+                                flex: '1 1 100px',
+                                opacity: formData.status === 'published' ? 0.3 : 1,
+                                cursor: formData.status === 'published' ? 'not-allowed' : 'pointer'
+                            }}
+                        >
+                            Submit Review
+                        </button>
+                        <button
+                            onClick={() => handleSave(formData.status === 'published' ? 'review' : 'published')}
+                            className="save-btn"
+                            disabled={!isApprovable && formData.status !== 'published'}
+                            style={{
+                                background: formData.status === 'published' ? '#6c757d' : (isApprovable ? '#4ecdc4' : '#444'),
+                                color: formData.status === 'published' ? 'white' : (isApprovable ? 'black' : '#aaa'),
+                                cursor: (isApprovable || formData.status === 'published') ? 'pointer' : 'not-allowed',
+                                flex: '1 1 100px'
+                            }}
+                        >
+                            {formData.status === 'published' ? 'Unapprove' : 'Approve'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
