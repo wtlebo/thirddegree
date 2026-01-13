@@ -8,7 +8,6 @@ import { IdeaListTool } from '../AI_Tools/IdeaListTool';
 import { HistoryTool } from '../AI_Tools/HistoryTool';
 import { BirthdayTool } from '../AI_Tools/BirthdayTool';
 import { NationalDayTool } from '../AI_Tools/NationalDayTool';
-import { GameContainer } from '../../../components/GameContainer';
 import { StyleGuideModal } from './StyleGuideModal';
 
 interface PuzzleEditorProps {
@@ -27,7 +26,6 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
 
     // Local Form State
     const [formData, setFormData] = useState<PuzzleDocument | null>(null);
-    const [isPreviewing, setIsPreviewing] = useState(false);
     const [showStyleGuide, setShowStyleGuide] = useState(false);
     const [theme, setTheme] = useState('');
 
@@ -205,7 +203,7 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
 
                 {/* Action Bar */}
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <button onClick={() => setIsPreviewing(true)} className="save-btn" style={{ background: '#3b82f6', color: 'white', flex: '1 1 100px' }}>👁️ Preview</button>
+                    <button onClick={() => alert('Preview not implemented yet!')} className="save-btn" style={{ background: '#3b82f6', color: 'white', flex: '1 1 100px' }}>👁️ Preview</button>
                     <button onClick={() => handleSave('draft')} className="save-btn" style={{ background: '#ffc107', color: 'black', flex: '1 1 100px' }}>Save Draft</button>
                     <button onClick={() => handleSave('review')} className="save-btn" style={{ background: '#dc3545', color: 'white', flex: '1 1 100px' }}>Submit Review</button>
                     <button
