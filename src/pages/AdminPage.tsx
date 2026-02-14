@@ -256,6 +256,7 @@ export const AdminPage = () => {
                         <div style={{ fontSize: '0.9rem', color: 'var(--color-primary)' }}>{currentUser?.handle}</div>
                         <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>{currentUser?.role.toUpperCase()}</div>
                     </div>
+
                 </div>
 
                 <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', borderBottom: '1px solid var(--color-border)' }}>

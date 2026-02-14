@@ -3,15 +3,18 @@ import { useUsers } from '../contexts/UsersContext';
 
 import logoFinal from '../assets/logo-final.png';
 
-interface HeaderProps {
+export interface HeaderProps {
     strikes: number;
     flashState?: 'correct' | 'incorrect' | null;
     onStatsClick: () => void;
     onHowToPlayClick: () => void;
+    isWorkMode?: boolean;
+    onWorkModeClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ strikes, flashState, onStatsClick, onHowToPlayClick }) => {
+export const Header: React.FC<HeaderProps> = ({ strikes, flashState, onStatsClick, onHowToPlayClick, isWorkMode, onWorkModeClick }) => {
     const { currentUser, firebaseUser } = useUsers();
+    const isAuthorized = currentUser?.role === 'admin' || currentUser?.role === 'pm';
 
     return (
         <header className="app-header">
@@ -26,6 +29,25 @@ export const Header: React.FC<HeaderProps> = ({ strikes, flashState, onStatsClic
                 </div>
 
                 <div className="header-actions">
+                    {/* Work Mode Toggle (Admins/PMs only) */}
+                    {isAuthorized && onWorkModeClick && (
+                        <button
+                            className={`icon-btn ${isWorkMode ? 'work-mode-active' : ''}`}
+                            onClick={onWorkModeClick}
+                            aria-label={isWorkMode ? "Exit Work Mode" : "Enter Work Mode"}
+                            title={isWorkMode ? "Exit Work Mode" : "Enter Work Mode"}
+                        >
+                            {isWorkMode ? (
+                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                                    ▶️
+                                </span>
+                            ) : (
+                                // Briefcase Icon
+                                <span style={{ fontSize: '1.2rem' }}>💼</span>
+                            )}
+                        </button>
+                    )}
+
                     <button
                         className="icon-btn"
                         onClick={onHowToPlayClick}

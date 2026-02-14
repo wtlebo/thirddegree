@@ -15,7 +15,10 @@ export interface PuzzleDocument extends DailySet {
     author?: string;
     approvedBy?: string | null;
     createdAt?: any;
-    status: 'draft' | 'review' | 'published';
+    status: 'draft' | 'beta' | 'ready' | 'published';
+    votes?: Array<{ uid: string, handle: string, vote: 'approve' | 'needs_change', timestamp: any }>;
+    comments?: Array<{ uid: string, handle: string, text: string, timestamp: any, resolved: boolean }>;
+    testers?: Array<{ uid: string, handle: string, completions: number, lastPlayed: any }>;
 }
 
 export type GameStatus = 'playing' | 'won' | 'lost';

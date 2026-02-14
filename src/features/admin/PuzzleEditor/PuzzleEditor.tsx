@@ -9,6 +9,7 @@ import { HistoryTool } from '../AI_Tools/HistoryTool';
 import { BirthdayTool } from '../AI_Tools/BirthdayTool';
 import { NationalDayTool } from '../AI_Tools/NationalDayTool';
 import { StyleGuideModal } from './StyleGuideModal';
+import { BetaFeedbackControls } from '../../../components/BetaFeedbackControls'; // Import Feedback Controls
 
 interface PuzzleEditorProps {
     date: string;
@@ -52,7 +53,7 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
 
 
 
-    const handleSave = async (status: 'draft' | 'review' | 'published') => {
+    const handleSave = async (status: 'draft' | 'beta' | 'ready' | 'published') => {
         if (!formData) return;
 
         // Force Uppercase for saving and validation
@@ -102,6 +103,7 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
         }
     };
 
+    // ... existing helpers ...
     const handleDelete = () => {
         if (confirm("PERMANENTLY DELETE this puzzle?\nThis cannot be undone.")) {
             deleteMutation.mutate(date, { onSuccess: () => onBack() });
@@ -123,8 +125,6 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
             .sort((a, b) => (a.charCodeAt(0) * 13 + 7) % 100 - (b.charCodeAt(0) * 13 + 7) % 100)
             .slice(0, 2);
     };
-
-    const isApprovable = formData?.status === 'review' || formData?.status === 'published';
 
     const handleSingleMagic = async (idx: number) => {
         if (!theme.trim()) {
@@ -187,30 +187,39 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
                             <span style={{ opacity: 0.6 }}>Status: </span>
                             <strong style={{
                                 color: formData.status === 'published' ? '#4ecdc4' :
-                                    formData.status === 'review' ? '#ffc107' : '#aaa',
+                                    formData.status === 'ready' ? '#4caf50' :
+                                        formData.status === 'beta' ? '#9c27b0' :
+                                            formData.status === 'draft' ? '#ffc107' : '#aaa',
                                 textTransform: 'capitalize'
                             }}>
                                 {formData.status}
                             </strong>
                         </span>
                     </div>
-                    {formData.approvedBy && (
-                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>
-                            ✓ Approved by {formData.approvedBy}
-                        </span>
-                    )}
+
                 </div>
 
                 {/* Action Bar */}
+                {/* Action Bar */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {/* Row 1: Preview */}
-                    <button
-                        onClick={() => alert('Preview not implemented yet!')}
-                        className="save-btn"
-                        style={{ background: '#3b82f6', color: 'white', width: '100%', padding: '12px' }}
-                    >
-                        👁️ Preview
-                    </button>
+                    {/* Row 1: Preview & Beta Feedback */}
+
+                    {/* BETA FEEDBACK INTEGRATION */}
+                    {/* Only show if status is Beta, Ready, or Published */}
+                    {['beta', 'ready', 'published'].includes(formData.status) && (
+                        <div style={{ padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', marginBottom: '10px' }}>
+                            <BetaFeedbackControls
+                                date={date}
+                                externalDoc={{ ...formData, author: formData.author || 'Anonymous' }}
+                                onExternalSave={async (doc) => {
+                                    // Update local state immediately
+                                    setFormData(doc);
+                                    // Save to DB
+                                    await saveMutation.mutateAsync(doc);
+                                }}
+                            />
+                        </div>
+                    )}
 
                     {/* Row 2: Actions */}
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
@@ -229,32 +238,45 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
                             Save Draft
                         </button>
                         <button
-                            onClick={() => handleSave('review')}
+                            onClick={() => handleSave('beta')}
                             className="save-btn"
                             disabled={formData.status === 'published'}
                             style={{
-                                background: '#dc3545',
+                                background: '#9c27b0',
                                 color: 'white',
                                 flex: '1 1 100px',
                                 opacity: formData.status === 'published' ? 0.3 : 1,
                                 cursor: formData.status === 'published' ? 'not-allowed' : 'pointer'
                             }}
                         >
-                            Submit Review
+                            Submit for Approval
                         </button>
-                        <button
-                            onClick={() => handleSave(formData.status === 'published' ? 'review' : 'published')}
-                            className="save-btn"
-                            disabled={!isApprovable && formData.status !== 'published'}
-                            style={{
-                                background: formData.status === 'published' ? '#6c757d' : (isApprovable ? '#4ecdc4' : '#444'),
-                                color: formData.status === 'published' ? 'white' : (isApprovable ? 'black' : '#aaa'),
-                                cursor: (isApprovable || formData.status === 'published') ? 'pointer' : 'not-allowed',
-                                flex: '1 1 100px'
-                            }}
-                        >
-                            {formData.status === 'published' ? 'Unapprove' : 'Approve'}
-                        </button>
+                        {formData.status === 'beta' && (
+                            <button
+                                onClick={async () => {
+                                    if (confirm("Reset Testing Status? This will clear all votes and comments.")) {
+                                        const resetDoc = {
+                                            ...formData,
+                                            votes: [],
+                                            comments: [],
+                                            status: 'beta' as const
+                                        };
+                                        setFormData(resetDoc);
+                                        await saveMutation.mutateAsync(resetDoc);
+                                    }
+                                }}
+                                className="save-btn"
+                                style={{
+                                    background: '#607d8b',
+                                    color: 'white',
+                                    flex: '1 1 100px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Reset Status
+                            </button>
+                        )}
+
                     </div>
                 </div>
             </div>
@@ -371,18 +393,7 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
                                     {/* Helper text removed as requested for simplicity */}
                                 </div>
                                 {/** REVEAL ORDER CONTROL END **/}
-                                <div className="input-group">
-                                    <label style={{ fontSize: '0.8rem', opacity: 0.7 }}>Comment</label>
-                                    <input
-                                        value={p.comment || ''}
-                                        onChange={e => {
-                                            const newP = [...formData.puzzles];
-                                            newP[idx] = { ...p, comment: e.target.value };
-                                            setFormData({ ...formData, puzzles: newP as any });
-                                        }}
-                                        style={{ background: 'rgba(255,255,255,0.05)' }}
-                                    />
-                                </div>
+
                             </div>
                         </div>
                     ))}

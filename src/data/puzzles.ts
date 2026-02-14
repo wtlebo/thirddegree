@@ -57,23 +57,23 @@ export const getDailyPuzzle = (): DailySet => {
 const CACHE_KEY = 'hang10_daily_puzzle_cache';
 
 // New Async getter with Caching & Timeout
-export const fetchDailyPuzzle = async (): Promise<DailySet> => {
-    const dateString = getTodayDateString();
+export const fetchDailyPuzzle = async (dateOverride?: string): Promise<DailySet> => {
+    const dateString = dateOverride || getTodayDateString();
 
-    // 1. Check Local Cache first (Instant load)
-    try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-            const parsed = JSON.parse(cached) as DailySet;
-            if (parsed.date === dateString) {
-                console.log("Loaded puzzle from local cache");
-                // Return immediately, but maybe trigger a background refresh?
-                // For now, trust the cache to avoid reads.
-                return parsed;
+    // 1. Check Local Cache first (Only if no override, to ensure latest for today)
+    if (!dateOverride) {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const parsed = JSON.parse(cached) as DailySet;
+                if (parsed.date === dateString) {
+                    console.log("Loaded puzzle from local cache");
+                    return parsed;
+                }
             }
+        } catch (e) {
+            console.warn("Retreiving cache failed:", e);
         }
-    } catch (e) {
-        console.warn("Retreiving cache failed:", e);
     }
 
     // 2. Try to fetch from Firestore with Timeout
@@ -92,11 +92,13 @@ export const fetchDailyPuzzle = async (): Promise<DailySet> => {
         if (remotePuzzle) {
             console.log("Fetched puzzle from Firestore for", dateString);
 
-            // Save to Cache
-            try {
-                localStorage.setItem(CACHE_KEY, JSON.stringify(remotePuzzle));
-            } catch (e) {
-                console.warn("Failed to update cache:", e);
+            // Save to Cache (Only if no override)
+            if (!dateOverride) {
+                try {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(remotePuzzle));
+                } catch (e) {
+                    console.warn("Failed to update cache:", e);
+                }
             }
 
             return remotePuzzle;
@@ -105,6 +107,8 @@ export const fetchDailyPuzzle = async (): Promise<DailySet> => {
         console.warn("Failed to fetch from Firestore (or timed out), falling back to local.", e);
     }
 
-    // 3. Fallback to local hardcoded data
+    // 3. Fallback to local hardcoded data (Only if today)
+    // If asking for a specific date and it fails, we probably shouldn't return today's fallback?
+    // But for now, keeping behavior safe.
     return getDailyPuzzle();
 };

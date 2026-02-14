@@ -8,15 +8,20 @@ import { Keyboard } from './Keyboard';
 import { ConfirmationModal } from './ConfirmationModal';
 import { StatsModal } from './StatsModal';
 import { HowToPlayModal } from './HowToPlayModal';
+import { BetaFeedbackControls } from './BetaFeedbackControls';
 import type { DailySet } from '../types';
 
 interface GameContainerProps {
     dailySet: DailySet;
     onClose?: () => void; // Optional close handler for Preview Mode
     isPreview?: boolean;
+    isBeta?: boolean;
+    onNextBeta?: () => void;
+    onExitBeta?: () => void;
+    onWorkModeClick?: () => void;
 }
 
-export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameContainerProps) => {
+export const GameContainer = ({ dailySet, onClose, isPreview = false, isBeta = false, onNextBeta, onExitBeta, onWorkModeClick }: GameContainerProps) => {
     const { gameState, handleGuess } = useGameState(dailySet);
     const { stats, recordGame, isLoading: statsLoading } = useStats(!isPreview);
 
@@ -81,14 +86,21 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
                 return;
             }
 
-            if (!isPreview) {
+            if (!isPreview && !isBeta) {
                 recordGame(gameState.status === 'won', gameState.strikes, gameState.guesses, dailySet.date);
                 setHasPlayedToday(true);
             }
+            if (isBeta) {
+                // In beta, we don't record stats, but we do mark as "played" locally so the board reveals
+                setHasPlayedToday(true);
+            }
+
             setLatestGameSummary({ status: gameState.status, strikes: gameState.strikes });
-            setTimeout(() => setIsStatsOpen(true), 1500);
+            if (!isBeta) {
+                setTimeout(() => setIsStatsOpen(true), 1500);
+            }
         }
-    }, [gameState.status, hasPlayedToday, recordGame, gameState.strikes, gameState.guesses, dailySet.date, isPreview, stats.lastPlayedDate, statsLoading]);
+    }, [gameState.status, hasPlayedToday, recordGame, gameState.strikes, gameState.guesses, dailySet.date, isPreview, isBeta, stats.lastPlayedDate, statsLoading]);
 
     // Reset confirmation to ON when level changes
     useEffect(() => {
@@ -117,12 +129,17 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
     };
 
     return (
-        <div className="app-container" style={isPreview ? { position: 'fixed', top: 0, left: 0, zIndex: 2000, background: 'var(--color-bg)' } : {}}>
+        <div className={`app-container ${isBeta ? 'beta-mode' : ''}`} style={{
+            ...(isPreview ? { position: 'fixed', top: 0, left: 0, zIndex: 2000, background: 'var(--color-bg)' } : {}),
+            ...(isBeta ? { background: '#1a1a2e' } : {}) // Slight purple/dark tint for beta
+        }}>
             <Header
                 strikes={gameState.strikes}
                 flashState={flashState} // Pass flash state for logo glow
                 onStatsClick={() => setIsStatsOpen(true)}
                 onHowToPlayClick={() => setIsHowToPlayOpen(true)}
+                isWorkMode={isBeta}
+                onWorkModeClick={onWorkModeClick}
             />
 
             {/* ... rest of render ... */}
@@ -158,10 +175,41 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
                     showAll={hasPlayedToday}
                     puzzleAuthor={dailySet.author}
                 />
+
+                {/* Beta Controls: Placed INSIDE main so it scrolls with the content */}
+                {isBeta && onNextBeta && onExitBeta && (
+                    <div className="beta-wrapper" style={{
+                        padding: '20px 10px',
+                        marginTop: '20px',
+                        marginBottom: '40px', // Extra space at bottom
+                        borderTop: '1px solid rgba(255,255,255,0.1)',
+                        background: 'rgba(0,0,0,0.2)',
+                        borderRadius: '8px'
+                    }}>
+                        <h3 style={{ marginTop: 0, color: '#9c27b0' }}>🚧 Puzzle Testing Mode</h3>
+                        <BetaFeedbackControls
+                            date={dailySet.date}
+                            onNext={onNextBeta}
+                            onExit={onExitBeta}
+                        />
+                    </div>
+                )}
             </main>
 
+            {/* Beta Controls moved to bottom via CSS order or placement below main content */}
+            {/* We will place it after the keyboard/main content normally, but let's check structure. */}
+            {/* The user said "below the puzzle so you only see it after you scroll down". */}
+            {/* Placing it here is effectively below the board. But wait, Keyboard is usually below board. */}
+
+            {/* ... rest of render ... */}
+
+            {/* Actually, let's just keep it here but strictly AFTER everything else. */}
+            {/* Moving it to the very bottom of the container */}
+
+            {/* Keyboard / Input */}
             {!hasPlayedToday && gameState.status === 'playing' && (
-                <div className="keyboard-container">
+                <div className="keyboard-area">
+                    {/* ... keyboard ... */}
                     <Keyboard
                         onLetterSelect={handleLetterSelect}
                         guessedLetters={gameState.guessedLetters}
@@ -172,6 +220,9 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false }: GameCont
                     />
                 </div>
             )}
+
+            {/* Beta Controls at very bottom */}
+
 
             {selectedLetter && (
                 <ConfirmationModal

@@ -18,7 +18,26 @@ export const PuzzleDocumentSchema = DailySetSchema.extend({
     author: z.string().default('Anonymous'),
     approvedBy: z.string().nullable().optional(),
     createdAt: z.any().optional(), // Timestamp or date
-    status: z.enum(['draft', 'review', 'published']),
+    status: z.enum(['draft', 'beta', 'ready', 'published']),
+    votes: z.array(z.object({
+        uid: z.string(),
+        handle: z.string(),
+        vote: z.enum(['approve', 'needs_change']),
+        timestamp: z.any()
+    })).optional(),
+    comments: z.array(z.object({
+        uid: z.string(),
+        handle: z.string(),
+        text: z.string(),
+        timestamp: z.any(),
+        resolved: z.boolean()
+    })).optional(),
+    testers: z.array(z.object({
+        uid: z.string(),
+        handle: z.string(),
+        completions: z.number(),
+        lastPlayed: z.any()
+    })).optional()
 });
 
 export const UserProfileSchema = z.object({

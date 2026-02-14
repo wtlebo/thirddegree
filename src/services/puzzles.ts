@@ -1,22 +1,26 @@
 import { db, auth } from './analytics';
-import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, query } from 'firebase/firestore';
-import type { PuzzleDocument, Puzzle } from '../types';
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    setDoc,
+    deleteDoc,
+    query,
+    where,
+    writeBatch
+} from 'firebase/firestore';
+import type { PuzzleDocument } from '../types';
 
 const COLLECTION_NAME = 'puzzles';
 
-export const savePuzzle = async (date: string, puzzles: [Puzzle, Puzzle, Puzzle, Puzzle, Puzzle], author?: string, status: 'draft' | 'review' | 'published' = 'published', approvedBy?: string): Promise<void> => {
+export const savePuzzle = async (data: PuzzleDocument): Promise<void> => {
     if (!auth.currentUser) throw new Error("Must be logged in to save puzzles");
 
-    const puzzleDoc: PuzzleDocument = {
-        date,
-        puzzles,
-        author: author || 'Anonymous',
-        approvedBy: approvedBy || null,
-        status,
-        createdAt: new Date()
-    };
-
-    await setDoc(doc(db, COLLECTION_NAME, date), puzzleDoc);
+    await setDoc(doc(db, COLLECTION_NAME, data.date), {
+        ...data,
+        createdAt: data.createdAt || new Date() // Ensure createdAt is preserved or set
+    });
 };
 
 export const getPuzzleByDate = async (date: string): Promise<PuzzleDocument | null> => {
@@ -35,7 +39,7 @@ export const getPuzzleByDate = async (date: string): Promise<PuzzleDocument | nu
     }
 };
 
-export const getPuzzleStatusForMonth = async (year: number, month: number): Promise<Map<string, { author: string, status: 'draft' | 'review' | 'published', approvedBy?: string }>> => {
+export const getPuzzleStatusForMonth = async (year: number, month: number): Promise<Map<string, { author: string, status: 'draft' | 'beta' | 'ready' | 'published', approvedBy?: string }>> => {
     // Month is 1-12
     const startStr = `${year}-${String(month).padStart(2, '0')}-01`;
     // simplistic end of month, essentially start of next month
@@ -47,7 +51,7 @@ export const getPuzzleStatusForMonth = async (year: number, month: number): Prom
     const q = query(collection(db, COLLECTION_NAME));
     const snapshot = await getDocs(q);
 
-    const existingPuzzles = new Map<string, { author: string, status: 'draft' | 'review' | 'published', approvedBy?: string }>();
+    const existingPuzzles = new Map<string, { author: string, status: 'draft' | 'beta' | 'ready' | 'published', approvedBy?: string }>();
     snapshot.forEach(doc => {
         const id = doc.id;
         // Client-side date filter
@@ -55,7 +59,7 @@ export const getPuzzleStatusForMonth = async (year: number, month: number): Prom
             const data = doc.data() as PuzzleDocument;
             existingPuzzles.set(id, {
                 author: data.author || 'Anonymous',
-                status: data.status || 'published',
+                status: (data.status as 'draft' | 'beta' | 'ready' | 'published') || 'published',
                 approvedBy: data.approvedBy || undefined
             });
         }
@@ -65,6 +69,86 @@ export const getPuzzleStatusForMonth = async (year: number, month: number): Prom
 export const deletePuzzle = async (date: string): Promise<void> => {
     if (!auth.currentUser) throw new Error("Must be logged in to delete puzzles");
     await deleteDoc(doc(db, COLLECTION_NAME, date));
+};
+
+export const getNextBetaPuzzle = async (userHandle?: string, excludeDate?: string): Promise<string | null> => {
+    try {
+        const q = query(
+            collection(db, COLLECTION_NAME),
+            // We can't easily query for status='beta' AND date > today AND "user not in votes" efficiently in one go without composite indexes
+            // So we'll fetch all future puzzles and filter in memory.
+        );
+        const snapshot = await getDocs(q);
+
+        const today = new Date().toLocaleDateString('en-CA');
+        const candidates: PuzzleDocument[] = [];
+
+        snapshot.forEach(doc => {
+            const data = doc.data() as PuzzleDocument;
+            // Must be in future, must be beta
+            // Also exclude the puzzle we are currently looking at (to avoid "staying here")
+            if (data.date > today && data.status === 'beta' && data.date !== excludeDate) {
+                candidates.push(data);
+            }
+        });
+
+        // Sort by date ascending
+        candidates.sort((a, b) => a.date.localeCompare(b.date));
+
+        // Find first one where user hasn't voted APPROVED (needs change is ok to see again?)
+        // User said: "presented with the next puzzle that is not approved"
+        // If I voted "approve", I don't need to see it again.
+        // If I voted "needs_change", maybe I should see it again? Or wait for author update? 
+        // For simplicity: Show any beta puzzle where I haven't voted "approve".
+
+        for (const p of candidates) {
+            const myVote = p.votes?.find(v => v.handle === userHandle);
+            if (!myVote || myVote.vote !== 'approve') {
+                return p.date;
+            }
+        }
+
+        return null; // No work available
+    } catch (e) {
+        console.error("Error finding next beta puzzle:", e);
+        return null;
+    }
+};
+
+export const demoteFuturePuzzlesToBeta = async (): Promise<string> => {
+    if (!auth.currentUser) throw new Error("Must be logged in");
+
+    // 1. Get all future puzzles
+    const today = new Date().toLocaleDateString('en-CA');
+    const q = query(
+        collection(db, COLLECTION_NAME),
+        where('date', '>', today)
+    );
+
+    const snapshot = await getDocs(q);
+    let count = 0;
+
+    // 2. Batch update
+    const batch = writeBatch(db);
+
+    snapshot.forEach(doc => {
+        const data = doc.data() as PuzzleDocument;
+        // Demote 'ready' or 'draft' to 'beta'. 
+        // We probably shouldn't touch 'published' without explicit instruction, 
+        // but user said "all future puzzles". 
+        // Let's affect 'ready', 'draft', and 'published' if they are in the future.
+        // Actually, user said "demote ... to beta". 
+        if (data.status !== 'beta') {
+            batch.update(doc.ref, { status: 'beta' });
+            count++;
+        }
+    });
+
+    if (count > 0) {
+        await batch.commit();
+    }
+
+    return `Demoted ${count} puzzles to Beta.`;
 };
 
 
