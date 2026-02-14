@@ -212,10 +212,15 @@ export const PuzzleEditor: React.FC<PuzzleEditorProps> = ({ date, onBack, onNavi
                                 date={date}
                                 externalDoc={{ ...formData, author: formData.author || 'Anonymous' }}
                                 onExternalSave={async (doc) => {
+                                    // Ensure author is a string (fix type mismatch)
+                                    const safeDoc = {
+                                        ...doc,
+                                        author: doc.author || 'Anonymous'
+                                    };
                                     // Update local state immediately
-                                    setFormData(doc);
+                                    setFormData(safeDoc);
                                     // Save to DB
-                                    await saveMutation.mutateAsync(doc);
+                                    await saveMutation.mutateAsync(safeDoc);
                                 }}
                             />
                         </div>
