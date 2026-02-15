@@ -5,13 +5,12 @@ import type { PuzzleDocument } from '../types';
 
 interface BetaFeedbackControlsProps {
     date: string;
-    onNext?: () => void;
-    onExit?: () => void;
+    onNavigate?: (delta: number) => void;
     externalDoc?: PuzzleDocument; // For Admin Editor usage
     onExternalSave?: (doc: PuzzleDocument) => Promise<void>; // For Admin Editor usage
 }
 
-export const BetaFeedbackControls: React.FC<BetaFeedbackControlsProps> = ({ date, onNext, onExit, externalDoc, onExternalSave }) => {
+export const BetaFeedbackControls: React.FC<BetaFeedbackControlsProps> = ({ date, onNavigate, externalDoc, onExternalSave }) => {
     const { currentUser } = useUsers();
 
     const [puzzleDoc, setPuzzleDoc] = useState<PuzzleDocument | null>(null);
@@ -122,9 +121,7 @@ export const BetaFeedbackControls: React.FC<BetaFeedbackControlsProps> = ({ date
         }
     };
 
-    const handleNext = async () => {
-        if (onNext) onNext();
-    };
+
 
     if (loading) return <div className="beta-controls loading">Loading feedback data...</div>;
     if (!puzzleDoc) return null;
@@ -134,17 +131,17 @@ export const BetaFeedbackControls: React.FC<BetaFeedbackControlsProps> = ({ date
             <div className="beta-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <span className="beta-badge" style={{ background: '#9c27b0', padding: '5px 10px', borderRadius: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>TESTING MODE: {date}</span>
                 <div className="beta-actions" style={{ display: 'flex', gap: '10px' }}>
-                    {onNext && (
-                        <button onClick={handleNext} disabled={isSubmitting} className="beta-action-btn primary"
-                            style={{ padding: '8px 16px', background: 'var(--color-primary)', border: 'none', borderRadius: '4px', color: '#1a1a2e', fontWeight: 'bold', cursor: 'pointer' }}>
-                            Next Task ➡
-                        </button>
-                    )}
-                    {onExit && (
-                        <button onClick={onExit} className="beta-action-btn secondary" disabled={isSubmitting}
-                            style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: 'white', cursor: 'pointer' }}>
-                            Exit Work Mode
-                        </button>
+                    {onNavigate && (
+                        <>
+                            <button onClick={() => onNavigate(-1)} className="beta-action-btn secondary"
+                                style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: 'white', cursor: 'pointer' }}>
+                                ← Prev Day
+                            </button>
+                            <button onClick={() => onNavigate(1)} className="beta-action-btn secondary"
+                                style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: 'white', cursor: 'pointer' }}>
+                                Next Day →
+                            </button>
+                        </>
                     )}
                 </div>
             </div>

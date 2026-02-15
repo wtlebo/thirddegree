@@ -16,12 +16,11 @@ interface GameContainerProps {
     onClose?: () => void; // Optional close handler for Preview Mode
     isPreview?: boolean;
     isBeta?: boolean;
-    onNextBeta?: () => void;
-    onExitBeta?: () => void;
+    onNavigate?: (delta: number) => void;
     onWorkModeClick?: () => void;
 }
 
-export const GameContainer = ({ dailySet, onClose, isPreview = false, isBeta = false, onNextBeta, onExitBeta, onWorkModeClick }: GameContainerProps) => {
+export const GameContainer = ({ dailySet, onClose, isPreview = false, isBeta = false, onNavigate, onWorkModeClick }: GameContainerProps) => {
     const { gameState, handleGuess } = useGameState(dailySet);
     const { stats, recordGame, isLoading: statsLoading } = useStats(!isPreview);
 
@@ -165,6 +164,7 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false, isBeta = f
                 </button>
             )}
 
+
             <main>
                 <PuzzleBoard
                     puzzles={gameState.dailySet.puzzles}
@@ -177,7 +177,7 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false, isBeta = f
                 />
 
                 {/* Beta Controls: Placed INSIDE main so it scrolls with the content */}
-                {isBeta && onNextBeta && onExitBeta && (
+                {isBeta && (
                     <div className="beta-wrapper" style={{
                         padding: '20px 10px',
                         marginTop: '20px',
@@ -189,8 +189,7 @@ export const GameContainer = ({ dailySet, onClose, isPreview = false, isBeta = f
                         <h3 style={{ marginTop: 0, color: '#9c27b0' }}>🚧 Puzzle Testing Mode</h3>
                         <BetaFeedbackControls
                             date={dailySet.date}
-                            onNext={onNextBeta}
-                            onExit={onExitBeta}
+                            onNavigate={onNavigate}
                         />
                     </div>
                 )}

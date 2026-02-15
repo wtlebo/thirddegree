@@ -29,28 +29,39 @@ export const GamePage = () => {
         load();
     }, [dateOverride]); // Reload when date param changes
 
-    const handleNextBeta = async () => {
-        if (!isAuthorized) return;
-        const nextDate = await getNextBetaPuzzle(currentUser?.handle, dateOverride);
-        if (nextDate) {
-            navigate(`/?date=${nextDate}`);
-        } else {
-            alert("Administrative Task Complete! No more beta puzzles to review.");
-            navigate('/');
-        }
+    const handleNavigate = (delta: number) => {
+        // Use dateOverride if set, otherwise today (in local time-ish, but safer to use param)
+        // Note: new Date('YYYY-MM-DD') is UTC, new Date('YYYY-MM-DD' + 'T00:00:00') is local
+        const baseStr = dateOverride || new Date().toLocaleDateString('en-CA');
+        const base = new Date(baseStr + 'T00:00:00');
+        const next = new Date(base);
+        next.setDate(next.getDate() + delta);
+
+        const yyyy = next.getFullYear();
+        const mm = String(next.getMonth() + 1).padStart(2, '0');
+        const dd = String(next.getDate()).padStart(2, '0');
+        const nextStr = `${yyyy}-${mm}-${dd}`;
+
+        navigate(`/?date=${nextStr}`);
     };
 
-    const handleExitBeta = () => {
-        navigate('/');
-    };
-
-    const handleWorkModeClick = () => {
+    const handleWorkModeClick = async () => {
         if (dateOverride) {
-            // In Work Mode -> Exit
-            handleExitBeta();
+            // In Work Mode -> Exit (Go to Today)
+            navigate('/');
         } else {
-            // In Play Mode -> Enter Work Mode (Next Beta)
-            handleNextBeta();
+            // In Play Mode -> Enter Work Mode (Find Next Beta)
+            if (!isAuthorized) return;
+            const nextDate = await getNextBetaPuzzle(currentUser?.handle);
+            if (nextDate) {
+                navigate(`/?date=${nextDate}`);
+            } else {
+                alert("No beta puzzles found to review!");
+                // Optionally navigate to tomorrow anyway?
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                navigate(`/?date=${tomorrow.toLocaleDateString('en-CA')}`);
+            }
         }
     };
 
@@ -70,8 +81,7 @@ export const GamePage = () => {
             key={dailySet.date}
             dailySet={dailySet}
             isBeta={!!dateOverride}
-            onNextBeta={handleNextBeta}
-            onExitBeta={handleExitBeta}
+            onNavigate={isAuthorized ? handleNavigate : undefined}
             onWorkModeClick={isAuthorized ? handleWorkModeClick : undefined}
         />
     );
