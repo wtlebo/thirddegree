@@ -129,17 +129,39 @@ export const BetaFeedbackControls: React.FC<BetaFeedbackControlsProps> = ({ date
     return (
         <div className="beta-container">
             <div className="beta-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                <span className="beta-badge" style={{ background: '#9c27b0', padding: '5px 10px', borderRadius: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>TESTING MODE: {date}</span>
-                <div className="beta-actions" style={{ display: 'flex', gap: '10px' }}>
+                <span className="beta-badge" style={{ background: '#9c27b0', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>{date}</span>
+                <div className="beta-actions" style={{ display: 'flex', gap: '10px', marginLeft: '10px' }}>
                     {onNavigate && (
                         <>
                             <button onClick={() => onNavigate(-1)} className="beta-action-btn secondary"
-                                style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: 'white', cursor: 'pointer' }}>
-                                ← Prev Day
+                                style={{
+                                    padding: '6px 12px',
+                                    background: 'transparent',
+                                    border: '1px solid rgba(255,255,255,0.3)',
+                                    borderRadius: '4px',
+                                    color: 'rgba(255,255,255,0.9)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}>
+                                <span>←</span> Prev
                             </button>
                             <button onClick={() => onNavigate(1)} className="beta-action-btn secondary"
-                                style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: 'white', cursor: 'pointer' }}>
-                                Next Day →
+                                style={{
+                                    padding: '6px 12px',
+                                    background: 'transparent',
+                                    border: '1px solid rgba(255,255,255,0.3)',
+                                    borderRadius: '4px',
+                                    color: 'rgba(255,255,255,0.9)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}>
+                                Next <span>→</span>
                             </button>
                         </>
                     )}
